@@ -89,7 +89,7 @@ export const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Diểm Phúc',
     caption: 'Nụ cười dịu dàng của Emm tỏa sáng ngày 20/10',
-    tag: '🌷 Nụ Cười Tỏa Nắng'
+    tag: '✦ Nụ Cười Tỏa Nắng'
   },
   {
     id: 'photo-2',
@@ -97,7 +97,7 @@ export const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
-    tag: '✨ Rạng Ngời'
+    tag: '✦ Rạng Ngời'
   },
   {
     id: 'photo-3',
@@ -105,7 +105,7 @@ export const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Trong Trẻo & Đáng Yêu',
     caption: 'Nét dịu dàng, trong sáng tựa như những đóa hoa Tulip sớm mai',
-    tag: '🌸 Dịu Dàng'
+    tag: '✦ Dịu Dàng'
   },
   {
     id: 'photo-4',
@@ -113,7 +113,7 @@ export const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
-    tag: '💫 Tinh Khôi'
+    tag: '✦ Tinh Khôi'
   },
   {
     id: 'photo-5',
@@ -121,7 +121,7 @@ export const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Bình Yên & Tươi Vui',
     caption: 'Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc mỗi ngày',
-    tag: '☀️ Hạnh Phúc'
+    tag: '✦ Hạnh Phúc'
   }
 ];
 
@@ -160,49 +160,49 @@ export const DEFAULT_WISH_LANTERNS = [
   {
     id: 'lantern-1',
     text: 'Chúc Diểm Phúc ngày 20/10 luôn rạng rỡ như đóa hoa Tulip ban mai, bình an và ngập tràn tiếng cười!',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:00:00.000Z'
   },
   {
     id: 'lantern-2',
     text: 'Mong mọi dự định và ước mơ phía trước của Emm đều thuận buồm xuôi gió, mỗi ngày trôi qua đều là một ngày vui.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:01:00.000Z'
   },
   {
     id: 'lantern-3',
     text: 'Chúc Emm một mùa lễ 20/10 thật ngọt ngào, luôn giữ mãi nét hồn nhiên, xinh đẹp và hạnh phúc mỗi ngày.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:02:00.000Z'
   },
   {
     id: 'lantern-4',
     text: 'Gửi ngàn lời chúc tốt đẹp nhất đến Diểm Phúc — mong bình yên, may mắn và niềm vui luôn đồng hành trên mọi chặng đường.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:03:00.000Z'
   },
   {
     id: 'lantern-5',
     text: 'Chúc Emm luôn được yêu thương, trân trọng và nâng niu như những đóa hoa Tulip tươi thắm nhất ngày 20/10.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:04:00.000Z'
   },
   {
     id: 'lantern-6',
     text: 'Mong rằng hôm nay và cả những ngày sau, nụ cười tỏa nắng của Emm sẽ luôn nở trên môi thật rạng ngời.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:05:00.000Z'
   },
   {
     id: 'lantern-7',
     text: 'Chúc mọi điều ước đẹp đẽ nhất mà Diểm Phúc ấp ủ trong lòng đều sớm nở hoa và trở thành hiện thực!',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:06:00.000Z'
   },
   {
     id: 'lantern-8',
     text: 'Cảm ơn Emm vì đã luôn mang đến nguồn năng lượng dịu dàng và ấm áp. Chúc mừng ngày Phụ nữ Việt Nam 20/10!',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:07:00.000Z'
   }
 ];

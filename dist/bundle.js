@@ -89,7 +89,7 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Diểm Phúc',
     caption: 'Nụ cười dịu dàng của Emm tỏa sáng ngày 20/10',
-    tag: '🌷 Nụ Cười Tỏa Nắng'
+    tag: '✦ Nụ Cười Tỏa Nắng'
   },
   {
     id: 'photo-2',
@@ -97,7 +97,7 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
-    tag: '✨ Rạng Ngời'
+    tag: '✦ Rạng Ngời'
   },
   {
     id: 'photo-3',
@@ -105,7 +105,7 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Trong Trẻo & Đáng Yêu',
     caption: 'Nét dịu dàng, trong sáng tựa như những đóa hoa Tulip sớm mai',
-    tag: '🌸 Dịu Dàng'
+    tag: '✦ Dịu Dàng'
   },
   {
     id: 'photo-4',
@@ -113,7 +113,7 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
-    tag: '💫 Tinh Khôi'
+    tag: '✦ Tinh Khôi'
   },
   {
     id: 'photo-5',
@@ -121,7 +121,7 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Bình Yên & Tươi Vui',
     caption: 'Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc mỗi ngày',
-    tag: '☀️ Hạnh Phúc'
+    tag: '✦ Hạnh Phúc'
   }
 ];
 const REASONS_LIST = [
@@ -158,49 +158,49 @@ const DEFAULT_WISH_LANTERNS = [
   {
     id: 'lantern-1',
     text: 'Chúc Diểm Phúc ngày 20/10 luôn rạng rỡ như đóa hoa Tulip ban mai, bình an và ngập tràn tiếng cười!',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:00:00.000Z'
   },
   {
     id: 'lantern-2',
     text: 'Mong mọi dự định và ước mơ phía trước của Emm đều thuận buồm xuôi gió, mỗi ngày trôi qua đều là một ngày vui.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:01:00.000Z'
   },
   {
     id: 'lantern-3',
     text: 'Chúc Emm một mùa lễ 20/10 thật ngọt ngào, luôn giữ mãi nét hồn nhiên, xinh đẹp và hạnh phúc mỗi ngày.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:02:00.000Z'
   },
   {
     id: 'lantern-4',
     text: 'Gửi ngàn lời chúc tốt đẹp nhất đến Diểm Phúc — mong bình yên, may mắn và niềm vui luôn đồng hành trên mọi chặng đường.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:03:00.000Z'
   },
   {
     id: 'lantern-5',
     text: 'Chúc Emm luôn được yêu thương, trân trọng và nâng niu như những đóa hoa Tulip tươi thắm nhất ngày 20/10.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:04:00.000Z'
   },
   {
     id: 'lantern-6',
     text: 'Mong rằng hôm nay và cả những ngày sau, nụ cười tỏa nắng của Emm sẽ luôn nở trên môi thật rạng ngời.',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:05:00.000Z'
   },
   {
     id: 'lantern-7',
     text: 'Chúc mọi điều ước đẹp đẽ nhất mà Diểm Phúc ấp ủ trong lòng đều sớm nở hoa và trở thành hiện thực!',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:06:00.000Z'
   },
   {
     id: 'lantern-8',
     text: 'Cảm ơn Emm vì đã luôn mang đến nguồn năng lượng dịu dàng và ấm áp. Chúc mừng ngày Phụ nữ Việt Nam 20/10!',
-    author: 'Ông chú Viettel',
+    author: '',
     createdAt: '2026-10-20T00:07:00.000Z'
   }
 ];
@@ -1893,10 +1893,10 @@ class RomanticParticleEngine {
       y: this.height * (0.72 + Math.random() * 0.24),
       vx: (Math.random() - 0.5) * 0.32,
       vy: -(Math.random() * 0.85 + 0.72),
-      size: Math.random() * 6 + 18,
+      size: Math.random() * 5 + 16,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.85,
+      alpha: 0.62,
       label: String(finalLabel),
       author: author ? String(author) : ''
     };
@@ -1921,10 +1921,10 @@ class RomanticParticleEngine {
       y: typeof y === 'number' ? y : this.height * 0.8,
       vx: (Math.random() - 0.5) * 0.35,
       vy: -(Math.random() * 0.75 + 0.65),
-      size: Math.random() * 6 + 18,
+      size: Math.random() * 5 + 16,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.85,
+      alpha: 0.62,
       label: String(finalLabel),
       author: ''
     };
@@ -1947,7 +1947,7 @@ class RomanticParticleEngine {
       setTimeout(() => {
         this.spawnCanvasLantern(
           w.text || 'Chúc Diểm Phúc 20/10 hạnh phúc!',
-          w.author || 'Ông chú Viettel'
+          ''
         );
       }, i * 220);
     }
@@ -2317,15 +2317,15 @@ class RomanticParticleEngine {
 
       // Outer warm golden-peach aura
       if (typeof ctx.createRadialGradient === 'function') {
-        const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, l.size * 2.4 * flicker);
+        const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, l.size * 2.2 * flicker);
         if (halo && halo.addColorStop) {
-          halo.addColorStop(0, 'rgba(255, 215, 115, 0.75)');
-          halo.addColorStop(0.45, 'rgba(255, 130, 92, 0.28)');
-          halo.addColorStop(1, 'rgba(255, 107, 157, 0)');
+          halo.addColorStop(0, 'rgba(255, 225, 140, 0.45)');
+          halo.addColorStop(0.5, 'rgba(255, 170, 100, 0.16)');
+          halo.addColorStop(1, 'rgba(255, 120, 120, 0)');
         }
         ctx.fillStyle = halo;
         ctx.beginPath();
-        ctx.arc(0, 0, l.size * 2.4 * flicker, 0, Math.PI * 2);
+        ctx.arc(0, 0, l.size * 2.2 * flicker, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -2336,13 +2336,13 @@ class RomanticParticleEngine {
       }
 
       // Lantern dome & tapered body with gradient
-      let bodyFill = '#FF9F1C';
+      let bodyFill = '#FFAE33';
       if (typeof ctx.createLinearGradient === 'function') {
         const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
         if (bodyGrad && bodyGrad.addColorStop) {
-          bodyGrad.addColorStop(0, '#FF6B6B');
-          bodyGrad.addColorStop(0.45, '#FFAE33');
-          bodyGrad.addColorStop(1, '#FFF3B0');
+          bodyGrad.addColorStop(0, '#FFA876');
+          bodyGrad.addColorStop(0.48, '#FFCD56');
+          bodyGrad.addColorStop(1, '#FFF5C0');
           bodyFill = bodyGrad;
         }
       }
@@ -2407,8 +2407,8 @@ class RomanticParticleEngine {
         const badgeY = l.size * 0.88;
 
         // Ribbon tag pill
-        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.90)' : 'rgba(22, 11, 33, 0.75)';
-        ctx.strokeStyle = 'rgba(246, 189, 96, 0.65)';
+        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.90)' : 'rgba(25, 14, 38, 0.70)';
+        ctx.strokeStyle = 'rgba(246, 189, 96, 0.55)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         const rx = -badgeW / 2;
@@ -2448,8 +2448,9 @@ class RomanticParticleEngine {
         }
 
         ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
         ctx.fillStyle = this.theme === 'sakura' ? '#240D1B' : '#FFF5F8';
-        ctx.fillText(textStr, rx + padX + iconSize + 3, badgeY + 12);
+        ctx.fillText(textStr, rx + padX + iconSize + 3, ry + badgeH * 0.5);
       }
       ctx.restore();
     }
@@ -2852,7 +2853,7 @@ class BirthdayAppController {
     const spotlightEl = this.doc.getElementById('lantern-spotlight-text');
     if (spotlightEl && activeWish) {
       const localizedSpot = this.localizeRecipientText(activeWish.text, config);
-      spotlightEl.textContent = `✨ Lời chúc từ ${activeWish.author}: "${localizedSpot}"`;
+      spotlightEl.textContent = `“${localizedSpot}”`;
     }
 
     const wishesKey = `${JSON.stringify(wishLanterns)}-${config.recipientName}-${config.recipientShortName}`;
@@ -2980,7 +2981,7 @@ class BirthdayAppController {
       } else {
         this.audio.playSparkleChime();
       }
-      this.showToast('🌷 Bó hoa Tulip 20/10 đang bung nở rực rỡ!');
+      this.showToast('✦ Bó hoa Tulip 20/10 đang bung nở rực rỡ!');
     }
   }
 
@@ -3036,9 +3037,9 @@ class BirthdayAppController {
       musicBtn.addEventListener('click', () => {
         const nowPlaying = this.audio.toggleMusic();
         if (nowPlaying) {
-          this.showToast('🎵 Đang phát: Một ngày buồn — Kiều Chi');
+          this.showToast('♪ Đang phát: Một ngày buồn — Kiều Chi');
         } else {
-          this.showToast('⏸ Đã tạm dừng nhạc');
+          this.showToast('❙❙ Đã tạm dừng nhạc');
         }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
@@ -3056,7 +3057,7 @@ class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`🎵 Đã đổi sang giai điệu: ${track.title}`);
+          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         } else {
           const nextMelody = this.audio.melodyKey === 'birthday' ? 'starlight' : 'birthday';
           this.audio.switchMelody(nextMelody);
@@ -3149,9 +3150,9 @@ class BirthdayAppController {
       miniPlayBtn.addEventListener('click', () => {
         const nowPlaying = this.audio.toggleMusic();
         if (nowPlaying) {
-          this.showToast('🎵 Đang phát: Một ngày buồn — Kiều Chi');
+          this.showToast('♪ Đang phát: Một ngày buồn — Kiều Chi');
         } else {
-          this.showToast('⏸ Đã tạm dừng nhạc');
+          this.showToast('❙❙ Đã tạm dừng nhạc');
         }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
@@ -3168,7 +3169,7 @@ class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`🎵 Đã đổi sang giai điệu: ${track.title}`);
+          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         }
         this.renderAll();
       });
@@ -3384,8 +3385,7 @@ class BirthdayAppController {
     if (!deck || !this.doc.createElement) return;
     const heart = this.doc.createElement('span');
     heart.className = 'floating-card-heart';
-    const icons = ['❤️', '💖', '🌷', '✨', '💕'];
-    heart.textContent = icons[Math.floor(Math.random() * icons.length)];
+    heart.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="#F43F5E" style="filter: drop-shadow(0 2px 8px rgba(244,63,94,0.5)); display: block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
     const rect = deck.getBoundingClientRect ? deck.getBoundingClientRect() : { left: 0, top: 0, width: 300, height: 400 };
     const relX = typeof x === 'number' && x > 0 ? x - rect.left : (rect.width || 300) * 0.5;
     const relY = typeof y === 'number' && y > 0 ? y - rect.top : (rect.height || 400) * 0.5;
@@ -3404,17 +3404,17 @@ class BirthdayAppController {
     if (!bouquetSvg) return;
     const nodes = bouquetSvg.querySelectorAll ? bouquetSvg.querySelectorAll('.bouquet-flower-node') : [];
     const wishes = [
-      '🌷 Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
-      '🌸 Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
-      '🌷 Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
-      '✨ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
-      '💖 Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
-      '🌷 Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
-      '🌸 Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
-      '✨ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
-      '🌷 Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
-      '🌸 Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
-      '💖 Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
+      '✦ Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
+      '✦ Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
+      '✦ Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
+      '✦ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
+      '✦ Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
+      '✦ Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
+      '✦ Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
+      '✦ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
+      '✦ Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
+      '✦ Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
+      '✦ Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
     ];
 
     nodes.forEach((node, idx) => {
@@ -3458,7 +3458,7 @@ class BirthdayAppController {
           const y = rect ? rect.top : 400;
           this.particles.triggerCelebrationBurst(x, y, 18);
         }
-        this.showToast(`✨ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
+        this.showToast(`✦ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
       });
     });
 
@@ -3486,7 +3486,7 @@ class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 28);
         }
         if (wishInput) wishInput.value = '';
-        this.showToast(`✨ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
+        this.showToast(`✦ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
       });
     }
 
@@ -3509,7 +3509,7 @@ class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
-        this.showToast(`✨ Thả hoa đăng: "${wishText}"`);
+        this.showToast(`✦ Thả hoa đăng: "${wishText}"`);
       });
     }
   }
@@ -3534,7 +3534,7 @@ class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 16);
         }
         const title = card.querySelector ? card.querySelector('.reason-title')?.textContent : '';
-        this.showToast(`💖 Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
+        this.showToast(`✦ Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
       });
     });
   }

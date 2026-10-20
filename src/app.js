@@ -346,7 +346,7 @@ export class BirthdayAppController {
     const spotlightEl = this.doc.getElementById('lantern-spotlight-text');
     if (spotlightEl && activeWish) {
       const localizedSpot = this.localizeRecipientText(activeWish.text, config);
-      spotlightEl.textContent = `✨ Lời chúc từ ${activeWish.author}: "${localizedSpot}"`;
+      spotlightEl.textContent = `“${localizedSpot}”`;
     }
 
     const wishesKey = `${JSON.stringify(wishLanterns)}-${config.recipientName}-${config.recipientShortName}`;
@@ -474,7 +474,7 @@ export class BirthdayAppController {
       } else {
         this.audio.playSparkleChime();
       }
-      this.showToast('🌷 Bó hoa Tulip 20/10 đang bung nở rực rỡ!');
+      this.showToast('✦ Bó hoa Tulip 20/10 đang bung nở rực rỡ!');
     }
   }
 
@@ -530,9 +530,9 @@ export class BirthdayAppController {
       musicBtn.addEventListener('click', () => {
         const nowPlaying = this.audio.toggleMusic();
         if (nowPlaying) {
-          this.showToast('🎵 Đang phát: Một ngày buồn — Kiều Chi');
+          this.showToast('♪ Đang phát: Một ngày buồn — Kiều Chi');
         } else {
-          this.showToast('⏸ Đã tạm dừng nhạc');
+          this.showToast('❙❙ Đã tạm dừng nhạc');
         }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
@@ -550,7 +550,7 @@ export class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`🎵 Đã đổi sang giai điệu: ${track.title}`);
+          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         } else {
           const nextMelody = this.audio.melodyKey === 'birthday' ? 'starlight' : 'birthday';
           this.audio.switchMelody(nextMelody);
@@ -643,9 +643,9 @@ export class BirthdayAppController {
       miniPlayBtn.addEventListener('click', () => {
         const nowPlaying = this.audio.toggleMusic();
         if (nowPlaying) {
-          this.showToast('🎵 Đang phát: Một ngày buồn — Kiều Chi');
+          this.showToast('♪ Đang phát: Một ngày buồn — Kiều Chi');
         } else {
-          this.showToast('⏸ Đã tạm dừng nhạc');
+          this.showToast('❙❙ Đã tạm dừng nhạc');
         }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
@@ -662,7 +662,7 @@ export class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`🎵 Đã đổi sang giai điệu: ${track.title}`);
+          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         }
         this.renderAll();
       });
@@ -878,8 +878,7 @@ export class BirthdayAppController {
     if (!deck || !this.doc.createElement) return;
     const heart = this.doc.createElement('span');
     heart.className = 'floating-card-heart';
-    const icons = ['❤️', '💖', '🌷', '✨', '💕'];
-    heart.textContent = icons[Math.floor(Math.random() * icons.length)];
+    heart.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="#F43F5E" style="filter: drop-shadow(0 2px 8px rgba(244,63,94,0.5)); display: block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
     const rect = deck.getBoundingClientRect ? deck.getBoundingClientRect() : { left: 0, top: 0, width: 300, height: 400 };
     const relX = typeof x === 'number' && x > 0 ? x - rect.left : (rect.width || 300) * 0.5;
     const relY = typeof y === 'number' && y > 0 ? y - rect.top : (rect.height || 400) * 0.5;
@@ -898,17 +897,17 @@ export class BirthdayAppController {
     if (!bouquetSvg) return;
     const nodes = bouquetSvg.querySelectorAll ? bouquetSvg.querySelectorAll('.bouquet-flower-node') : [];
     const wishes = [
-      '🌷 Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
-      '🌸 Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
-      '🌷 Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
-      '✨ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
-      '💖 Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
-      '🌷 Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
-      '🌸 Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
-      '✨ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
-      '🌷 Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
-      '🌸 Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
-      '💖 Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
+      '✦ Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
+      '✦ Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
+      '✦ Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
+      '✦ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
+      '✦ Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
+      '✦ Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
+      '✦ Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
+      '✦ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
+      '✦ Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
+      '✦ Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
+      '✦ Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
     ];
 
     nodes.forEach((node, idx) => {
@@ -952,7 +951,7 @@ export class BirthdayAppController {
           const y = rect ? rect.top : 400;
           this.particles.triggerCelebrationBurst(x, y, 18);
         }
-        this.showToast(`✨ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
+        this.showToast(`✦ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
       });
     });
 
@@ -980,7 +979,7 @@ export class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 28);
         }
         if (wishInput) wishInput.value = '';
-        this.showToast(`✨ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
+        this.showToast(`✦ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
       });
     }
 
@@ -1003,7 +1002,7 @@ export class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
-        this.showToast(`✨ Thả hoa đăng: "${wishText}"`);
+        this.showToast(`✦ Thả hoa đăng: "${wishText}"`);
       });
     }
   }
@@ -1028,7 +1027,7 @@ export class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 16);
         }
         const title = card.querySelector ? card.querySelector('.reason-title')?.textContent : '';
-        this.showToast(`💖 Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
+        this.showToast(`✦ Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
       });
     });
   }

@@ -786,3 +786,67 @@ test('11. Verification of MP3 cycling recovery, realistic background sky lantern
   assert.ok(cssContent.includes('.floating-sky-lantern:hover'));
 });
 
+test('12. Verification of Heart Favicon assets, refined subtle lanterns without author/OS emojis, and multi-browser support', () => {
+  // 1. Verify physical favicon files exist and are non-empty
+  const faviconSvgPath = path.resolve(PROJECT_ROOT, 'assets/images/favicon-heart.svg');
+  const faviconPng32Path = path.resolve(PROJECT_ROOT, 'assets/images/favicon-32x32.png');
+  const faviconPng16Path = path.resolve(PROJECT_ROOT, 'assets/images/favicon-16x16.png');
+  const faviconIcoPath = path.resolve(PROJECT_ROOT, 'favicon.ico');
+
+  assert.ok(fs.existsSync(faviconSvgPath), 'favicon-heart.svg must exist');
+  assert.ok(fs.statSync(faviconSvgPath).size > 100, 'favicon-heart.svg must not be empty');
+  assert.ok(fs.existsSync(faviconPng32Path), 'favicon-32x32.png must exist');
+  assert.ok(fs.existsSync(faviconPng16Path), 'favicon-16x16.png must exist');
+  assert.ok(fs.existsSync(faviconIcoPath), 'favicon.ico must exist at root');
+
+  // 2. Verify index.html head has heart favicon links
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  assert.ok(htmlContent.includes('rel="icon" type="image/svg+xml" href="./assets/images/favicon-heart.svg"'));
+  assert.ok(htmlContent.includes('href="./assets/images/favicon-32x32.png"'));
+  assert.ok(htmlContent.includes('href="./favicon.ico"'));
+  assert.ok(htmlContent.includes('rel="apple-touch-icon" href="./assets/images/favicon-heart.svg"'));
+
+  // 3. Verify no raw OS emojis in index.html card hint or lantern wish pool
+  assert.equal(htmlContent.includes('👈'), false, 'Default OS emoji 👈 must be removed');
+  assert.equal(htmlContent.includes('👉'), false, 'Default OS emoji 👉 must be removed');
+
+  // 4. Verify LANTERN_WISH_POOL has zero OS emojis and zero author names
+  assert.ok(LANTERN_WISH_POOL.every((w) => !/[\p{Extended_Pictographic}]/u.test(w)), 'LANTERN_WISH_POOL must not contain OS emojis');
+  assert.ok(LANTERN_WISH_POOL.every((w) => !w.includes('Viettel')), 'LANTERN_WISH_POOL must not contain Viettel author');
+
+  // 5. Verify DEFAULT_WISH_LANTERNS author is blanked out
+  assert.ok(DEFAULT_WISH_LANTERNS.every((w) => !w.author || w.author === ''), 'Floating lanterns must not display author');
+
+  // 6. Verify particle engine spawn lantern produces soft subtle floating lanterns
+  const mockCanvas = {
+    width: 1200,
+    height: 800,
+    getContext: () => ({
+      setTransform: () => {},
+      clearRect: () => {},
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      fill: () => {},
+      stroke: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      bezierCurveTo: () => {},
+      translate: () => {},
+      rotate: () => {},
+      scale: () => {},
+      fillText: () => {},
+      createLinearGradient: () => ({ addColorStop: () => {} }),
+      createRadialGradient: () => ({ addColorStop: () => {} })
+    })
+  };
+  const particles = new RomanticParticleEngine(mockCanvas);
+  particles.init();
+  const spawned = particles.spawnTouchLantern(200, 300);
+  assert.ok(spawned.alpha <= 0.70, 'Spawned lantern alpha must be subtle (<= 0.70)');
+  assert.ok(spawned.size <= 24, 'Spawned lantern size must be delicate and small (<= 24px)');
+  particles.destroy();
+});
+
+

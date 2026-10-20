@@ -362,10 +362,10 @@ export class RomanticParticleEngine {
       y: this.height * (0.72 + Math.random() * 0.24),
       vx: (Math.random() - 0.5) * 0.32,
       vy: -(Math.random() * 0.85 + 0.72),
-      size: Math.random() * 6 + 18,
+      size: Math.random() * 5 + 16,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.85,
+      alpha: 0.62,
       label: String(finalLabel),
       author: author ? String(author) : ''
     };
@@ -390,10 +390,10 @@ export class RomanticParticleEngine {
       y: typeof y === 'number' ? y : this.height * 0.8,
       vx: (Math.random() - 0.5) * 0.35,
       vy: -(Math.random() * 0.75 + 0.65),
-      size: Math.random() * 6 + 18,
+      size: Math.random() * 5 + 16,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.85,
+      alpha: 0.62,
       label: String(finalLabel),
       author: ''
     };
@@ -416,7 +416,7 @@ export class RomanticParticleEngine {
       setTimeout(() => {
         this.spawnCanvasLantern(
           w.text || 'Chúc Diểm Phúc 20/10 hạnh phúc!',
-          w.author || 'Ông chú Viettel'
+          ''
         );
       }, i * 220);
     }
@@ -786,15 +786,15 @@ export class RomanticParticleEngine {
 
       // Outer warm golden-peach aura
       if (typeof ctx.createRadialGradient === 'function') {
-        const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, l.size * 2.4 * flicker);
+        const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, l.size * 2.2 * flicker);
         if (halo && halo.addColorStop) {
-          halo.addColorStop(0, 'rgba(255, 215, 115, 0.75)');
-          halo.addColorStop(0.45, 'rgba(255, 130, 92, 0.28)');
-          halo.addColorStop(1, 'rgba(255, 107, 157, 0)');
+          halo.addColorStop(0, 'rgba(255, 225, 140, 0.45)');
+          halo.addColorStop(0.5, 'rgba(255, 170, 100, 0.16)');
+          halo.addColorStop(1, 'rgba(255, 120, 120, 0)');
         }
         ctx.fillStyle = halo;
         ctx.beginPath();
-        ctx.arc(0, 0, l.size * 2.4 * flicker, 0, Math.PI * 2);
+        ctx.arc(0, 0, l.size * 2.2 * flicker, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -805,13 +805,13 @@ export class RomanticParticleEngine {
       }
 
       // Lantern dome & tapered body with gradient
-      let bodyFill = '#FF9F1C';
+      let bodyFill = '#FFAE33';
       if (typeof ctx.createLinearGradient === 'function') {
         const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
         if (bodyGrad && bodyGrad.addColorStop) {
-          bodyGrad.addColorStop(0, '#FF6B6B');
-          bodyGrad.addColorStop(0.45, '#FFAE33');
-          bodyGrad.addColorStop(1, '#FFF3B0');
+          bodyGrad.addColorStop(0, '#FFA876');
+          bodyGrad.addColorStop(0.48, '#FFCD56');
+          bodyGrad.addColorStop(1, '#FFF5C0');
           bodyFill = bodyGrad;
         }
       }
@@ -876,8 +876,8 @@ export class RomanticParticleEngine {
         const badgeY = l.size * 0.88;
 
         // Ribbon tag pill
-        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.90)' : 'rgba(22, 11, 33, 0.75)';
-        ctx.strokeStyle = 'rgba(246, 189, 96, 0.65)';
+        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.90)' : 'rgba(25, 14, 38, 0.70)';
+        ctx.strokeStyle = 'rgba(246, 189, 96, 0.55)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         const rx = -badgeW / 2;
@@ -917,8 +917,9 @@ export class RomanticParticleEngine {
         }
 
         ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
         ctx.fillStyle = this.theme === 'sakura' ? '#240D1B' : '#FFF5F8';
-        ctx.fillText(textStr, rx + padX + iconSize + 3, badgeY + 12);
+        ctx.fillText(textStr, rx + padX + iconSize + 3, ry + badgeH * 0.5);
       }
       ctx.restore();
     }
