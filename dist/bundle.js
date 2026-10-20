@@ -2960,6 +2960,7 @@ class BirthdayAppController {
     this.renderAll();
     this.bindEvents();
     this.initAudioEngine();
+    this.initInteractiveHeroHeading();
     this.initCardSwipeDeck();
     this.initInteractiveTulips();
     this.initInteractiveLanterns();
@@ -3116,6 +3117,25 @@ class BirthdayAppController {
   setText(selector, text) {
     const nodes = this.doc.querySelectorAll(selector);
     nodes.forEach((node) => {
+      if (node.classList && node.classList.contains('hero-name-gradient')) {
+        const str = String(text || '');
+        if (this._lastHeroNameText === str && node.innerHTML) return;
+        this._lastHeroNameText = str;
+        let charIdx = 0;
+        const words = str.split(' ');
+        node.innerHTML = words
+          .map((word) => {
+            const charsHtml = Array.from(word)
+              .map((ch) => {
+                const idx = charIdx++;
+                return `<span class="hero-char" data-char-index="${idx}" style="--char-idx:${idx}">${escapeHtml(ch)}</span>`;
+              })
+              .join('');
+            return `<span class="hero-char-word">${charsHtml}</span>`;
+          })
+          .join('<span class="hero-char-space"> </span>');
+        return;
+      }
       node.textContent = text;
     });
   }
@@ -3846,6 +3866,168 @@ class BirthdayAppController {
     }
   }
 
+  initInteractiveHeroHeading() {
+    const heading = this.doc.getElementById('hero-interactive-heading');
+    if (!heading || typeof heading.addEventListener !== 'function') return;
+
+    const greetingMessages = [
+      '✦ Chúc Diểm Phúc ngày 20/10 luôn rạng rỡ và ngập tràn hạnh phúc!',
+      '✦ Nụ cười của Emm là đóa hoa đẹp nhất trong ngày lễ tháng Mười!',
+      '✦ Gửi ngàn điều bình yên, dịu dàng và may mắn nhất đến Diểm Phúc!',
+      '✦ Chúc cô gái tháng Mười luôn tự tin, tỏa sáng và được yêu thương!',
+      '✦ Mỗi chữ cái đều mang theo một lời chúc 20/10 ngọt ngào dành tặng Emm!'
+    ];
+    this._heroGreetingIndex = 0;
+
+    const clearHoverStates = () => {
+      const chars = heading.querySelectorAll ? heading.querySelectorAll('.hero-char') : [];
+      chars.forEach((c) => {
+        if (c.classList) c.classList.remove('is-char-hovered', 'is-char-neighbor');
+      });
+      const words = heading.querySelectorAll ? heading.querySelectorAll('.hero-word') : [];
+      words.forEach((w) => {
+        if (w.classList) w.classList.remove('is-word-hovered');
+      });
+    };
+
+    const applyMagneticWave = (target) => {
+      if (!target || !target.closest) return;
+      const charEl = target.closest('.hero-char');
+      const wordEl = target.closest('.hero-word');
+      clearHoverStates();
+      if (charEl) {
+        const chars = Array.from(
+          heading.querySelectorAll ? heading.querySelectorAll('.hero-char') : []
+        );
+        const idx = chars.indexOf(charEl);
+        if (idx !== -1) {
+          charEl.classList.add('is-char-hovered');
+          if (chars[idx - 1] && chars[idx - 1].classList) {
+            chars[idx - 1].classList.add('is-char-neighbor');
+          }
+          if (chars[idx + 1] && chars[idx + 1].classList) {
+            chars[idx + 1].classList.add('is-char-neighbor');
+          }
+        }
+      } else if (wordEl && wordEl.classList) {
+        wordEl.classList.add('is-word-hovered');
+      }
+    };
+
+    heading.addEventListener('pointerover', (e) => {
+      applyMagneticWave(e.target);
+    });
+
+    heading.addEventListener('pointerleave', () => {
+      clearHoverStates();
+    });
+
+    heading.addEventListener(
+      'touchmove',
+      (e) => {
+        if (!e.touches || !e.touches[0] || typeof this.doc.elementFromPoint !== 'function') return;
+        const touch = e.touches[0];
+        const el = this.doc.elementFromPoint(touch.clientX, touch.clientY);
+        if (el && heading.contains && heading.contains(el)) {
+          applyMagneticWave(el);
+        }
+      },
+      { passive: true }
+    );
+
+    heading.addEventListener('touchend', () => {
+      setTimeout(clearHoverStates, 320);
+    }, { passive: true });
+
+    const triggerHeadingWave = (clientX, clientY) => {
+      if (this._headingWaveTimer) {
+        clearTimeout(this._headingWaveTimer);
+        this._headingWaveTimer = null;
+      }
+      if (heading.classList) {
+        heading.classList.remove('is-wave-rippling');
+        if (typeof heading.offsetWidth === 'number') void heading.offsetWidth;
+        heading.classList.add('is-wave-rippling');
+      }
+      this._headingWaveTimer = setTimeout(() => {
+        if (heading.classList) heading.classList.remove('is-wave-rippling');
+        this._headingWaveTimer = null;
+      }, 980);
+      if (this._headingWaveTimer && typeof this._headingWaveTimer.unref === 'function') {
+        this._headingWaveTimer.unref();
+      }
+
+      this.spawnHeadingParticles(clientX, clientY);
+
+      if (typeof this.audio.playFlowerBloomChime === 'function') {
+        this.audio.playFlowerBloomChime();
+      } else {
+        this.audio.playSparkleChime();
+      }
+      if (typeof this.particles.triggerFlowerShower === 'function') {
+        this.particles.triggerFlowerShower(18);
+      }
+      const msg = greetingMessages[this._heroGreetingIndex % greetingMessages.length];
+      this._heroGreetingIndex += 1;
+      this.showToast(msg);
+    };
+
+    heading.addEventListener('click', (e) => {
+      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+      triggerHeadingWave(e ? e.clientX : 0, e ? e.clientY : 0);
+    });
+
+    heading.addEventListener('keydown', (e) => {
+      if (e && (e.key === 'Enter' || e.key === ' ')) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        triggerHeadingWave(0, 0);
+      }
+    });
+  }
+
+  spawnHeadingParticles(clientX, clientY) {
+    const heading = this.doc.getElementById('hero-interactive-heading');
+    if (!heading || !this.doc.createElement) return;
+    const rect = heading.getBoundingClientRect
+      ? heading.getBoundingClientRect()
+      : { left: 0, top: 0, width: 320, height: 110 };
+    const baseX =
+      typeof clientX === 'number' && clientX > 0
+        ? clientX - rect.left
+        : (rect.width || 320) * 0.5;
+    const baseY =
+      typeof clientY === 'number' && clientY > 0
+        ? clientY - rect.top
+        : (rect.height || 110) * 0.5;
+
+    const symbols = ['♥', '✦', '✿', '♥', '✦'];
+    const colors = ['#FB7185', '#FDE047', '#F43F5E', '#F9A8D4', '#FBBF24'];
+
+    symbols.forEach((sym, i) => {
+      const span = this.doc.createElement('span');
+      span.className = 'floating-heading-particle';
+      span.setAttribute('aria-hidden', 'true');
+      span.textContent = sym;
+      const angle = ((i - 2) * 28 * Math.PI) / 180;
+      const dist = 34 + (i % 2) * 16;
+      const tx = Math.round(Math.sin(angle) * dist);
+      const ty = Math.round(-Math.cos(angle) * dist - 14);
+      const rot = Math.round((i - 2) * 15);
+      span.style.left = `${baseX}px`;
+      span.style.top = `${baseY}px`;
+      span.style.color = colors[i % colors.length];
+      span.style.setProperty('--tx', `${tx}px`);
+      span.style.setProperty('--ty', `${ty}px`);
+      span.style.setProperty('--rot', `${rot}deg`);
+      heading.appendChild(span);
+      setTimeout(() => {
+        if (span.parentNode && typeof span.parentNode.removeChild === 'function') {
+          span.parentNode.removeChild(span);
+        }
+      }, 950);
+    });
+  }
+
   initCardSwipeDeck() {
     const deck = this.doc.getElementById('photo-card-deck');
     const prevBtn = this.doc.getElementById('btn-card-prev');
@@ -4408,6 +4590,7 @@ class BirthdayAppController {
           (target.closest('button') ||
             target.closest('a') ||
             target.closest('input') ||
+            target.closest('#hero-interactive-heading') ||
             target.closest('#photo-card-deck') ||
             target.closest('#floating-music-pill') ||
             target.closest('#gift-curtain') ||

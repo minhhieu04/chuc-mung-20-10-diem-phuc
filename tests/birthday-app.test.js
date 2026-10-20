@@ -1194,4 +1194,10 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
 
   // Verify dead initInteractiveStickers method is completely removed
   assert.equal(typeof controller.initInteractiveStickers, 'undefined', 'Dead initInteractiveStickers method must be removed');
+
+  // Verify Interactive Hero Heading ("Chúc Mừng Ngày 20/10" + "Diểm Phúc")
+  assert.ok(htmlContent.includes('id="hero-interactive-heading"'), 'index.html must include #hero-interactive-heading');
+  assert.ok(htmlContent.includes('class="hero-word"'), 'index.html must include interactive .hero-word spans');
+  assert.ok(cssContent.includes('.hero-char'), 'src/styles.css must style interactive .hero-char spans');
+  assert.ok(cssContent.includes('.hero-heading.is-wave-rippling'), 'src/styles.css must include .is-wave-rippling wave animation');
 });
