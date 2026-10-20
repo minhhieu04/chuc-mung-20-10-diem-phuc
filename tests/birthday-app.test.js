@@ -1,0 +1,687 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import {
+  LEGACY_STORAGE_KEY,
+  LEGACY_V2_STORAGE_KEY,
+  LEGACY_V3_STORAGE_KEY,
+  LEGACY_V4_STORAGE_KEY,
+  STORAGE_KEY,
+  USER_PROVIDED_PORTRAIT_URL,
+  FALLBACK_PORTRAIT_URL,
+  DEFAULT_CONFIG,
+  FLOWER_BOUQUET_ITEMS,
+  DEFAULT_WISH_LANTERNS,
+  PHOTO_STACK_ITEMS,
+  escapeHtml,
+  isValidImageSrc,
+  sanitizeText
+} from '../src/data.js';
+import { BirthdayStateStore } from '../src/state.js';
+import {
+  RomanticAudioEngine,
+  ROMANTIC_PLAYLIST,
+  HAPPY_BIRTHDAY_MELODY,
+  STARLIGHT_WALTZ_MELODY,
+  ROSE_WALTZ_MELODY,
+  MOONLIGHT_SERENADE_MELODY,
+  SPRING_FLOWER_MELODY
+} from '../src/audio.js';
+import { RomanticParticleEngine } from '../src/particles.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+
+class MockStorage {
+  constructor({
+    throwOnSet = false,
+    initialRaw = null,
+    legacyRaw = null,
+    legacyV2Raw = null,
+    legacyV3Raw = null,
+    legacyV4Raw = null
+  } = {}) {
+    this.map = new Map();
+    this.throwOnSet = throwOnSet;
+    if (initialRaw !== null) {
+      this.map.set(STORAGE_KEY, initialRaw);
+    }
+    if (legacyRaw !== null) {
+      this.map.set(LEGACY_STORAGE_KEY, legacyRaw);
+    }
+    if (legacyV2Raw !== null) {
+      this.map.set(LEGACY_V2_STORAGE_KEY, legacyV2Raw);
+    }
+    if (legacyV3Raw !== null) {
+      this.map.set(LEGACY_V3_STORAGE_KEY, legacyV3Raw);
+    }
+    if (legacyV4Raw !== null) {
+      this.map.set(LEGACY_V4_STORAGE_KEY, legacyV4Raw);
+    }
+  }
+  getItem(key) {
+    return this.map.has(key) ? this.map.get(key) : null;
+  }
+  setItem(key, val) {
+    if (this.throwOnSet) {
+      const err = new Error('QuotaExceededError');
+      err.name = 'QuotaExceededError';
+      throw err;
+    }
+    this.map.set(key, String(val));
+  }
+  removeItem(key) {
+    this.map.delete(key);
+  }
+}
+
+test('1. Default data ("Diểm Phúc" + "Emm" & "Ông chú Viettel"), Tulip bouquet items, pre-loaded portrait link, 8 full-text wishes & local fallback asset exist', () => {
+  assert.equal(DEFAULT_CONFIG.recipientName, 'Diểm Phúc');
+  assert.equal(DEFAULT_CONFIG.recipientShortName, 'Emm');
+  assert.equal(DEFAULT_CONFIG.senderName, 'Ông chú Viettel');
+  assert.equal(DEFAULT_CONFIG.heroPortraitUrl, USER_PROVIDED_PORTRAIT_URL);
+  assert.equal(DEFAULT_CONFIG.heroPortraitFallbackUrl, FALLBACK_PORTRAIT_URL);
+  assert.equal(FLOWER_BOUQUET_ITEMS.length, 5);
+  assert.ok(FLOWER_BOUQUET_ITEMS.every((item) => item.name.includes('Tulip')));
+  assert.equal(DEFAULT_WISH_LANTERNS.length, 8);
+
+  const fallbackHeroPath = path.resolve(PROJECT_ROOT, FALLBACK_PORTRAIT_URL);
+  assert.ok(fs.existsSync(fallbackHeroPath), `Missing fallback hero image at ${fallbackHeroPath}`);
+  assert.ok(fs.statSync(fallbackHeroPath).size > 10000, 'Fallback hero image should be non-empty');
+});
+
+test('2. Security & input sanitization helpers handle XSS and invalid URLs', () => {
+  assert.equal(
+    escapeHtml('<script>alert("xss")</script> & \'quotes\''),
+    '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt; &amp; &#39;quotes&#39;'
+  );
+  assert.equal(escapeHtml(null), '');
+  assert.equal(escapeHtml(undefined), '');
+
+  assert.equal(isValidImageSrc(USER_PROVIDED_PORTRAIT_URL), true);
+  assert.equal(isValidImageSrc('./assets/images/hero-portrait.jpg'), true);
+  assert.equal(isValidImageSrc('https://example.com/photo.jpg'), true);
+  assert.equal(isValidImageSrc('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD='), true);
+  assert.equal(isValidImageSrc('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA'), true);
+
+  assert.equal(isValidImageSrc('javascript:alert(1)'), false);
+  assert.equal(isValidImageSrc('data:text/html;base64,PHNjcmlwdD4='), false);
+  assert.equal(isValidImageSrc('./assets/"><script>alert(1)</script>'), false);
+  assert.equal(isValidImageSrc('./../etc/passwd'), false);
+  assert.equal(isValidImageSrc(''), false);
+  assert.equal(isValidImageSrc('   '), false);
+  assert.equal(isValidImageSrc(null), false);
+
+  assert.equal(sanitizeText('  Xin chào  ', 'fallback', 20), 'Xin chào');
+  assert.equal(sanitizeText('   ', 'fallback', 20), 'fallback');
+  assert.equal(sanitizeText('1234567890', 'fallback', 5), '12345');
+});
+
+test('3. BirthdayStateStore purges legacy v1/v2/v3/v4 storage, defaults to "Diểm Phúc" + "Emm", and supports config updates', () => {
+  const storage = new MockStorage({
+    legacyRaw: JSON.stringify({
+      config: { recipientName: 'Phạm Diểm Phúc' }
+    }),
+    legacyV2Raw: JSON.stringify({
+      config: { recipientName: 'Diểm Phúc', senderName: 'Người Gửi Cũ' }
+    }),
+    legacyV3Raw: JSON.stringify({
+      config: { recipientName: 'Diểm Phúc', senderName: 'Ông chú Viettel' }
+    }),
+    legacyV4Raw: JSON.stringify({
+      config: { recipientName: 'Emmm', recipientShortName: 'Emmm' }
+    })
+  });
+  const store = new BirthdayStateStore(storage);
+
+  assert.equal(storage.getItem(LEGACY_STORAGE_KEY), null);
+  assert.equal(storage.getItem(LEGACY_V2_STORAGE_KEY), null);
+  assert.equal(storage.getItem(LEGACY_V3_STORAGE_KEY), null);
+  assert.equal(storage.getItem(LEGACY_V4_STORAGE_KEY), null);
+  assert.equal(store.getState().config.recipientName, 'Diểm Phúc');
+  assert.equal(store.getState().config.recipientShortName, 'Emm');
+  assert.equal(store.getState().config.senderName, 'Ông chú Viettel');
+  assert.equal(store.getState().config.heroPortraitUrl, USER_PROVIDED_PORTRAIT_URL);
+
+  store.updateConfig({
+    recipientName: 'Em Yêu',
+    senderName: 'Chú Viettel Thân Thương'
+  });
+  const state1 = store.getState();
+  assert.equal(state1.config.recipientName, 'Em Yêu');
+  assert.equal(state1.config.senderName, 'Chú Viettel Thân Thương');
+  assert.ok(
+    state1.config.birthdayTagline.includes('Em Yêu'),
+    'birthdayTagline must also update when recipientName changes'
+  );
+  assert.ok(state1.config.letterGreeting.includes('Em Yêu'));
+  assert.ok(state1.config.letterSignature.includes('Chú Viettel Thân Thương'));
+  assert.ok(state1.wishLanterns[0].text.includes('Em Yêu'));
+
+  // Standalone recipientShortName update without recipientName must also replace short names across fields
+  store.updateConfig({
+    recipientShortName: 'Bé Phúc'
+  });
+  const stateShort = store.getState();
+  assert.equal(stateShort.config.recipientShortName, 'Bé Phúc');
+  assert.ok(
+    stateShort.config.birthdaySubtitle.includes('Bé Phúc'),
+    'Standalone recipientShortName update must replace short name in birthdaySubtitle'
+  );
+  assert.ok(
+    stateShort.config.letterParagraphs.some((p) => p.includes('Bé Phúc')),
+    'Standalone recipientShortName update must replace short name in letterParagraphs'
+  );
+  assert.ok(
+    stateShort.wishLanterns.some((w) => w.text.includes('Bé Phúc')),
+    'Standalone recipientShortName update must replace short name in wishLanterns'
+  );
+
+  const storeRehydrated = new BirthdayStateStore(storage);
+  assert.equal(storeRehydrated.getState().config.recipientName, 'Em Yêu');
+  assert.equal(storeRehydrated.getState().config.recipientShortName, 'Bé Phúc');
+
+  storeRehydrated.resetToDefaults();
+  assert.equal(storeRehydrated.getState().config.recipientName, 'Diểm Phúc');
+  assert.equal(storeRehydrated.getState().config.recipientShortName, 'Emm');
+  assert.equal(storeRehydrated.getState().config.senderName, 'Ông chú Viettel');
+});
+
+test('4. BirthdayStateStore gracefully handles corrupt JSON and QuotaExceededError', () => {
+  const corruptStorage = new MockStorage({ initialRaw: '{not-valid-json' });
+  const storeFromCorrupt = new BirthdayStateStore(corruptStorage);
+  assert.equal(storeFromCorrupt.getState().config.recipientName, 'Diểm Phúc');
+  assert.ok(storeFromCorrupt.storageWarning);
+
+  const fullStorage = new MockStorage({ throwOnSet: true });
+  const storeWithQuotaError = new BirthdayStateStore(fullStorage);
+  storeWithQuotaError.updateConfig({ theme: 'sakura' });
+  assert.equal(storeWithQuotaError.getState().config.theme, 'sakura');
+  assert.ok(storeWithQuotaError.storageWarning);
+});
+
+test('5. Candle & Lantern state helpers remain functional in state store', () => {
+  const store = new BirthdayStateStore(null);
+  assert.equal(store.getState().allCandlesBlown, false);
+  assert.equal(store.blowCandle(0), true);
+  assert.equal(store.blowCandle(0), false);
+  const extinguished = store.blowAllCandles();
+  assert.deepEqual(extinguished, [1, 2]);
+  assert.equal(store.getState().allCandlesBlown, true);
+  store.relightCandles();
+  assert.equal(store.getState().allCandlesBlown, false);
+
+  const initialCount = store.getState().wishLanterns.length;
+  assert.equal(store.addWishLantern('   '), null);
+  const created = store.addWishLantern('Chúc Diểm Phúc ngày 20/10 vạn sự như ý!', 'Ông chú Viettel');
+  assert.ok(created);
+  assert.equal(store.getState().wishLanterns.length, initialCount + 1);
+});
+
+test('6. Upbeat RomanticAudioEngine 5-song playlist & RomanticParticleEngine Tulip particles / reduced motion / theme contrast', () => {
+  const audio = new RomanticAudioEngine();
+  assert.equal(ROMANTIC_PLAYLIST.length, 5);
+  assert.ok(HAPPY_BIRTHDAY_MELODY.length >= 18);
+  assert.ok(STARLIGHT_WALTZ_MELODY.length >= 18);
+  assert.ok(ROSE_WALTZ_MELODY.length >= 18);
+  assert.ok(MOONLIGHT_SERENADE_MELODY.length >= 18);
+  assert.ok(SPRING_FLOWER_MELODY.length >= 16);
+
+  // Verify upbeat, lively note durations (all notes <= 0.45s so music is cheerful, never sleepy)
+  for (const track of ROMANTIC_PLAYLIST) {
+    const avgDuration =
+      track.notes.reduce((acc, n) => acc + n.duration, 0) / track.notes.length;
+    assert.ok(
+      avgDuration < 0.28,
+      `Track ${track.title} should have an upbeat average note duration < 0.28s (got ${avgDuration})`
+    );
+  }
+
+  assert.equal(audio.isPlaying, false);
+  audio.startMusic('birthday');
+  assert.equal(audio.isPlaying, true);
+
+  // Cycle through all 5 upbeat melodies with nextMelody()
+  const seenKeys = new Set([audio.melodyKey]);
+  for (let i = 0; i < 4; i++) {
+    const nextTrack = audio.nextMelody();
+    seenKeys.add(nextTrack.key);
+  }
+  assert.equal(seenKeys.size, 5, 'nextMelody() should cycle through all 5 upbeat tracks');
+
+  audio.stopMusic();
+  assert.equal(audio.isPlaying, false);
+
+  let lastFillStyle = '';
+  let fillCalls = 0;
+  const mockCanvas = {
+    width: 1280,
+    height: 800,
+    getContext: () => ({
+      setTransform: () => {},
+      clearRect: () => {},
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      fill: () => {
+        fillCalls += 1;
+      },
+      stroke: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      bezierCurveTo: () => {},
+      translate: () => {},
+      rotate: () => {},
+      scale: () => {},
+      fillText: function () {
+        lastFillStyle = this.fillStyle;
+      },
+      createLinearGradient: () => ({ addColorStop: () => {} }),
+      createRadialGradient: () => ({ addColorStop: () => {} })
+    })
+  };
+
+  const particles = new RomanticParticleEngine(mockCanvas, {
+    reducedMotion: false,
+    theme: 'sakura'
+  });
+  particles.init();
+  assert.equal(typeof particles.drawTulipFlower, 'function', 'Should support drawTulipFlower on canvas');
+  const showerCount = particles.triggerFlowerShower(30);
+  assert.equal(showerCount, 30);
+  assert.ok(
+    particles.burstParticles.some((p) => p.shape === 'tulip'),
+    'Flower shower should include blooming tulip particles'
+  );
+  const fullWish =
+    'Chúc Diểm Phúc ngày 20/10 luôn rạng rỡ như đóa hoa Tulip ban mai, bình an và ngập tràn tiếng cười!';
+  const lantern = particles.spawnCanvasLantern(fullWish, 'Ông chú Viettel');
+  assert.ok(lantern);
+  assert.equal(lantern.label, fullWish, 'Canvas lantern must not truncate wish text');
+  particles.draw();
+  assert.equal(lastFillStyle, '#240D1B', 'Canvas lantern text in sakura light theme must be dark high-contrast #240D1B');
+
+  // Verify reduced-motion resize re-renders static frame instead of leaving canvas blank
+  particles.setReducedMotion(true);
+  fillCalls = 0;
+  particles.resize();
+  assert.ok(fillCalls > 0, 'Resizing canvas while in reducedMotion mode must re-render static frame');
+  particles.destroy();
+});
+
+test('7. Landing Page HTML & CSS compliance: "Diểm Phúc" + "Emm" woven naturally, Tulip Bouquet SVG, full-text infinite lanterns, Light theme & Mobile UX', () => {
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  assert.ok(htmlContent.includes('Diểm Phúc'), 'index.html must feature recipient name "Diểm Phúc"');
+  assert.ok(htmlContent.includes('Emm'), 'index.html must also use "Emm" to avoid repeating "Diểm Phúc"');
+  assert.ok(htmlContent.includes('Ông chú Viettel'));
+  assert.ok(htmlContent.includes('20/10'));
+  assert.ok(htmlContent.includes('Tulip'));
+  assert.ok(htmlContent.includes(USER_PROVIDED_PORTRAIT_URL));
+
+  // Verify required landing page elements exist
+  assert.ok(htmlContent.includes('id="romantic-canvas"'));
+  assert.ok(htmlContent.includes('id="gift-avatar-img"'));
+  assert.ok(htmlContent.includes('id="nav-avatar-img"'));
+  assert.ok(htmlContent.includes('id="hero-portrait-img"'));
+  assert.ok(htmlContent.includes('id="btn-toggle-music"'));
+  assert.ok(htmlContent.includes('id="btn-switch-melody"'));
+  assert.ok(htmlContent.includes('id="btn-toggle-theme"'));
+  assert.ok(htmlContent.includes('id="flower-bouquet"'));
+  assert.ok(htmlContent.includes('id="interactive-bouquet-svg"'));
+  assert.ok(htmlContent.includes('class="bouquet-poetic-caption"'));
+  assert.ok(htmlContent.includes('id="btn-replay-bloom"'));
+  assert.ok(htmlContent.includes('id="lantern-sky-stage"'));
+  assert.ok(htmlContent.includes('id="lantern-sky-floating-area"'));
+  assert.ok(htmlContent.includes('id="letter-parchment"'));
+
+  // Verify removed clutter: NO #memories gallery, NO #lightbox-modal, NO #flower-cards-grid, NO #active-flower-blessing, NO #flower-legend-chips, NO .flower-blessing-meta, NO #music-playlist-bar
+  assert.equal(
+    htmlContent.includes('id="memories"'),
+    false,
+    '"Những Khoảnh Khắc Diệu Kỳ" (#memories) section must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="lightbox-modal"'),
+    false,
+    'Gallery lightbox modal must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="flower-cards-grid"'),
+    false,
+    'Flower selection cards (#flower-cards-grid) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="active-flower-blessing"'),
+    false,
+    'Individual flower meaning box (#active-flower-blessing) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="flower-legend-chips"'),
+    false,
+    'Individual flower selection chips (#flower-legend-chips) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('flower-blessing-meta'),
+    false,
+    'Individual flower meaning metadata (.flower-blessing-meta) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="flower-blessing-title"'),
+    false,
+    'Individual flower title (#flower-blessing-title) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="flower-blessing-meaning"'),
+    false,
+    'Individual flower meaning (#flower-blessing-meaning) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('id="music-playlist-bar"'),
+    false,
+    '5-song playlist selection bar (#music-playlist-bar) must be removed'
+  );
+
+  // Verify Haute-Couture Tulip Bouquet SVG gradients, 3-tipped cupped petals, florist gift tag & lower stems exist
+  assert.ok(htmlContent.includes('id="grad-tulip-pink-side"'));
+  assert.ok(htmlContent.includes('id="grad-tulip-peach-side"'));
+  assert.ok(htmlContent.includes('id="grad-tulip-cream-side"'));
+  assert.ok(htmlContent.includes('id="grad-tulip-ruby-side"'));
+  assert.ok(htmlContent.includes('id="grad-tulip-lilac-side"'));
+  assert.ok(htmlContent.includes('id="grad-tulip-inner-glow"'));
+  assert.ok(htmlContent.includes('class="petal-ring petal-ring-inner"'));
+  assert.ok(htmlContent.includes('class="tulip-petal-left"'));
+  assert.ok(htmlContent.includes('class="tulip-petal-right"'));
+  assert.ok(htmlContent.includes('class="petal-ring petal-ring-mid"'));
+  assert.ok(htmlContent.includes('HAPPY 20/10'));
+  assert.ok(htmlContent.includes('id="grad-wrap-linen-back"'));
+  assert.ok(htmlContent.includes('class="bouquet-lower-stems"'));
+
+  // Verify both "Diểm Phúc" and "Emm" are balanced across the 8 lantern wishes and 4 letter paragraphs
+  const diemPhucLanternCount = DEFAULT_WISH_LANTERNS.filter((w) => w.text.includes('Diểm Phúc')).length;
+  const emmLanternCount = DEFAULT_WISH_LANTERNS.filter((w) => w.text.includes('Emm')).length;
+  assert.ok(
+    diemPhucLanternCount >= 2 && diemPhucLanternCount <= 4,
+    `DEFAULT_WISH_LANTERNS should mention "Diểm Phúc" in 2-4 wishes (found ${diemPhucLanternCount})`
+  );
+  assert.ok(
+    emmLanternCount >= 4 && emmLanternCount <= 6,
+    `DEFAULT_WISH_LANTERNS should intersperse "Emm" in 4-6 wishes to avoid repetition (found ${emmLanternCount})`
+  );
+  assert.ok(
+    DEFAULT_CONFIG.letterParagraphs.some((p) => p.includes('Diểm Phúc')) &&
+      DEFAULT_CONFIG.letterParagraphs.some((p) => p.includes('Emm')),
+    'Letter paragraphs must weave both "Diểm Phúc" and "Emm" naturally'
+  );
+
+  // Verify no bottom spotlight bar occluding floating lanterns in #lantern-sky-stage
+  assert.equal(
+    htmlContent.includes('class="sky-stage-bottom-bar"'),
+    false,
+    'Redundant .sky-stage-bottom-bar must be removed so floating lanterns are never cut off'
+  );
+
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
+  assert.ok(cssContent.includes('@keyframes lanternStreamContinuous'));
+  assert.ok(cssContent.includes('@keyframes tulipPetalLeftOpen'));
+  assert.ok(cssContent.includes('@keyframes tulipPetalRightOpen'));
+  assert.ok(cssContent.includes('@media (max-width: 768px)'));
+  assert.ok(cssContent.includes('@media (max-width: 390px)'));
+  assert.ok(cssContent.includes('flex: 1 1 auto;'), 'Mobile navbar pill buttons should use proportional flex-basis auto');
+  assert.equal(
+    cssContent.includes('.lantern-stream-track:hover'),
+    false,
+    'Lantern stream track must not freeze on general sky hover'
+  );
+  assert.ok(cssContent.includes('[data-theme="sakura"] .lantern-sky-stage'));
+  assert.ok(cssContent.includes('[data-theme="sakura"] .lantern-wish-ribbon'));
+  assert.ok(cssContent.includes('[data-theme="sakura"] .bouquet-visual-card'));
+  assert.ok(cssContent.includes('animation-delay: 0s !important;'));
+});
+
+test('8. BirthdayAppController renders full-text continuous sky lanterns without truncation, replays Tulip bouquet bloom, and switches upbeat tracks', async () => {
+  const { BirthdayAppController } = await import('../src/app.js');
+
+  const elementsById = new Map();
+  const makeEl = (id = '') => {
+    const attrs = new Map();
+    const classes = new Set();
+    const listeners = new Map();
+    let childLabel = null;
+    const el = {
+      id,
+      textContent: '',
+      innerHTML: '',
+      value: '',
+      style: {},
+      complete: false,
+      naturalWidth: 0,
+      classList: {
+        add: (c) => classes.add(c),
+        remove: (c) => classes.delete(c),
+        toggle: (c, force) => {
+          if (force === undefined) classes.has(c) ? classes.delete(c) : classes.add(c);
+          else force ? classes.add(c) : classes.delete(c);
+        },
+        contains: (c) => classes.has(c)
+      },
+      setAttribute: (k, v) => attrs.set(k, String(v)),
+      getAttribute: (k) => (attrs.has(k) ? attrs.get(k) : null),
+      removeAttribute: (k) => attrs.delete(k),
+      getBoundingClientRect: () => ({ left: 100, top: 100, width: 300, height: 300 }),
+      addEventListener: (evt, fn) => {
+        if (!listeners.has(evt)) listeners.set(evt, []);
+        listeners.get(evt).push(fn);
+      },
+      trigger: (evt, payload = {}) => {
+        for (const fn of listeners.get(evt) || []) fn(payload);
+      },
+      querySelector: () => {
+        if (!childLabel) childLabel = makeEl();
+        return childLabel;
+      },
+      querySelectorAll: () => []
+    };
+    if (id) elementsById.set(id, el);
+    return el;
+  };
+
+  [
+    'romantic-canvas',
+    'gift-curtain',
+    'gift-avatar-img',
+    'nav-avatar-img',
+    'hero-portrait-img',
+    'btn-toggle-theme',
+    'btn-toggle-motion',
+    'btn-toggle-music',
+    'btn-switch-melody',
+    'interactive-bouquet-svg',
+    'flower-blessing-wish',
+    'btn-replay-bloom',
+    'reasons-grid',
+    'lantern-sky-floating-area',
+    'lantern-spotlight-text',
+    'letter-parchment',
+    'btn-open-envelope',
+    'letter-greeting',
+    'letter-body',
+    'letter-signature',
+    'live-toast'
+  ].forEach((id) => makeEl(id));
+
+  const mockDoc = {
+    title: '',
+    documentElement: makeEl('html'),
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  const store = new BirthdayStateStore(null);
+  const controller = new BirthdayAppController(mockDoc, store);
+  controller.init();
+
+  assert.equal(mockDoc.documentElement.getAttribute('data-theme'), 'midnight');
+  assert.equal(
+    elementsById.get('btn-toggle-theme').querySelector('.btn-label-text').textContent,
+    'Giao Diện Sáng'
+  );
+  assert.equal(mockDoc.title, 'Chúc Mừng Ngày 20/10 Diểm Phúc — Món Quà Nhỏ Từ Trái Tim');
+  assert.equal(elementsById.get('hero-portrait-img').getAttribute('src'), USER_PROVIDED_PORTRAIT_URL);
+
+  // Verify hero image fallback on error survives subsequent renders
+  elementsById.get('hero-portrait-img').trigger('error');
+  assert.equal(elementsById.get('hero-portrait-img').getAttribute('src'), FALLBACK_PORTRAIT_URL);
+  store.updateConfig({ theme: 'sakura' });
+  assert.equal(elementsById.get('hero-portrait-img').getAttribute('src'), FALLBACK_PORTRAIT_URL);
+  assert.equal(mockDoc.documentElement.getAttribute('data-theme'), 'sakura');
+  assert.equal(
+    elementsById.get('btn-toggle-theme').querySelector('.btn-label-text').textContent,
+    'Giao Diện Tối'
+  );
+
+  // Verify all 8 wishes are rendered in FULL inside #lantern-sky-floating-area without any '...' truncation
+  const skyHtml = elementsById.get('lantern-sky-floating-area').innerHTML;
+  assert.ok(skyHtml.includes('lantern-stream-track'), 'Must render continuous stream track');
+  assert.ok(skyHtml.includes('lantern-stream-cycle'), 'Must render seamless loop cycles');
+  assert.ok(skyHtml.includes('lantern-cord'), 'Must render suspension cord connecting lantern to wish card');
+  for (const w of DEFAULT_WISH_LANTERNS) {
+    assert.ok(
+      skyHtml.includes(w.text),
+      `Floating sky lantern must include full untruncated text: "${w.text}"`
+    );
+  }
+
+  // Verify single poetic bouquet caption weaves both "Diểm Phúc" and "Emm"
+  const poeticWish = elementsById.get('flower-blessing-wish').textContent;
+  assert.ok(poeticWish.includes('Diểm Phúc'), 'Poetic caption should mention Diểm Phúc');
+  assert.ok(poeticWish.includes('Emm'), 'Poetic caption should also mention Emm');
+
+  // Verify clicking #btn-replay-bloom replays the bouquet bloom animation and triggers toast
+  elementsById.get('btn-replay-bloom').trigger('click');
+  assert.equal(elementsById.get('interactive-bouquet-svg').classList.contains('is-blooming'), true);
+  assert.ok(elementsById.get('live-toast').textContent.includes('Tulip'));
+
+  // Verify clicking #btn-switch-melody switches to the next cheerful track and starts playing
+  elementsById.get('btn-switch-melody').trigger('click');
+  assert.equal(controller.audio.isPlaying, true);
+  assert.equal(controller.audio.melodyKey, 'starlight');
+  controller.audio.stopMusic();
+});
+
+test('9. dist/bundle.js is generated, syntactically valid, and free of leftover import/export keywords', () => {
+  const bundlePath = path.resolve(PROJECT_ROOT, 'dist/bundle.js');
+  assert.ok(fs.existsSync(bundlePath), 'dist/bundle.js should exist');
+  const code = fs.readFileSync(bundlePath, 'utf8');
+  assert.ok(code.length > 15000, 'dist/bundle.js should contain full application code');
+  assert.equal(/^\s*import\s+/m.test(code), false, 'Should have no top-level import statements');
+  assert.equal(/^\s*export\s+/m.test(code), false, 'Should have no top-level export statements');
+  assert.doesNotThrow(() => new Function(code));
+});
+
+test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambient background sky lanterns & interactive micro-touches', () => {
+  // 1. Verify PHOTO_STACK_ITEMS structure & first photo is 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg
+  assert.ok(Array.isArray(PHOTO_STACK_ITEMS), 'PHOTO_STACK_ITEMS must be an array');
+  assert.equal(PHOTO_STACK_ITEMS.length, 6, 'Should have 6 curated photos of Diểm Phúc');
+  assert.ok(
+    PHOTO_STACK_ITEMS[0].src.includes('7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'),
+    'First photo must be 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'
+  );
+
+  // 2. Verify all local image assets exist and are non-empty
+  for (const item of PHOTO_STACK_ITEMS) {
+    const fullPath = path.resolve(PROJECT_ROOT, item.src);
+    assert.ok(fs.existsSync(fullPath), `Photo file should exist on disk: ${fullPath}`);
+    assert.ok(fs.statSync(fullPath).size > 5000, `Photo file should be non-empty: ${fullPath}`);
+  }
+
+  // 3. Verify real MP3 audio asset exists and is over 1MB
+  const mp3Path = path.resolve(PROJECT_ROOT, 'assets/audio/mot-ngay-buon-kieu-chi.mp3');
+  assert.ok(fs.existsSync(mp3Path), `MP3 audio should exist at ${mp3Path}`);
+  assert.ok(fs.statSync(mp3Path).size > 1000000, 'MP3 audio should be full audio file > 1MB');
+
+  // 4. Verify index.html contains swipeable deck, floating music pill, and audio tag
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  assert.ok(htmlContent.includes('id="photo-card-deck"'), 'index.html must have #photo-card-deck');
+  assert.ok(htmlContent.includes('id="btn-card-prev"'), 'index.html must have #btn-card-prev');
+  assert.ok(htmlContent.includes('id="btn-card-next"'), 'index.html must have #btn-card-next');
+  assert.ok(htmlContent.includes('id="card-counter"'), 'index.html must have #card-counter');
+  assert.ok(htmlContent.includes('id="card-dots"'), 'index.html must have #card-dots');
+  assert.ok(htmlContent.includes('ambient-photo-backdrop'), 'index.html must have ambient floating photo backdrop');
+  assert.ok(htmlContent.includes('id="floating-music-pill"'), 'index.html must have #floating-music-pill');
+  assert.ok(htmlContent.includes('id="mini-play-btn"'), 'index.html must have #mini-play-btn');
+  assert.ok(htmlContent.includes('id="mini-next-btn"'), 'index.html must have #mini-next-btn');
+  assert.ok(htmlContent.includes('id="bg-audio-player"'), 'index.html must have #bg-audio-player');
+  assert.ok(htmlContent.includes('mot-ngay-buon-kieu-chi.mp3'), 'Audio player must load mot-ngay-buon-kieu-chi.mp3');
+  assert.ok(htmlContent.includes('quick-wishes-chips'), 'index.html must have quick-wishes-chips');
+
+  // 5. Verify audio engine audio element support & micro-sound methods
+  const audio = new RomanticAudioEngine();
+  assert.equal(typeof audio.setAudioElement, 'function');
+  assert.equal(typeof audio.playSwipeSwoosh, 'function');
+  assert.equal(typeof audio.playLanternGlowChime, 'function');
+  assert.equal(audio.currentSongTitle, 'Một ngày buồn — Kiều Chi');
+
+  let played = false;
+  const mockAudioEl = {
+    volume: 1,
+    play: async () => {
+      played = true;
+    },
+    pause: () => {
+      played = false;
+    }
+  };
+  audio.setAudioElement(mockAudioEl);
+  audio.startMusic();
+  assert.equal(played, true, 'AudioElement should play when startMusic is invoked');
+  audio.stopMusic();
+  assert.equal(played, false, 'AudioElement should pause when stopMusic is invoked');
+
+  // 6. Verify particle engine ambient background sky lanterns & touch spawning
+  const mockCanvas = {
+    width: 1280,
+    height: 800,
+    getContext: () => ({
+      setTransform: () => {},
+      clearRect: () => {},
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      fill: () => {},
+      stroke: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      bezierCurveTo: () => {},
+      translate: () => {},
+      rotate: () => {},
+      scale: () => {},
+      fillText: () => {},
+      createLinearGradient: () => ({ addColorStop: () => {} }),
+      createRadialGradient: () => ({ addColorStop: () => {} })
+    })
+  };
+  const particles = new RomanticParticleEngine(mockCanvas);
+  particles.init();
+  assert.ok(particles.skyLanterns.length >= 6, 'Should seed at least 6 ambient background sky lanterns');
+  const touchLantern = particles.spawnTouchLantern(200, 300, 'Điều ước Diểm Phúc');
+  assert.ok(touchLantern, 'Should spawn touch lantern at coordinates');
+  assert.equal(touchLantern.x, 200);
+  assert.equal(touchLantern.y, 300);
+  particles.destroy();
+
+  // 7. Verify styles.css contains styling for new interactive components
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
+  assert.ok(cssContent.includes('.photo-card-deck'));
+  assert.ok(cssContent.includes('.photo-card-item.is-active'));
+  assert.ok(cssContent.includes('.floating-music-pill'));
+  assert.ok(cssContent.includes('.bouquet-flower-node:hover'));
+  assert.ok(cssContent.includes('.wish-chip-btn'));
+});
+
