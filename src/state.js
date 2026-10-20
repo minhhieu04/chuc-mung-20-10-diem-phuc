@@ -128,7 +128,10 @@ export class BirthdayStateStore {
           DEFAULT_CONFIG.birthdaySubtitle,
           300
         );
-        if (isValidImageSrc(c.heroPortraitUrl)) {
+        if (
+          isValidImageSrc(c.heroPortraitUrl) &&
+          !String(c.heroPortraitUrl).includes('photos.fife.usercontent.google.com')
+        ) {
           this.state.config.heroPortraitUrl = c.heroPortraitUrl.trim();
         }
         this.state.config.heroPortraitCaption = sanitizeText(

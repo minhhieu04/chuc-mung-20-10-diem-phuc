@@ -15,7 +15,7 @@ const LEGACY_V3_STORAGE_KEY = 'dp_womens_day_20_10_v3_gift';
 const LEGACY_V4_STORAGE_KEY = 'dp_womens_day_20_10_v4_landing';
 const STORAGE_KEY = 'dp_womens_day_20_10_v5_tulip';
 const USER_PROVIDED_PORTRAIT_URL =
-  'https://photos.fife.usercontent.google.com/pw/AP1GczPmSQT5pcpBvdJ4J-gw2fLlNbn7BO6ozp5ha3M0laIXpd1ctXz_E4HjGA=w768-h1024-s-no-gm?authuser=0';
+  './assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg';
 const FALLBACK_PORTRAIT_URL = './assets/images/hero-portrait.jpg';
 const DEFAULT_CONFIG = {
   recipientName: 'Diểm Phúc',
@@ -385,7 +385,10 @@ class BirthdayStateStore {
           DEFAULT_CONFIG.birthdaySubtitle,
           300
         );
-        if (isValidImageSrc(c.heroPortraitUrl)) {
+        if (
+          isValidImageSrc(c.heroPortraitUrl) &&
+          !String(c.heroPortraitUrl).includes('photos.fife.usercontent.google.com')
+        ) {
           this.state.config.heroPortraitUrl = c.heroPortraitUrl.trim();
         }
         this.state.config.heroPortraitCaption = sanitizeText(
@@ -3558,6 +3561,24 @@ class BirthdayAppController {
           if (isLetterDragging) onLetterDragEnd();
         });
       }
+    }
+
+    const celebrateLetterBtn = this.doc.getElementById('btn-letter-celebrate');
+    if (celebrateLetterBtn) {
+      celebrateLetterBtn.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        this.audio.playCelebrationChord();
+        if (typeof this.particles.launchFireworkShow === 'function') {
+          this.particles.launchFireworkShow();
+        }
+        if (typeof this.particles.triggerFlowerShower === 'function') {
+          this.particles.triggerFlowerShower(56);
+        }
+        if (typeof this.particles.spawnCanvasLantern === 'function') {
+          this.particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ & hạnh phúc!', '');
+        }
+        this.showToast('✦ Gửi ngàn điều tốt đẹp và nụ cười rạng rỡ nhất đến Diểm Phúc!');
+      });
     }
 
     const closeEnvelopeBtn = this.doc.getElementById('btn-close-envelope');

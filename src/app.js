@@ -930,6 +930,24 @@ export class BirthdayAppController {
       }
     }
 
+    const celebrateLetterBtn = this.doc.getElementById('btn-letter-celebrate');
+    if (celebrateLetterBtn) {
+      celebrateLetterBtn.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        this.audio.playCelebrationChord();
+        if (typeof this.particles.launchFireworkShow === 'function') {
+          this.particles.launchFireworkShow();
+        }
+        if (typeof this.particles.triggerFlowerShower === 'function') {
+          this.particles.triggerFlowerShower(56);
+        }
+        if (typeof this.particles.spawnCanvasLantern === 'function') {
+          this.particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ & hạnh phúc!', '');
+        }
+        this.showToast('✦ Gửi ngàn điều tốt đẹp và nụ cười rạng rỡ nhất đến Diểm Phúc!');
+      });
+    }
+
     const closeEnvelopeBtn = this.doc.getElementById('btn-close-envelope');
     if (closeEnvelopeBtn) {
       closeEnvelopeBtn.addEventListener('click', (e) => {

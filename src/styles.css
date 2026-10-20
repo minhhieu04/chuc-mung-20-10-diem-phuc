@@ -2387,6 +2387,26 @@ button,
   margin-bottom: var(--space-6);
 }
 
+.letter-parchment.is-open .letter-body p {
+  animation: letterParagraphReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.letter-parchment.is-open .letter-body p:nth-child(1) { animation-delay: 0.22s; }
+.letter-parchment.is-open .letter-body p:nth-child(2) { animation-delay: 0.34s; }
+.letter-parchment.is-open .letter-body p:nth-child(3) { animation-delay: 0.46s; }
+.letter-parchment.is-open .letter-body p:nth-child(4) { animation-delay: 0.58s; }
+
+@keyframes letterParagraphReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .letter-signature {
   font-family: var(--font-script);
   font-size: 1.75rem;
@@ -2394,18 +2414,64 @@ button,
   color: #BE123C;
   text-align: right;
   margin-bottom: var(--space-4);
+  transform-origin: right center;
+}
+
+.letter-parchment.is-open .letter-signature {
+  animation: signatureInkReveal 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+}
+
+@keyframes signatureInkReveal {
+  0% {
+    opacity: 0;
+    transform: translateX(-14px) scale(0.95);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 .letter-footer-actions {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
+  gap: 12px;
   padding-top: var(--space-3);
   border-top: 1.2px dashed rgba(217, 119, 6, 0.38);
+}
+
+.btn-celebrate-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1.5px solid #FDE047;
+  background: linear-gradient(135deg, #E11D48 0%, #FB7185 52%, #F59E0B 100%);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.32), 0 0 18px rgba(251, 191, 36, 0.28);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+}
+
+.btn-celebrate-letter:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 26px rgba(225, 29, 72, 0.42), 0 0 24px rgba(251, 191, 36, 0.45);
+  filter: brightness(1.06);
 }
 
 .btn-fold-letter {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 9px 22px;
   border-radius: 999px;
@@ -2428,7 +2494,7 @@ button,
 
 /* Footer & Live Toast */
 .site-footer {
-  padding: var(--space-12) 0 var(--space-16);
+  padding: var(--space-12) 0 96px;
   border-top: 1px solid var(--border-subtle);
   text-align: center;
   color: var(--text-secondary);
@@ -2968,7 +3034,7 @@ button,
 
   /* Footer & Toast Mobile Optimization */
   .site-footer {
-    padding: var(--space-8) 0 var(--space-10);
+    padding: var(--space-8) 0 92px;
   }
   .footer-headline {
     font-size: 1.05rem;

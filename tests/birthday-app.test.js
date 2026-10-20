@@ -971,6 +971,7 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
     'envelope-inner-letter',
     'letter-parchment',
     'btn-open-envelope',
+    'btn-letter-celebrate',
     'btn-close-envelope',
     'letter-greeting',
     'letter-body',
@@ -1011,6 +1012,10 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-extracted'), true);
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), true);
 
+  // Click celebrate letter button -> triggers toast & celebration
+  elementsById.get('btn-letter-celebrate').trigger('click');
+  assert.ok(elementsById.get('live-toast').textContent.includes('Diểm Phúc'));
+
   // Click close envelope button -> folds letter back inside with multi-stage tuck-and-seal animation
   elementsById.get('btn-close-envelope').trigger('click');
   assert.equal(controller.envelopeStage, 'closed');
@@ -1022,6 +1027,8 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.ok(cssContent.includes('@keyframes letterTuckIntoPocket'), 'CSS must define letterTuckIntoPocket animation');
   assert.ok(cssContent.includes('@keyframes flapSwingShut'), 'CSS must define flapSwingShut animation');
   assert.ok(cssContent.includes('@keyframes waxSealStampShut'), 'CSS must define waxSealStampShut animation');
+  assert.ok(cssContent.includes('@keyframes signatureInkReveal'), 'CSS must define signatureInkReveal animation');
+  assert.equal(USER_PROVIDED_PORTRAIT_URL.includes('photos.fife'), false, 'Default avatar URL must be local for 0ms load on any device');
 });
 
 

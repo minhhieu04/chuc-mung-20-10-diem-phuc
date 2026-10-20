@@ -10,7 +10,7 @@ export const LEGACY_V4_STORAGE_KEY = 'dp_womens_day_20_10_v4_landing';
 export const STORAGE_KEY = 'dp_womens_day_20_10_v5_tulip';
 
 export const USER_PROVIDED_PORTRAIT_URL =
-  'https://photos.fife.usercontent.google.com/pw/AP1GczPmSQT5pcpBvdJ4J-gw2fLlNbn7BO6ozp5ha3M0laIXpd1ctXz_E4HjGA=w768-h1024-s-no-gm?authuser=0';
+  './assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg';
 
 export const FALLBACK_PORTRAIT_URL = './assets/images/hero-portrait.jpg';
 
