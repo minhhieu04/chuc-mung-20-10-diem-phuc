@@ -3184,10 +3184,7 @@ class BirthdayAppController {
       });
 
       if (counterEl) {
-        const item = (typeof PHOTO_STACK_ITEMS !== 'undefined' && PHOTO_STACK_ITEMS[this.activeCardIndex]) || {};
-        const title = item.title || 'Diểm Phúc';
-        const tag = item.tag ? ` • ${item.tag}` : '';
-        counterEl.textContent = `${this.activeCardIndex + 1} / ${total} • ${title}${tag}`;
+        counterEl.textContent = `${this.activeCardIndex + 1} / ${total} • Diểm Phúc`;
       }
 
       if (dotsContainer && dotsContainer.children) {
