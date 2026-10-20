@@ -1558,18 +1558,18 @@ const FLOWER_PALETTE = [
   { outer: '#E06C9F', inner: '#FDE2E8', core: '#FFE066' }
 ];
 const LANTERN_WISH_POOL = [
-  '🌷 Diểm Phúc 20/10',
-  '✨ Nụ cười tỏa nắng',
-  '💖 Bình an & Hạnh phúc',
-  '🌸 Emm luôn rạng ngời',
-  '💫 Vạn điều như ý',
-  '🌷 Thanh xuân rực rỡ',
-  '✨ Yêu đời & Lạc quan',
-  '💖 Ngọt ngào & An nhiên',
-  '🌸 Dịu dàng & Tinh tế',
-  '🌷 Mãi mãi hồn nhiên',
-  '✨ Bình yên mỗi ngày',
-  '💖 Yêu thương đong đầy'
+  'Diểm Phúc 20/10',
+  'Dịu dàng & Tinh tế',
+  'Bình yên & Rạng rỡ',
+  'Vạn sự như ý',
+  'Nụ cười tỏa nắng',
+  'Bình an & Hạnh phúc',
+  'Emm luôn rạng ngời',
+  'Thanh xuân rực rỡ',
+  'Yêu đời & Lạc quan',
+  'Ngọt ngào & An nhiên',
+  'Hạnh phúc đong đầy',
+  'Yêu thương trọn vẹn'
 ];
 class RomanticParticleEngine {
   /**
@@ -1699,12 +1699,12 @@ class RomanticParticleEngine {
       y: Math.random() * this.height,
       vx: (Math.random() - 0.5) * 0.28,
       vy: -(Math.random() * 0.45 + 0.32),
-      size: Math.random() * 10 + 20,
+      size: Math.random() * 6 + 16,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: Math.random() * 0.35 + 0.58,
+      alpha: Math.random() * 0.22 + 0.36,
       label: LANTERN_WISH_POOL[i % LANTERN_WISH_POOL.length],
-      author: 'Ông chú Viettel',
+      author: '',
       isAmbient: true
     }));
   }
@@ -1893,12 +1893,12 @@ class RomanticParticleEngine {
       y: this.height * (0.72 + Math.random() * 0.24),
       vx: (Math.random() - 0.5) * 0.32,
       vy: -(Math.random() * 0.85 + 0.72),
-      size: Math.random() * 12 + 24,
+      size: Math.random() * 6 + 18,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.98,
+      alpha: 0.85,
       label: String(finalLabel),
-      author: String(author || 'Ông chú Viettel')
+      author: author ? String(author) : ''
     };
     this.skyLanterns.push(lantern);
     if (this.skyLanterns.length > 28) {
@@ -1921,12 +1921,12 @@ class RomanticParticleEngine {
       y: typeof y === 'number' ? y : this.height * 0.8,
       vx: (Math.random() - 0.5) * 0.35,
       vy: -(Math.random() * 0.75 + 0.65),
-      size: Math.random() * 10 + 24,
+      size: Math.random() * 6 + 18,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.98,
+      alpha: 0.85,
       label: String(finalLabel),
-      author: 'Ông chú Viettel'
+      author: ''
     };
     this.skyLanterns.push(lantern);
     if (this.skyLanterns.length > 32) {
@@ -2030,8 +2030,8 @@ class RomanticParticleEngine {
           l.x = Math.random() * this.width;
           l.swayPhase = Math.random() * Math.PI * 2;
           l.flickerPhase = Math.random() * Math.PI * 2;
-          l.size = Math.random() * 10 + 20;
-          l.alpha = Math.random() * 0.35 + 0.58;
+          l.size = Math.random() * 6 + 16;
+          l.alpha = Math.random() * 0.22 + 0.36;
           l.label = LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
         } else {
           this.skyLanterns.splice(i, 1);
@@ -2398,30 +2398,58 @@ class RomanticParticleEngine {
       // Wish label text beneath lantern inside a translucent glowing ribbon badge
       if (l.label && typeof ctx.fillText === 'function') {
         const textStr = String(l.label);
-        ctx.font = '600 11px "Plus Jakarta Sans", sans-serif';
-        const textWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6.5;
-        const padX = 8;
-        const badgeW = textWidth + padX * 2;
-        const badgeH = 18;
+        ctx.font = '600 10.5px "Plus Jakarta Sans", sans-serif';
+        const textWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6;
+        const iconSize = 8;
+        const padX = 7;
+        const badgeW = textWidth + padX * 2 + iconSize + 3;
+        const badgeH = 17;
         const badgeY = l.size * 0.88;
 
         // Ribbon tag pill
-        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.92)' : 'rgba(22, 11, 33, 0.78)';
-        ctx.strokeStyle = 'rgba(246, 189, 96, 0.8)';
+        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.90)' : 'rgba(22, 11, 33, 0.75)';
+        ctx.strokeStyle = 'rgba(246, 189, 96, 0.65)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         const rx = -badgeW / 2;
         const ry = badgeY;
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(rx, ry, badgeW, badgeH, 6);
+          ctx.roundRect(rx, ry, badgeW, badgeH, 5);
         } else if (typeof ctx.rect === 'function') {
           ctx.rect(rx, ry, badgeW, badgeH);
         }
         ctx.fill();
         ctx.stroke();
 
-        ctx.textAlign = 'center';
+        // Refined 4-point golden star sparkle vector (replaces OS emoji)
+        const iconX = rx + padX + iconSize * 0.5;
+        const iconY = ry + badgeH * 0.5;
+        ctx.fillStyle = '#FFD166';
+        if (typeof ctx.quadraticCurveTo === 'function') {
+          ctx.beginPath();
+          ctx.moveTo(iconX, iconY - 3.8);
+          ctx.quadraticCurveTo(iconX, iconY, iconX + 3.8, iconY);
+          ctx.quadraticCurveTo(iconX, iconY, iconX, iconY + 3.8);
+          ctx.quadraticCurveTo(iconX, iconY, iconX - 3.8, iconY);
+          ctx.quadraticCurveTo(iconX, iconY, iconX, iconY - 3.8);
+          ctx.fill();
+        } else if (typeof ctx.lineTo === 'function') {
+          ctx.beginPath();
+          ctx.moveTo(iconX, iconY - 4);
+          ctx.lineTo(iconX + 1.2, iconY - 1.2);
+          ctx.lineTo(iconX + 4, iconY);
+          ctx.lineTo(iconX + 1.2, iconY + 1.2);
+          ctx.lineTo(iconX, iconY + 4);
+          ctx.lineTo(iconX - 1.2, iconY + 1.2);
+          ctx.lineTo(iconX - 4, iconY);
+          ctx.lineTo(iconX - 1.2, iconY - 1.2);
+          if (typeof ctx.closePath === 'function') ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.textAlign = 'left';
         ctx.fillStyle = this.theme === 'sakura' ? '#240D1B' : '#FFF5F8';
-        ctx.fillText(textStr, 0, badgeY + 13);
+        ctx.fillText(textStr, rx + padX + iconSize + 3, badgeY + 12);
       }
       ctx.restore();
     }
@@ -2855,7 +2883,6 @@ class BirthdayAppController {
           <span class="lantern-cord" aria-hidden="true"></span>
           <div class="lantern-wish-ribbon">
             <p class="lantern-wish-text">${escapeHtml(fullWishText)}</p>
-            <span class="lantern-wish-author">— ${escapeHtml(item.author)}</span>
           </div>
         </article>
       `;
@@ -3420,7 +3447,7 @@ class BirthdayAppController {
       btn.addEventListener('click', () => {
         const wish = (btn.getAttribute && btn.getAttribute('data-wish')) || 'Chúc Diểm Phúc ngày 20/10 hạnh phúc!';
         if (typeof this.particles.spawnCanvasLantern === 'function') {
-          this.particles.spawnCanvasLantern(wish, 'Ông chú Viettel');
+          this.particles.spawnCanvasLantern(wish, '');
         }
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
@@ -3431,7 +3458,7 @@ class BirthdayAppController {
           const y = rect ? rect.top : 400;
           this.particles.triggerCelebrationBurst(x, y, 18);
         }
-        this.showToast(`🏮 Đèn trời ước nguyện đã bay lên: "${wish}"`);
+        this.showToast(`✨ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
       });
     });
 
@@ -3447,7 +3474,7 @@ class BirthdayAppController {
           return;
         }
         if (typeof this.particles.spawnCanvasLantern === 'function') {
-          this.particles.spawnCanvasLantern(text, 'Ông chú Viettel');
+          this.particles.spawnCanvasLantern(text, '');
         }
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
@@ -3459,7 +3486,7 @@ class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 28);
         }
         if (wishInput) wishInput.value = '';
-        this.showToast(`🏮 Đèn trời mang lời ước nguyện "${text}" đã bay lên trời đêm!`);
+        this.showToast(`✨ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
       });
     }
 
@@ -3482,7 +3509,7 @@ class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
-        this.showToast(`🏮 Thả đèn trời: "${wishText}"`);
+        this.showToast(`✨ Thả hoa đăng: "${wishText}"`);
       });
     }
   }

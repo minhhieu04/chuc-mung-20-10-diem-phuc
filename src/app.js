@@ -377,7 +377,6 @@ export class BirthdayAppController {
           <span class="lantern-cord" aria-hidden="true"></span>
           <div class="lantern-wish-ribbon">
             <p class="lantern-wish-text">${escapeHtml(fullWishText)}</p>
-            <span class="lantern-wish-author">— ${escapeHtml(item.author)}</span>
           </div>
         </article>
       `;
@@ -942,7 +941,7 @@ export class BirthdayAppController {
       btn.addEventListener('click', () => {
         const wish = (btn.getAttribute && btn.getAttribute('data-wish')) || 'Chúc Diểm Phúc ngày 20/10 hạnh phúc!';
         if (typeof this.particles.spawnCanvasLantern === 'function') {
-          this.particles.spawnCanvasLantern(wish, 'Ông chú Viettel');
+          this.particles.spawnCanvasLantern(wish, '');
         }
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
@@ -953,7 +952,7 @@ export class BirthdayAppController {
           const y = rect ? rect.top : 400;
           this.particles.triggerCelebrationBurst(x, y, 18);
         }
-        this.showToast(`🏮 Đèn trời ước nguyện đã bay lên: "${wish}"`);
+        this.showToast(`✨ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
       });
     });
 
@@ -969,7 +968,7 @@ export class BirthdayAppController {
           return;
         }
         if (typeof this.particles.spawnCanvasLantern === 'function') {
-          this.particles.spawnCanvasLantern(text, 'Ông chú Viettel');
+          this.particles.spawnCanvasLantern(text, '');
         }
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
@@ -981,7 +980,7 @@ export class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 28);
         }
         if (wishInput) wishInput.value = '';
-        this.showToast(`🏮 Đèn trời mang lời ước nguyện "${text}" đã bay lên trời đêm!`);
+        this.showToast(`✨ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
       });
     }
 
@@ -1004,7 +1003,7 @@ export class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
-        this.showToast(`🏮 Thả đèn trời: "${wishText}"`);
+        this.showToast(`✨ Thả hoa đăng: "${wishText}"`);
       });
     }
   }

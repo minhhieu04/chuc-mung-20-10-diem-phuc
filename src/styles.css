@@ -1305,13 +1305,16 @@ button,
    ========================================================================== */
 .ambient-fullscreen-lanterns,
 #lantern-sky-floating-area {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
   overflow: hidden;
-  z-index: 1;
+  z-index: -1;
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 6%, #000 92%, transparent 100%);
   mask-image: linear-gradient(180deg, transparent 0%, #000 6%, #000 92%, transparent 100%);
 }
@@ -1486,23 +1489,11 @@ button,
 }
 
 .lantern-wish-author {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: rgba(246, 189, 96, 0.7);
-}
-
-.floating-sky-lantern:hover .lantern-wish-author {
-  color: #F6BD60;
+  display: none !important;
 }
 
 [data-theme="sakura"] .lantern-wish-author {
-  color: rgba(184, 20, 77, 0.7);
-}
-
-[data-theme="sakura"] .floating-sky-lantern:hover .lantern-wish-author {
-  color: #B8144D;
+  display: none !important;
 }
 
 .sky-stage-bottom-bar {
