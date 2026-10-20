@@ -337,6 +337,12 @@ export class RomanticAudioEngine {
             this.audioElement.pause();
           } catch {}
         }
+      } else {
+        this.isMp3Mode = true;
+      }
+    } else if (!melodyKey) {
+      if (this.melodyKey === 'birthday') {
+        this.isMp3Mode = true;
       }
     }
     if (this.isPlaying) return true;
@@ -388,14 +394,32 @@ export class RomanticAudioEngine {
     if (!ROMANTIC_PLAYLIST.some((t) => t.key === melodyKey)) return false;
     this.melodyKey = melodyKey;
     this.noteIndex = 0;
-    if (this.isPlaying) {
-      if (this.timerId) clearTimeout(this.timerId);
+
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+
+    if (melodyKey === 'birthday') {
+      this.isMp3Mode = true;
+      if (this.isPlaying && this.audioElement && typeof this.audioElement.play === 'function') {
+        const p = this.audioElement.play();
+        if (p !== undefined) {
+          p.catch(() => {
+            this.scheduleNextNote();
+          });
+        }
+      }
+    } else {
+      this.isMp3Mode = false;
       if (this.audioElement && typeof this.audioElement.pause === 'function') {
         try {
           this.audioElement.pause();
         } catch {}
       }
-      this.scheduleNextNote();
+      if (this.isPlaying) {
+        this.scheduleNextNote();
+      }
     }
     return true;
   }
@@ -426,6 +450,25 @@ export class RomanticAudioEngine {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.15);
+    } catch {}
+  }
+
+  playHeartPop() {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.13);
     } catch {}
   }
 

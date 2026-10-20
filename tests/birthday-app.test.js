@@ -30,7 +30,10 @@ import {
   MOONLIGHT_SERENADE_MELODY,
   SPRING_FLOWER_MELODY
 } from '../src/audio.js';
-import { RomanticParticleEngine } from '../src/particles.js';
+import {
+  RomanticParticleEngine,
+  LANTERN_WISH_POOL
+} from '../src/particles.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -683,5 +686,83 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
   assert.ok(cssContent.includes('.floating-music-pill'));
   assert.ok(cssContent.includes('.bouquet-flower-node:hover'));
   assert.ok(cssContent.includes('.wish-chip-btn'));
+});
+
+test('11. Verification of MP3 cycling recovery, realistic background sky lantern wish pool, custom wish form, and card/reason micro-interactions', () => {
+  // 1. Verify LANTERN_WISH_POOL exists, has >= 10 romantic wishes, and all ambient lanterns get wishes
+  assert.ok(Array.isArray(LANTERN_WISH_POOL));
+  assert.ok(LANTERN_WISH_POOL.length >= 10);
+  assert.ok(LANTERN_WISH_POOL.some((w) => w.includes('Diểm Phúc')));
+
+  const mockCanvas = {
+    width: 1280,
+    height: 800,
+    getContext: () => ({
+      setTransform: () => {},
+      clearRect: () => {},
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      fill: () => {},
+      stroke: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      bezierCurveTo: () => {},
+      translate: () => {},
+      rotate: () => {},
+      scale: () => {},
+      fillText: () => {},
+      createLinearGradient: () => ({ addColorStop: () => {} }),
+      createRadialGradient: () => ({ addColorStop: () => {} })
+    })
+  };
+  const particles = new RomanticParticleEngine(mockCanvas);
+  particles.init();
+  assert.ok(particles.skyLanterns.every((l) => Boolean(l.label)), 'All ambient background sky lanterns must have a wish label');
+  const defaultTouchLantern = particles.spawnTouchLantern(100, 200);
+  assert.ok(defaultTouchLantern.label.length > 0, 'Touch lantern without argument must pick a romantic wish from pool');
+  particles.destroy();
+
+  // 2. Audio Engine: Verify MP3 playback resumes when cycling back from other melodies
+  const audio = new RomanticAudioEngine();
+  let playCalls = 0;
+  let pauseCalls = 0;
+  audio.setAudioElement({
+    volume: 1,
+    play: async () => { playCalls++; },
+    pause: () => { pauseCalls++; }
+  });
+  audio.startMusic();
+  assert.equal(audio.isPlaying, true);
+  assert.equal(audio.isMp3Mode, true);
+  assert.equal(playCalls, 1);
+
+  // Switch to starlight (synth)
+  audio.switchMelody('starlight');
+  assert.equal(audio.isMp3Mode, false);
+  assert.equal(pauseCalls, 1);
+
+  // Switch back to birthday (MP3)
+  audio.switchMelody('birthday');
+  assert.equal(audio.isMp3Mode, true);
+  assert.equal(playCalls, 2, 'AudioElement.play() must be re-invoked when switching back to birthday MP3 track');
+
+  // Verify playHeartPop exists and runs safely
+  assert.equal(typeof audio.playHeartPop, 'function');
+  assert.doesNotThrow(() => audio.playHeartPop());
+  audio.stopMusic();
+
+  // 3. Verify HTML & CSS support custom wish form & glassmorphic sky stage
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  assert.ok(htmlContent.includes('id="form-custom-wish"'), 'index.html must have #form-custom-wish');
+  assert.ok(htmlContent.includes('id="input-custom-wish"'), 'index.html must have #input-custom-wish');
+  assert.ok(htmlContent.includes('id="btn-submit-wish"'), 'index.html must have #btn-submit-wish');
+
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
+  assert.ok(cssContent.includes('.custom-wish-form'));
+  assert.ok(cssContent.includes('.floating-card-heart'));
+  assert.ok(cssContent.includes('.reason-card.is-popping'));
+  assert.ok(cssContent.includes('.floating-sky-lantern:hover'));
 });
 

@@ -1194,13 +1194,32 @@
 
           <!-- Interactive Wish Launch Bar -->
           <div class="lantern-interactive-toolbar">
-            <p class="toolbar-hint">✨ Chạm chọn một lời chúc để thả thêm đèn trời gửi đến <span data-bind="recipientShortName">Emm</span>:</p>
+            <p class="toolbar-hint">✨ Chạm chọn một lời chúc hoặc tự viết ước nguyện để thả đèn trời bay lên bầu trời nền:</p>
             <div class="quick-wishes-chips" id="quick-wishes-chips">
               <button type="button" class="wish-chip-btn" data-wish="Chúc Diểm Phúc ngày 20/10 luôn xinh đẹp rạng ngời và hạnh phúc trọn vẹn!">🌷 Xinh đẹp &amp; Rạng ngời</button>
               <button type="button" class="wish-chip-btn" data-wish="Mong nụ cười tỏa nắng của Emm sẽ luôn nở trên môi mỗi ngày!">✨ Nụ cười tỏa nắng</button>
               <button type="button" class="wish-chip-btn" data-wish="Chúc mọi điều ước đẹp đẽ nhất hôm nay của Emm đều trở thành sự thật!">💫 Vạn điều như ý</button>
               <button type="button" class="wish-chip-btn" data-wish="Chúc Emm luôn được yêu thương, bình an và ngập tràn niềm vui!">💖 Bình an &amp; Yêu thương</button>
             </div>
+
+            <!-- Custom Wish Form -->
+            <form id="form-custom-wish" class="custom-wish-form" aria-label="Gửi lời chúc thả đèn trời">
+              <input
+                type="text"
+                id="input-custom-wish"
+                class="custom-wish-input"
+                placeholder="Viết lời ước nguyện gửi đến Diểm Phúc..."
+                maxlength="120"
+                autocomplete="off"
+              />
+              <button type="submit" id="btn-submit-wish" class="btn-primary wish-submit-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 2C7.5 2 5 5.5 5 10c0 3.5 2 6.5 4 8h6c2-1.5 4-4.5 4-8 0-4.5-2.5-8-7-8z" />
+                  <path d="M9 21h6" />
+                </svg>
+                <span>Thả Đèn Lên Bầu Trời</span>
+              </button>
+            </form>
           </div>
 
           <!-- Panoramic Sky Stage where Full-Text Wishes Continuously Float Upward -->

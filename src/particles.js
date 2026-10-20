@@ -25,6 +25,21 @@ const FLOWER_PALETTE = [
   { outer: '#E06C9F', inner: '#FDE2E8', core: '#FFE066' }
 ];
 
+export const LANTERN_WISH_POOL = [
+  '🌷 Diểm Phúc 20/10',
+  '✨ Nụ cười tỏa nắng',
+  '💖 Bình an & Hạnh phúc',
+  '🌸 Emm luôn rạng ngời',
+  '💫 Vạn điều như ý',
+  '🌷 Thanh xuân rực rỡ',
+  '✨ Yêu đời & Lạc quan',
+  '💖 Ngọt ngào & An nhiên',
+  '🌸 Dịu dàng & Tinh tế',
+  '🌷 Mãi mãi hồn nhiên',
+  '✨ Bình yên mỗi ngày',
+  '💖 Yêu thương đong đầy'
+];
+
 export class RomanticParticleEngine {
   /**
    * @param {HTMLCanvasElement | null} canvas
@@ -147,17 +162,18 @@ export class RomanticParticleEngine {
       color: Math.random() > 0.45 ? '#FFD166' : '#FF8FA3'
     }));
 
-    const lanternCount = isMobile ? 6 : 9;
-    this.skyLanterns = Array.from({ length: lanternCount }, () => ({
+    const lanternCount = isMobile ? 8 : 12;
+    this.skyLanterns = Array.from({ length: lanternCount }, (_, i) => ({
       x: Math.random() * this.width,
       y: Math.random() * this.height,
       vx: (Math.random() - 0.5) * 0.28,
-      vy: -(Math.random() * 0.48 + 0.32),
-      size: Math.random() * 10 + 18,
+      vy: -(Math.random() * 0.45 + 0.32),
+      size: Math.random() * 10 + 20,
       swayPhase: Math.random() * Math.PI * 2,
-      alpha: Math.random() * 0.42 + 0.48,
-      label: '',
-      author: '',
+      flickerPhase: Math.random() * Math.PI * 2,
+      alpha: Math.random() * 0.35 + 0.58,
+      label: LANTERN_WISH_POOL[i % LANTERN_WISH_POOL.length],
+      author: 'Ông chú Viettel',
       isAmbient: true
     }));
   }
@@ -340,6 +356,7 @@ export class RomanticParticleEngine {
    */
   spawnCanvasLantern(label = '', author = '') {
     if (this.reducedMotion) return null;
+    const finalLabel = label || LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
     const lantern = {
       x: this.width * (0.12 + Math.random() * 0.76),
       y: this.height * (0.72 + Math.random() * 0.24),
@@ -347,12 +364,13 @@ export class RomanticParticleEngine {
       vy: -(Math.random() * 0.85 + 0.72),
       size: Math.random() * 12 + 24,
       swayPhase: Math.random() * Math.PI * 2,
-      alpha: 0.96,
-      label: String(label || ''),
-      author: String(author || '')
+      flickerPhase: Math.random() * Math.PI * 2,
+      alpha: 0.98,
+      label: String(finalLabel),
+      author: String(author || 'Ông chú Viettel')
     };
     this.skyLanterns.push(lantern);
-    if (this.skyLanterns.length > 22) {
+    if (this.skyLanterns.length > 28) {
       this.skyLanterns.shift();
     }
     return lantern;
@@ -364,21 +382,23 @@ export class RomanticParticleEngine {
    * @param {number} y
    * @param {string} [label]
    */
-  spawnTouchLantern(x, y, label = '✨ Ước nguyện 20/10') {
+  spawnTouchLantern(x, y, label = '') {
     if (this.reducedMotion) return null;
+    const finalLabel = label || LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
     const lantern = {
       x: typeof x === 'number' ? x : this.width * 0.5,
       y: typeof y === 'number' ? y : this.height * 0.8,
       vx: (Math.random() - 0.5) * 0.35,
       vy: -(Math.random() * 0.75 + 0.65),
-      size: Math.random() * 10 + 22,
+      size: Math.random() * 10 + 24,
       swayPhase: Math.random() * Math.PI * 2,
+      flickerPhase: Math.random() * Math.PI * 2,
       alpha: 0.98,
-      label: String(label || ''),
+      label: String(finalLabel),
       author: 'Ông chú Viettel'
     };
     this.skyLanterns.push(lantern);
-    if (this.skyLanterns.length > 28) {
+    if (this.skyLanterns.length > 32) {
       this.skyLanterns.shift();
     }
     return lantern;
@@ -470,15 +490,18 @@ export class RomanticParticleEngine {
     for (let i = this.skyLanterns.length - 1; i >= 0; i--) {
       const l = this.skyLanterns[i];
       l.swayPhase += 0.018;
-      l.x += l.vx + Math.sin(l.swayPhase) * 0.35;
+      l.flickerPhase = (l.flickerPhase || 0) + 0.06;
+      l.x += l.vx + Math.sin(l.swayPhase) * 0.38;
       l.y += l.vy;
-      if (l.y < -95) {
+      if (l.y < -120) {
         if (l.isAmbient) {
-          l.y = this.height + 40 + Math.random() * 60;
+          l.y = this.height + 40 + Math.random() * 80;
           l.x = Math.random() * this.width;
           l.swayPhase = Math.random() * Math.PI * 2;
-          l.size = Math.random() * 10 + 18;
-          l.alpha = Math.random() * 0.42 + 0.48;
+          l.flickerPhase = Math.random() * Math.PI * 2;
+          l.size = Math.random() * 10 + 20;
+          l.alpha = Math.random() * 0.35 + 0.58;
+          l.label = LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
         } else {
           this.skyLanterns.splice(i, 1);
         }
@@ -757,53 +780,117 @@ export class RomanticParticleEngine {
     for (const l of this.skyLanterns) {
       ctx.save();
       ctx.translate(l.x, l.y);
-      ctx.globalAlpha = l.alpha;
+      ctx.globalAlpha = Math.max(0, Math.min(1, l.alpha));
 
-      // Outer warm glow
-      const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, l.size * 2.1);
-      halo.addColorStop(0, 'rgba(255, 209, 102, 0.72)');
-      halo.addColorStop(0.55, 'rgba(255, 107, 157, 0.25)');
-      halo.addColorStop(1, 'rgba(255, 107, 157, 0)');
-      ctx.fillStyle = halo;
-      ctx.beginPath();
-      ctx.arc(0, 0, l.size * 2.1, 0, Math.PI * 2);
-      ctx.fill();
+      const flicker = 1 + Math.sin(l.flickerPhase || 0) * 0.08;
 
-      // Lantern dome & tapered body
-      ctx.fillStyle = '#FF9F1C';
+      // Outer warm golden-peach aura
+      if (typeof ctx.createRadialGradient === 'function') {
+        const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, l.size * 2.4 * flicker);
+        if (halo && halo.addColorStop) {
+          halo.addColorStop(0, 'rgba(255, 215, 115, 0.75)');
+          halo.addColorStop(0.45, 'rgba(255, 130, 92, 0.28)');
+          halo.addColorStop(1, 'rgba(255, 107, 157, 0)');
+        }
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(0, 0, l.size * 2.4 * flicker, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Top suspension crown
+      if (typeof ctx.fillRect === 'function') {
+        ctx.fillStyle = 'rgba(255, 230, 160, 0.85)';
+        ctx.fillRect(-l.size * 0.16, -l.size * 0.72, l.size * 0.32, l.size * 0.1);
+      }
+
+      // Lantern dome & tapered body with gradient
+      let bodyFill = '#FF9F1C';
+      if (typeof ctx.createLinearGradient === 'function') {
+        const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
+        if (bodyGrad && bodyGrad.addColorStop) {
+          bodyGrad.addColorStop(0, '#FF6B6B');
+          bodyGrad.addColorStop(0.45, '#FFAE33');
+          bodyGrad.addColorStop(1, '#FFF3B0');
+          bodyFill = bodyGrad;
+        }
+      }
+      ctx.fillStyle = bodyFill;
       ctx.beginPath();
-      ctx.moveTo(-l.size * 0.32, -l.size * 0.62);
+      ctx.moveTo(-l.size * 0.34, -l.size * 0.62);
       ctx.bezierCurveTo(
-        -l.size * 0.58,
+        -l.size * 0.62,
         -l.size * 0.35,
-        -l.size * 0.52,
+        -l.size * 0.54,
         l.size * 0.25,
-        -l.size * 0.28,
+        -l.size * 0.30,
         l.size * 0.55
       );
-      ctx.lineTo(l.size * 0.28, l.size * 0.55);
+      ctx.lineTo(l.size * 0.30, l.size * 0.55);
       ctx.bezierCurveTo(
-        l.size * 0.52,
+        l.size * 0.54,
         l.size * 0.25,
-        l.size * 0.58,
+        l.size * 0.62,
         -l.size * 0.35,
-        l.size * 0.32,
+        l.size * 0.34,
         -l.size * 0.62
       );
+      if (typeof ctx.closePath === 'function') ctx.closePath();
       ctx.fill();
 
-      // Inner core flame light
+      // Soft internal paper creases
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.32)';
+      ctx.beginPath();
+      ctx.moveTo(0, -l.size * 0.62);
+      ctx.lineTo(0, l.size * 0.55);
+      ctx.stroke();
+
+      // Golden bottom rim
+      if (typeof ctx.fillRect === 'function') {
+        ctx.fillStyle = '#C27803';
+        ctx.fillRect(-l.size * 0.32, l.size * 0.52, l.size * 0.64, l.size * 0.08);
+      }
+
+      // Inner candlelight flame (vivid golden-white)
       ctx.fillStyle = '#FFF3B0';
       ctx.beginPath();
-      ctx.arc(0, l.size * 0.22, l.size * 0.22, 0, Math.PI * 2);
+      ctx.arc(0, l.size * 0.25, l.size * 0.22, 0, Math.PI * 2);
       ctx.fill();
 
-      // Wish label text beneath lantern when supported by canvas context
+      // Hanging cord
+      ctx.strokeStyle = 'rgba(246, 189, 96, 0.75)';
+      ctx.beginPath();
+      ctx.moveTo(0, l.size * 0.6);
+      ctx.lineTo(0, l.size * 0.85);
+      ctx.stroke();
+
+      // Wish label text beneath lantern inside a translucent glowing ribbon badge
       if (l.label && typeof ctx.fillText === 'function') {
+        const textStr = String(l.label);
         ctx.font = '600 11px "Plus Jakarta Sans", sans-serif';
+        const textWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6.5;
+        const padX = 8;
+        const badgeW = textWidth + padX * 2;
+        const badgeH = 18;
+        const badgeY = l.size * 0.88;
+
+        // Ribbon tag pill
+        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.92)' : 'rgba(22, 11, 33, 0.78)';
+        ctx.strokeStyle = 'rgba(246, 189, 96, 0.8)';
+        ctx.beginPath();
+        const rx = -badgeW / 2;
+        const ry = badgeY;
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(rx, ry, badgeW, badgeH, 6);
+        } else if (typeof ctx.rect === 'function') {
+          ctx.rect(rx, ry, badgeW, badgeH);
+        }
+        ctx.fill();
+        ctx.stroke();
+
         ctx.textAlign = 'center';
         ctx.fillStyle = this.theme === 'sakura' ? '#240D1B' : '#FFF5F8';
-        ctx.fillText(l.label, 0, l.size * 0.95);
+        ctx.fillText(textStr, 0, badgeY + 13);
       }
       ctx.restore();
     }

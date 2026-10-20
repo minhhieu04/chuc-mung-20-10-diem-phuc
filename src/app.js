@@ -2,6 +2,7 @@ import {
   DEFAULT_CONFIG,
   FALLBACK_PORTRAIT_URL,
   FLOWER_BOUQUET_ITEMS,
+  PHOTO_STACK_ITEMS,
   REASONS_LIST,
   escapeHtml,
   isValidImageSrc
@@ -133,6 +134,7 @@ export class BirthdayAppController {
     this.initCardSwipeDeck();
     this.initInteractiveTulips();
     this.initInteractiveLanterns();
+    this.initInteractiveReasons();
     this.initBackgroundTap();
     this.store.subscribe(() => this.renderAll());
   }
@@ -327,6 +329,7 @@ export class BirthdayAppController {
       </article>
     `;
     }).join('');
+    this.initInteractiveReasons();
   }
 
   /**
@@ -669,11 +672,17 @@ export class BirthdayAppController {
     if (this.cardItems.length === 0) return;
 
     this.activeCardIndex = 0;
+    let isAnimating = false;
 
     const updateDeckView = (direction = 0) => {
       const total = this.cardItems.length;
       this.cardItems.forEach((card, idx) => {
         card.classList.remove('is-active', 'is-stacked-1', 'is-stacked-2', 'is-stacked-hidden');
+        if (card.style) {
+          card.style.transform = '';
+          card.style.opacity = '';
+          card.style.transition = '';
+        }
         const diff = (idx - this.activeCardIndex + total) % total;
         if (diff === 0) {
           card.classList.add('is-active');
@@ -687,15 +696,10 @@ export class BirthdayAppController {
       });
 
       if (counterEl) {
-        const titles = [
-          'Diểm Phúc',
-          'Rạng Rỡ & Duyên Dáng',
-          'Trong Trẻo & Đáng Yêu',
-          'Thanh Xuân Tươi Thắm',
-          'Bình Yên & Tươi Vui',
-          'Khoảnh Khắc Ngọt Ngào'
-        ];
-        counterEl.textContent = `${this.activeCardIndex + 1} / ${total} • ${titles[this.activeCardIndex] || 'Emm'}`;
+        const item = (typeof PHOTO_STACK_ITEMS !== 'undefined' && PHOTO_STACK_ITEMS[this.activeCardIndex]) || {};
+        const title = item.title || 'Diểm Phúc';
+        const tag = item.tag ? ` • ${item.tag}` : '';
+        counterEl.textContent = `${this.activeCardIndex + 1} / ${total} • ${title}${tag}`;
       }
 
       if (dotsContainer && dotsContainer.children) {
@@ -738,23 +742,70 @@ export class BirthdayAppController {
       nextBtn.addEventListener('click', () => this.goToCard(this.activeCardIndex + 1, 1));
     }
 
-    let startX = 0;
-    let currentDeltaX = 0;
-    let isDragging = false;
+    // Direct click/tap on cards (stacked cards rotate, active card spawns hearts)
+    this.cardItems.forEach((card, idx) => {
+      card.addEventListener('click', (e) => {
+        if (isDragging) return;
+        const total = this.cardItems.length;
+        const diff = (idx - this.activeCardIndex + total) % total;
+        if (diff === 1) {
+          this.goToCard(this.activeCardIndex + 1, 1);
+        } else if (diff === 2) {
+          this.goToCard(this.activeCardIndex + 2, 1);
+        } else if (diff === 0) {
+          this.spawnCardHeart(e.clientX, e.clientY);
+          if (typeof this.audio.playHeartPop === 'function') {
+            this.audio.playHeartPop();
+          }
+        }
+      });
+    });
 
-    const onDragStart = (x) => {
+    let startX = 0;
+    let startY = 0;
+    let currentDeltaX = 0;
+    let currentDeltaY = 0;
+    let isDragging = false;
+    let isDirectionLocked = false;
+    let isHorizontalSwipe = false;
+
+    const onDragStart = (x, y) => {
+      if (isAnimating) return;
       startX = x;
+      startY = y;
       currentDeltaX = 0;
+      currentDeltaY = 0;
       isDragging = true;
+      isDirectionLocked = false;
+      isHorizontalSwipe = false;
     };
 
-    const onDragMove = (x) => {
-      if (!isDragging) return;
+    const onDragMove = (x, y, e) => {
+      if (!isDragging || isAnimating) return;
       currentDeltaX = x - startX;
-      const activeCard = this.cardItems[this.activeCardIndex];
-      if (activeCard && !this.store.getState().config.reducedMotion) {
-        const rot = Math.max(-12, Math.min(12, currentDeltaX * 0.07));
-        activeCard.style.transform = `translate3d(${currentDeltaX * 0.8}px, ${Math.abs(currentDeltaX) * 0.08}px, 0) rotate(${rot}deg)`;
+      currentDeltaY = y - startY;
+
+      if (!isDirectionLocked) {
+        if (Math.abs(currentDeltaY) > Math.abs(currentDeltaX) && Math.abs(currentDeltaY) > 8) {
+          isDragging = false;
+          return;
+        }
+        if (Math.abs(currentDeltaX) > 8) {
+          isDirectionLocked = true;
+          isHorizontalSwipe = true;
+        }
+      }
+
+      if (isHorizontalSwipe) {
+        if (e && e.cancelable && typeof e.preventDefault === 'function') {
+          e.preventDefault();
+        }
+        const activeCard = this.cardItems[this.activeCardIndex];
+        if (activeCard && !this.store.getState().config.reducedMotion) {
+          const rot = Math.max(-14, Math.min(14, currentDeltaX * 0.08));
+          activeCard.style.transition = 'none';
+          activeCard.style.transform = `translate3d(${currentDeltaX * 0.85}px, ${Math.abs(currentDeltaX) * 0.06}px, 0) rotate(${rot}deg)`;
+        }
       }
     };
 
@@ -762,34 +813,51 @@ export class BirthdayAppController {
       if (!isDragging) return;
       isDragging = false;
       const activeCard = this.cardItems[this.activeCardIndex];
-      if (activeCard) {
-        activeCard.style.transform = '';
-      }
-      if (currentDeltaX > 48) {
-        this.goToCard(this.activeCardIndex - 1, -1);
-      } else if (currentDeltaX < -48) {
-        this.goToCard(this.activeCardIndex + 1, 1);
+      if (!activeCard) return;
+
+      if (Math.abs(currentDeltaX) > 48 && isHorizontalSwipe) {
+        isAnimating = true;
+        const dir = currentDeltaX > 0 ? -1 : 1;
+        const flyX = currentDeltaX > 0 ? '120%' : '-120%';
+        const flyRot = currentDeltaX > 0 ? '16deg' : '-16deg';
+        activeCard.style.transition = 'transform 0.24s ease-out, opacity 0.24s ease-out';
+        activeCard.style.transform = `translate3d(${flyX}, 0, 0) rotate(${flyRot})`;
+        activeCard.style.opacity = '0';
+
+        setTimeout(() => {
+          this.goToCard(this.activeCardIndex + dir, dir);
+          isAnimating = false;
+        }, 220);
+      } else {
+        activeCard.style.transition = 'transform 0.26s cubic-bezier(0.18, 0.89, 0.32, 1.15)';
+        activeCard.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+        setTimeout(() => {
+          if (activeCard.style) activeCard.style.transition = '';
+        }, 280);
       }
       currentDeltaX = 0;
+      currentDeltaY = 0;
     };
 
     deck.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX);
+      if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
 
     deck.addEventListener('touchmove', (e) => {
-      if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX);
-    }, { passive: true });
+      if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX, e.touches[0].clientY, e);
+    }, { passive: false });
 
     deck.addEventListener('touchend', onDragEnd, { passive: true });
 
     deck.addEventListener('mousedown', (e) => {
-      onDragStart(e.clientX);
+      if (e.button !== 0) return;
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      onDragStart(e.clientX, e.clientY);
     });
 
     if (typeof window !== 'undefined') {
       window.addEventListener('mousemove', (e) => {
-        if (isDragging) onDragMove(e.clientX);
+        if (isDragging) onDragMove(e.clientX, e.clientY, e);
       });
       window.addEventListener('mouseup', () => {
         if (isDragging) onDragEnd();
@@ -797,6 +865,26 @@ export class BirthdayAppController {
     }
 
     updateDeckView(0);
+  }
+
+  spawnCardHeart(x, y) {
+    const deck = this.doc.getElementById('photo-card-deck');
+    if (!deck || !this.doc.createElement) return;
+    const heart = this.doc.createElement('span');
+    heart.className = 'floating-card-heart';
+    const icons = ['❤️', '💖', '🌷', '✨', '💕'];
+    heart.textContent = icons[Math.floor(Math.random() * icons.length)];
+    const rect = deck.getBoundingClientRect ? deck.getBoundingClientRect() : { left: 0, top: 0, width: 300, height: 400 };
+    const relX = typeof x === 'number' && x > 0 ? x - rect.left : (rect.width || 300) * 0.5;
+    const relY = typeof y === 'number' && y > 0 ? y - rect.top : (rect.height || 400) * 0.5;
+    heart.style.left = `${relX}px`;
+    heart.style.top = `${relY}px`;
+    deck.appendChild(heart);
+    setTimeout(() => {
+      if (heart.parentNode && typeof heart.parentNode.removeChild === 'function') {
+        heart.parentNode.removeChild(heart);
+      }
+    }, 1100);
   }
 
   initInteractiveTulips() {
@@ -852,29 +940,148 @@ export class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
+        if (typeof this.particles.triggerCelebrationBurst === 'function') {
+          const rect = btn.getBoundingClientRect ? btn.getBoundingClientRect() : null;
+          const x = rect ? rect.left + rect.width / 2 : 200;
+          const y = rect ? rect.top : 400;
+          this.particles.triggerCelebrationBurst(x, y, 18);
+        }
         this.showToast(`🏮 Đèn trời ước nguyện đã bay lên: "${wish}"`);
+      });
+    });
+
+    // Custom wish form submit
+    const wishForm = this.doc.getElementById('form-custom-wish');
+    const wishInput = this.doc.getElementById('input-custom-wish');
+    if (wishForm) {
+      wishForm.addEventListener('submit', (e) => {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        const text = wishInput && wishInput.value ? wishInput.value.trim() : '';
+        if (!text) {
+          this.showToast('Vui lòng nhập lời ước nguyện trước khi thả đèn nhé!');
+          return;
+        }
+        if (typeof this.particles.spawnCanvasLantern === 'function') {
+          this.particles.spawnCanvasLantern(text, 'Ông chú Viettel');
+        }
+        if (typeof this.audio.playLanternGlowChime === 'function') {
+          this.audio.playLanternGlowChime();
+        }
+        if (typeof this.particles.triggerCelebrationBurst === 'function') {
+          const rect = wishForm.getBoundingClientRect ? wishForm.getBoundingClientRect() : null;
+          const x = rect ? rect.left + rect.width / 2 : 300;
+          const y = rect ? rect.top : 400;
+          this.particles.triggerCelebrationBurst(x, y, 28);
+        }
+        if (wishInput) wishInput.value = '';
+        this.showToast(`🏮 Đèn trời mang lời ước nguyện "${text}" đã bay lên trời đêm!`);
+      });
+    }
+
+    // Interactive taps on wish lanterns in the panoramic stage
+    const skyArea = this.doc.getElementById('lantern-sky-floating-area');
+    if (skyArea) {
+      skyArea.addEventListener('click', (e) => {
+        const lanternEl = e.target && e.target.closest ? e.target.closest('.floating-sky-lantern') : null;
+        if (!lanternEl) return;
+        const textEl = lanternEl.querySelector ? lanternEl.querySelector('.lantern-wish-text') : null;
+        const wishText = textEl ? textEl.textContent : 'Chúc Diểm Phúc luôn rạng ngời!';
+        if (lanternEl.classList) {
+          lanternEl.classList.remove('is-popping');
+          if (typeof lanternEl.offsetWidth === 'number') void lanternEl.offsetWidth;
+          lanternEl.classList.add('is-popping');
+        }
+        if (typeof this.particles.spawnTouchLantern === 'function') {
+          this.particles.spawnTouchLantern(e.clientX, e.clientY, wishText);
+        }
+        if (typeof this.audio.playLanternGlowChime === 'function') {
+          this.audio.playLanternGlowChime();
+        }
+        this.showToast(`🏮 Thả đèn trời: "${wishText}"`);
+      });
+    }
+  }
+
+  initInteractiveReasons() {
+    const cards = this.doc.querySelectorAll ? this.doc.querySelectorAll('.reason-card') : [];
+    cards.forEach((card) => {
+      if (card.style) card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        if (card.classList) {
+          card.classList.remove('is-popping');
+          if (typeof card.offsetWidth === 'number') void card.offsetWidth;
+          card.classList.add('is-popping');
+        }
+        if (typeof this.audio.playHeartPop === 'function') {
+          this.audio.playHeartPop();
+        }
+        if (typeof this.particles.triggerCelebrationBurst === 'function') {
+          const rect = card.getBoundingClientRect ? card.getBoundingClientRect() : null;
+          const x = rect ? rect.left + rect.width / 2 : 200;
+          const y = rect ? rect.top + rect.height / 2 : 300;
+          this.particles.triggerCelebrationBurst(x, y, 16);
+        }
+        const title = card.querySelector ? card.querySelector('.reason-title')?.textContent : '';
+        this.showToast(`💖 Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
       });
     });
   }
 
   initBackgroundTap() {
     if (typeof window === 'undefined') return;
-    window.addEventListener('click', (e) => {
-      const target = e.target;
+
+    const handleTap = (clientX, clientY, target) => {
       if (!target) return;
       const tagName = target.tagName ? target.tagName.toLowerCase() : '';
       if (
         tagName === 'button' ||
         tagName === 'a' ||
         tagName === 'input' ||
-        (target.closest && (target.closest('button') || target.closest('a') || target.closest('#photo-card-deck')))
+        (target.closest &&
+          (target.closest('button') ||
+            target.closest('a') ||
+            target.closest('input') ||
+            target.closest('#photo-card-deck') ||
+            target.closest('#floating-music-pill') ||
+            target.closest('#gift-curtain') ||
+            target.closest('.lantern-interactive-toolbar') ||
+            target.closest('#interactive-bouquet-svg')))
       ) {
         return;
       }
       if (typeof this.particles.spawnTouchLantern === 'function') {
-        this.particles.spawnTouchLantern(e.clientX, e.clientY);
+        this.particles.spawnTouchLantern(clientX, clientY);
       }
+      if (typeof this.audio.playLanternGlowChime === 'function') {
+        this.audio.playLanternGlowChime();
+      }
+      if (typeof this.particles.triggerSparkleTrail === 'function') {
+        this.particles.triggerSparkleTrail(clientX, clientY, 6);
+      }
+    };
+
+    window.addEventListener('click', (e) => {
+      handleTap(e.clientX, e.clientY, e.target);
     });
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (e.changedTouches && e.changedTouches[0]) {
+        const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+        const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+        if (dx < 12 && dy < 12) {
+          handleTap(e.changedTouches[0].clientX, e.changedTouches[0].clientY, e.target);
+        }
+      }
+    }, { passive: true });
   }
 
   showToast(message) {
