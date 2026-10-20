@@ -2733,6 +2733,7 @@ class BirthdayAppController {
     this.typewriterTimer = null;
     this._lastReasonsName = '';
     this._lastWishLanternsKey = '';
+    this.envelopeStage = this.store.getState().envelopeOpened ? 'open' : 'closed';
   }
 
   init() {
@@ -3024,7 +3025,14 @@ class BirthdayAppController {
   }
 
   renderLoveLetter(config, envelopeOpened) {
-    const isOpen = Boolean(envelopeOpened);
+    if (envelopeOpened) {
+      this.envelopeStage = 'open';
+    } else if (this.envelopeStage === 'open') {
+      this.envelopeStage = 'closed';
+    }
+    const isPeeking = this.envelopeStage === 'peeking';
+    const isOpen = this.envelopeStage === 'open' || Boolean(envelopeOpened);
+
     const parchment = this.doc.getElementById('letter-parchment');
     const sealBtn = this.doc.getElementById('btn-open-envelope');
     const envelopeScene = this.doc.getElementById('envelope-3d-scene');
@@ -3036,24 +3044,32 @@ class BirthdayAppController {
       parchment.classList.toggle('is-open', isOpen);
     }
     if (envelopeScene && envelopeScene.classList) {
-      envelopeScene.classList.toggle('is-open', isOpen);
+      envelopeScene.classList.toggle('is-peeking', isPeeking);
+      envelopeScene.classList.toggle('is-open', isPeeking || isOpen);
+      envelopeScene.classList.toggle('is-extracted', isOpen);
     }
     if (envelopeBox && envelopeBox.classList) {
+      envelopeBox.classList.toggle('is-peeking', isPeeking);
       envelopeBox.classList.toggle('is-open', isOpen);
     }
     if (topFlap && topFlap.classList) {
-      topFlap.classList.toggle('is-open', isOpen);
+      topFlap.classList.toggle('is-open', isPeeking || isOpen);
     }
     if (innerLetter && innerLetter.classList) {
-      innerLetter.classList.toggle('is-open', isOpen);
+      innerLetter.classList.toggle('is-peeking', isPeeking);
+      innerLetter.classList.toggle('is-open', isPeeking || isOpen);
     }
     if (sealBtn) {
       sealBtn.setAttribute('aria-expanded', String(isOpen));
       const label = sealBtn.querySelector('.seal-btn-text');
       if (label) {
-        label.textContent = isOpen
-          ? 'Lá Thư Chúc Mừng 20/10'
-          : 'Chạm Để Mở Phong Thư & Lấy Thư Ra';
+        if (isOpen) {
+          label.textContent = 'Lá Thư Chúc Mừng 20/10';
+        } else if (isPeeking) {
+          label.textContent = 'Ấn Hoặc Kéo Tờ Giấy Lên Để Mở Thư';
+        } else {
+          label.textContent = 'Chạm Để Mở Phong Thư';
+        }
       }
     }
 
@@ -3072,16 +3088,50 @@ class BirthdayAppController {
   }
 
   /**
-   * Opens or closes the 3D envelope with choreographed flap-open & letter-extraction graphics.
-   * @param {boolean} [forceState]
+   * Step 1: Opens the envelope flap and slides the stationery letter sheet halfway out of the pocket.
    */
-  toggleEnvelopeWithExtraction(forceState) {
-    const currentlyOpen = Boolean(this.store.getState().envelopeOpened);
-    const nextOpen = typeof forceState === 'boolean' ? forceState : !currentlyOpen;
-    if (nextOpen === currentlyOpen) return;
+  openEnvelopeFlapToPeek() {
+    if (this.envelopeStage !== 'closed') return;
+    this.envelopeStage = 'peeking';
+    const innerLetter = this.doc.getElementById('envelope-inner-letter');
+    if (innerLetter) {
+      if (innerLetter.classList) innerLetter.classList.remove('is-jumping-out');
+      if (innerLetter.style) {
+        innerLetter.style.transform = '';
+        innerLetter.style.transition = '';
+      }
+    }
+    this.audio.playSparkleChime();
+    if (typeof this.particles.triggerCelebrationBurst === 'function') {
+      this.particles.triggerCelebrationBurst();
+    }
+    this.renderAll();
+    this.showToast('✦ Phong thư đã mở! Ấn hoặc kéo tờ giấy thư lên để đọc nhé!');
+  }
 
+  /**
+   * Step 2: Launches the peeking stationery sheet upward out of the pocket and expands it into the full letter view.
+   */
+  extractLetterToFullView() {
+    if (this.envelopeStage === 'open') return;
     const envelopeScene = this.doc.getElementById('envelope-3d-scene');
-    if (nextOpen && envelopeScene && envelopeScene.classList) {
+    const innerLetter = this.doc.getElementById('envelope-inner-letter');
+
+    if (innerLetter) {
+      if (innerLetter.style) {
+        innerLetter.style.transform = '';
+        innerLetter.style.transition = '';
+      }
+      if (innerLetter.classList) {
+        innerLetter.classList.remove('is-jumping-out');
+        if (typeof innerLetter.getBoundingClientRect === 'function') {
+          innerLetter.getBoundingClientRect();
+        }
+        innerLetter.classList.add('is-jumping-out');
+      }
+    }
+
+    if (envelopeScene && envelopeScene.classList) {
       envelopeScene.classList.remove('is-extracting');
       if (typeof envelopeScene.getBoundingClientRect === 'function') {
         envelopeScene.getBoundingClientRect();
@@ -3089,21 +3139,68 @@ class BirthdayAppController {
       envelopeScene.classList.add('is-extracting');
     }
 
-    this.store.setEnvelopeOpened(nextOpen);
+    this.envelopeStage = 'open';
+    this.store.setEnvelopeOpened(true);
 
-    if (nextOpen) {
-      this.audio.playCelebrationChord();
-      this.particles.triggerCelebrationBurst();
-      if (typeof this.particles.triggerShockwave === 'function') {
-        this.particles.triggerShockwave();
+    this.audio.playCelebrationChord();
+    this.particles.triggerCelebrationBurst();
+    if (typeof this.particles.triggerShockwave === 'function') {
+      this.particles.triggerShockwave();
+    }
+    if (typeof this.particles.triggerFlowerShower === 'function') {
+      this.particles.triggerFlowerShower(44);
+    }
+    this.showToast('✦ Đã mở lá thư chúc 20/10 gửi tặng Diểm Phúc!');
+  }
+
+  /**
+   * Closes the stationery letter and folds the envelope back to its initial closed state.
+   */
+  closeEnvelopeAndLetter() {
+    const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    const innerLetter = this.doc.getElementById('envelope-inner-letter');
+    if (envelopeScene && envelopeScene.classList) {
+      envelopeScene.classList.remove('is-extracting', 'is-peeking', 'is-open', 'is-extracted');
+    }
+    if (innerLetter) {
+      if (innerLetter.classList) {
+        innerLetter.classList.remove('is-jumping-out', 'is-peeking', 'is-open');
       }
-      if (typeof this.particles.triggerFlowerShower === 'function') {
-        this.particles.triggerFlowerShower(44);
+      if (innerLetter.style) {
+        innerLetter.style.transform = '';
+        innerLetter.style.transition = '';
       }
-      this.showToast('✦ Đang mở phong thư & lấy lá thư chúc 20/10 gửi Diểm Phúc!');
+    }
+    this.envelopeStage = 'closed';
+    this.store.setEnvelopeOpened(false);
+    this.renderAll();
+    this.audio.playSparkleChime();
+    this.showToast('✦ Đã cất lá thư vào trong phong bì');
+  }
+
+  /**
+   * Steps through the 2-stage envelope choreography (Closed -> Peeking -> Extracted) or forces open/close.
+   * @param {boolean} [forceState]
+   */
+  toggleEnvelopeWithExtraction(forceState) {
+    if (forceState === false) {
+      this.closeEnvelopeAndLetter();
+      return;
+    }
+    if (forceState === true) {
+      if (this.envelopeStage === 'closed') {
+        this.openEnvelopeFlapToPeek();
+      } else if (this.envelopeStage === 'peeking') {
+        this.extractLetterToFullView();
+      }
+      return;
+    }
+    if (this.envelopeStage === 'closed') {
+      this.openEnvelopeFlapToPeek();
+    } else if (this.envelopeStage === 'peeking') {
+      this.extractLetterToFullView();
     } else {
-      this.audio.playSparkleChime();
-      this.showToast('✦ Đã cất lá thư vào trong phong bì');
+      this.closeEnvelopeAndLetter();
     }
   }
 
@@ -3300,7 +3397,7 @@ class BirthdayAppController {
       });
     }
 
-    // Love Letter Wax Seal Button & 3D Interactive Envelope Stage
+    // Love Letter Wax Seal Button & 2-Step Interactive Envelope Stage
     const sealBtn = this.doc.getElementById('btn-open-envelope');
     if (sealBtn) {
       sealBtn.addEventListener('click', (e) => {
@@ -3312,17 +3409,105 @@ class BirthdayAppController {
     const interactiveEnvelope = this.doc.getElementById('interactive-envelope');
     if (interactiveEnvelope) {
       interactiveEnvelope.addEventListener('click', () => {
-        const currentlyOpen = Boolean(this.store.getState().envelopeOpened);
-        if (!currentlyOpen) {
-          this.toggleEnvelopeWithExtraction(true);
+        if (this.envelopeStage === 'closed') {
+          this.openEnvelopeFlapToPeek();
         }
       });
     }
 
+    const innerLetter = this.doc.getElementById('envelope-inner-letter');
+    if (innerLetter) {
+      let dragStartY = 0;
+      let dragDeltaY = 0;
+      let isLetterDragging = false;
+
+      innerLetter.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (this.envelopeStage === 'closed') {
+          this.openEnvelopeFlapToPeek();
+        } else if (this.envelopeStage === 'peeking') {
+          this.extractLetterToFullView();
+        }
+      });
+
+      innerLetter.addEventListener('keydown', (e) => {
+        if (e && (e.key === 'Enter' || e.key === ' ')) {
+          if (typeof e.preventDefault === 'function') e.preventDefault();
+          this.extractLetterToFullView();
+        }
+      });
+
+      const onLetterDragStart = (clientY) => {
+        if (this.envelopeStage !== 'peeking') return;
+        dragStartY = clientY;
+        dragDeltaY = 0;
+        isLetterDragging = true;
+      };
+
+      const onLetterDragMove = (clientY, evt) => {
+        if (!isLetterDragging || this.envelopeStage !== 'peeking') return;
+        dragDeltaY = clientY - dragStartY;
+        if (dragDeltaY < 0) {
+          if (evt && evt.cancelable && typeof evt.preventDefault === 'function') {
+            evt.preventDefault();
+          }
+          if (innerLetter.style && !this.store.getState().config.reducedMotion) {
+            const liftY = Math.max(-220, -96 + dragDeltaY * 0.85);
+            const scaleVal = (1 + Math.min(0.06, Math.abs(dragDeltaY) * 0.0005)).toFixed(3);
+            innerLetter.style.transition = 'none';
+            innerLetter.style.transform = `translateY(${liftY}px) scale(${scaleVal})`;
+          }
+        }
+      };
+
+      const onLetterDragEnd = () => {
+        if (!isLetterDragging) return;
+        isLetterDragging = false;
+        if (dragDeltaY < -18) {
+          this.extractLetterToFullView();
+        } else if (innerLetter.style) {
+          innerLetter.style.transition = '';
+          innerLetter.style.transform = '';
+        }
+        dragDeltaY = 0;
+      };
+
+      innerLetter.addEventListener(
+        'touchstart',
+        (e) => {
+          if (e.touches && e.touches[0]) onLetterDragStart(e.touches[0].clientY);
+        },
+        { passive: true }
+      );
+      innerLetter.addEventListener(
+        'touchmove',
+        (e) => {
+          if (e.touches && e.touches[0]) onLetterDragMove(e.touches[0].clientY, e);
+        },
+        { passive: false }
+      );
+      innerLetter.addEventListener('touchend', onLetterDragEnd, { passive: true });
+
+      innerLetter.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        onLetterDragStart(e.clientY);
+      });
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('mousemove', (e) => {
+          if (isLetterDragging) onLetterDragMove(e.clientY, e);
+        });
+        window.addEventListener('mouseup', () => {
+          if (isLetterDragging) onLetterDragEnd();
+        });
+      }
+    }
+
     const closeEnvelopeBtn = this.doc.getElementById('btn-close-envelope');
     if (closeEnvelopeBtn) {
-      closeEnvelopeBtn.addEventListener('click', () => {
-        this.toggleEnvelopeWithExtraction(false);
+      closeEnvelopeBtn.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        this.closeEnvelopeAndLetter();
       });
     }
   }
@@ -3399,7 +3584,7 @@ class BirthdayAppController {
       });
 
       if (counterEl) {
-        counterEl.textContent = `${this.activeCardIndex + 1} / ${total} • Diểm Phúc`;
+        counterEl.textContent = '';
       }
 
       if (dotsContainer && dotsContainer.children) {
@@ -3606,7 +3791,8 @@ class BirthdayAppController {
 
     nodes.forEach((node, idx) => {
       if (node.style) node.style.cursor = 'pointer';
-      node.addEventListener('click', () => {
+      node.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
         if (node.classList) {
           node.classList.remove('is-popping');
           if (typeof node.offsetWidth === 'number') void node.offsetWidth;
@@ -3743,6 +3929,7 @@ class BirthdayAppController {
             target.closest('#photo-card-deck') ||
             target.closest('#floating-music-pill') ||
             target.closest('#gift-curtain') ||
+            target.closest('#envelope-box') ||
             target.closest('.lantern-interactive-toolbar') ||
             target.closest('#interactive-bouquet-svg')))
       ) {

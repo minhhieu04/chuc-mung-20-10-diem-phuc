@@ -878,9 +878,10 @@ test('13. User Experience Refinement: Link preview metadata, "Gửi tặng em b�
   assert.ok(htmlContent.includes('class="gift-avatar-wreath"'), 'index.html must have floral wreath encircling avatar');
 });
 
-test('14. Interactive 3D Envelope Letter Extraction, Multi-Petal Sakura/Camellia Wreath, and Aurora/Butterfly Effects', async () => {
+test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Hover Fix, and Card Counter Cleanup', async () => {
   const { BirthdayAppController } = await import('../src/app.js');
   const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
 
   // 1. Verify multi-petal Sakura & Camellia Rose wreath and prismatic aurora halo
   assert.ok(htmlContent.includes('id="sakura-blossom"'), 'Wreath must include multi-petal #sakura-blossom symbol');
@@ -889,17 +890,23 @@ test('14. Interactive 3D Envelope Letter Extraction, Multi-Petal Sakura/Camellia
   assert.ok(htmlContent.includes('class="wreath-celestial-orbit"'), 'Avatar wreath must have rotating celestial orbit');
   assert.equal(htmlContent.includes('#A3E635'), false, 'Old neon lime green leaf color must be removed');
 
-  // 2. Verify 3D Interactive Envelope & Letter Extraction DOM elements
+  // 2. Verify Tulip hover jitter fix (local origin 0px -36px and hit-area ellipse) & Card counter text removal
+  assert.ok(cssContent.includes('transform-origin: 0px -36px;'), 'Tulip node must scale around local center 0px -36px to prevent hover jitter');
+  assert.ok(htmlContent.includes('class="tulip-hit-area"'), 'Each tulip must include an invisible hit-area ellipse for smooth hover');
+  assert.equal(htmlContent.includes('1 / 5 • Diểm Phúc'), false, '"1 / 5 • Diểm Phúc" counter text must be removed');
+
+  // 3. Verify 3D Interactive Envelope & Stationery Sheet DOM elements
   assert.ok(htmlContent.includes('id="aurora-sky-layer"'), 'Page must include multi-color aurora backdrop');
   assert.ok(htmlContent.includes('id="envelope-3d-scene"'), 'Love letter section must have #envelope-3d-scene');
   assert.ok(htmlContent.includes('id="interactive-envelope"'), 'Love letter section must have #interactive-envelope');
   assert.ok(htmlContent.includes('id="envelope-inner-letter"'), 'Love letter section must have sliding #envelope-inner-letter');
   assert.ok(htmlContent.includes('id="envelope-top-flap"'), 'Love letter section must have 3D #envelope-top-flap');
   assert.ok(htmlContent.includes('id="btn-close-envelope"'), 'Love letter section must have #btn-close-envelope to fold letter back');
+  assert.ok(htmlContent.includes('class="letter-parchment stationery-sheet-expanded"'), 'Full letter must use the exact stationery sheet template');
 
-  // 3. Verify envelope starts closed by default and extracts letter on click
+  // 4. Verify 2-Step Envelope Choreography: Closed -> Peeking (Step 1) -> Extracted Full Stationery Sheet (Step 2)
   const store = new BirthdayStateStore(null);
-  assert.equal(store.getState().envelopeOpened, false, 'Envelope must start closed so user can tap to extract letter');
+  assert.equal(store.getState().envelopeOpened, false, 'Envelope must start closed');
 
   const elementsById = new Map();
   const makeEl = (id) => {
@@ -982,21 +989,31 @@ test('14. Interactive 3D Envelope Letter Extraction, Multi-Petal Sakura/Camellia
   const controller = new BirthdayAppController(mockDoc, store);
   controller.init();
 
-  // Initially closed
+  // Stage 0: Initially closed
+  assert.equal(controller.envelopeStage, 'closed');
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), false);
   assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-open'), false);
 
-  // Click interactive envelope -> extracts letter & opens parchment
+  // Stage 1: Click interactive envelope -> opens flap and peeks letter sheet out (full letter not yet expanded)
   elementsById.get('interactive-envelope').trigger('click');
-  assert.equal(store.getState().envelopeOpened, true);
-  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-extracting'), true);
-  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-open'), true);
+  assert.equal(controller.envelopeStage, 'peeking');
+  assert.equal(store.getState().envelopeOpened, false);
+  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-peeking'), true);
   assert.equal(elementsById.get('envelope-top-flap').classList.contains('is-open'), true);
-  assert.equal(elementsById.get('envelope-inner-letter').classList.contains('is-open'), true);
+  assert.equal(elementsById.get('envelope-inner-letter').classList.contains('is-peeking'), true);
+  assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), false);
+
+  // Stage 2: Click (or pull) peeking letter sheet -> sheet jumps out and expands into full stationery letter
+  elementsById.get('envelope-inner-letter').trigger('click');
+  assert.equal(controller.envelopeStage, 'open');
+  assert.equal(store.getState().envelopeOpened, true);
+  assert.equal(elementsById.get('envelope-inner-letter').classList.contains('is-jumping-out'), true);
+  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-extracted'), true);
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), true);
 
-  // Click close envelope button -> folds letter back inside
+  // Click close envelope button -> folds letter back inside and resets to closed
   elementsById.get('btn-close-envelope').trigger('click');
+  assert.equal(controller.envelopeStage, 'closed');
   assert.equal(store.getState().envelopeOpened, false);
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), false);
 });
