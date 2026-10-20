@@ -552,7 +552,7 @@ test('8. BirthdayAppController renders full-text continuous sky lanterns without
     elementsById.get('btn-toggle-theme').querySelector('.btn-label-text').textContent,
     'Giao Diện Sáng'
   );
-  assert.equal(mockDoc.title, 'Chúc Mừng Ngày 20/10 Diểm Phúc — Món Quà Nhỏ Từ Trái Tim');
+  assert.equal(mockDoc.title, 'Chúc Mừng Ngày 20/10 Diểm Phúc — Món Quà Nhỏ');
   assert.equal(elementsById.get('hero-portrait-img').getAttribute('src'), USER_PROVIDED_PORTRAIT_URL);
 
   // Verify hero image fallback on error survives subsequent renders
@@ -848,5 +848,31 @@ test('12. Verification of Heart Favicon assets, refined subtle lanterns without 
   assert.ok(spawned.size <= 24, 'Spawned lantern size must be delicate and small (<= 24px)');
   particles.destroy();
 });
+
+test('13. User Experience Refinement: Link preview metadata, "Gửi tặng em bó hoa" action, and removal of stats & heart suffix', () => {
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+
+  // 1. Verify title without "Từ Trái Tim"
+  assert.ok(htmlContent.includes('<title>Chúc Mừng Ngày 20/10 Diểm Phúc — Món Quà Nhỏ</title>'));
+  assert.equal(htmlContent.includes('Món Quà Nhỏ Từ Trái Tim'), false, 'Title must not include "Từ Trái Tim"');
+
+  // 2. Verify meta description & OpenGraph tags: "Page chúc Diểm Phúc"
+  assert.ok(htmlContent.includes('<meta name="description" content="Page chúc Diểm Phúc" />'));
+  assert.ok(htmlContent.includes('<meta property="og:title" content="Chúc Mừng Ngày 20/10 Diểm Phúc — Món Quà Nhỏ" />'));
+  assert.ok(htmlContent.includes('<meta property="og:description" content="Page chúc Diểm Phúc" />'));
+  assert.ok(htmlContent.includes('<meta name="twitter:description" content="Page chúc Diểm Phúc" />'));
+  assert.equal(htmlContent.includes('Landing page chúc mừng Ngày Phụ nữ'), false, 'Old verbose description must be removed');
+
+  // 3. Verify action button text "Gửi tặng em bó hoa"
+  assert.ok(htmlContent.includes('<span>Gửi tặng em bó hoa</span>'));
+  assert.equal(htmlContent.includes('<span>Ngắm Bó Hoa Tulip</span>'), false, 'Old action "Ngắm Bó Hoa Tulip" must be replaced');
+
+  // 4. Verify unwrap button without "Ngắm Hoa Tulip Nở"
+  assert.equal(htmlContent.includes('Ngắm Hoa Tulip Nở'), false, 'Curtain button must not contain "Ngắm Hoa Tulip Nở"');
+
+  // 5. Verify removal of redundant hero-stats-grid
+  assert.equal(htmlContent.includes('class="hero-stats-grid"'), false, 'Redundant hero-stats-grid (20/10, Tulip, ∞) must be removed');
+});
+
 
 

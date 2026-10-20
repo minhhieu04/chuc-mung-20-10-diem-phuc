@@ -2703,7 +2703,7 @@ class BirthdayAppController {
 
     // Sync document title & gift curtain state
     if ('title' in this.doc) {
-      this.doc.title = `Chúc Mừng Ngày 20/10 ${config.recipientName} — Món Quà Nhỏ Từ Trái Tim`;
+      this.doc.title = `Chúc Mừng Ngày 20/10 ${config.recipientName} — Món Quà Nhỏ`;
     }
     const giftCurtain = this.doc.getElementById('gift-curtain');
     if (giftCurtain) {
