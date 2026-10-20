@@ -266,7 +266,7 @@ export class BirthdayAppController {
       const songNameEl = this.doc.getElementById('mini-song-name');
       if (songNameEl) {
         songNameEl.textContent = this.audio.isMp3Mode
-          ? this.audio.currentSongTitle || 'Một ngày buồn — Kiều Chi'
+          ? this.audio.currentSongTitle || 'Emm là đóa hoa đẹp nhấttt'
           : `Giai điệu: ${this.audio.getCurrentTrack()?.title || 'Upbeat Pop'}`;
       }
     }

@@ -1080,7 +1080,7 @@ const ROMANTIC_PLAYLIST = [
 const MP3_TRACKS = [
   {
     key: 'mot_ngay_buon',
-    title: 'Một ngày buồn — Kiều Chi',
+    title: 'Emm là đóa hoa đẹp nhấttt',
     src: './assets/audio/mot-ngay-buon-kieu-chi.mp3'
   },
   {
@@ -2951,7 +2951,7 @@ class BirthdayAppController {
       const songNameEl = this.doc.getElementById('mini-song-name');
       if (songNameEl) {
         songNameEl.textContent = this.audio.isMp3Mode
-          ? this.audio.currentSongTitle || 'Một ngày buồn — Kiều Chi'
+          ? this.audio.currentSongTitle || 'Emm là đóa hoa đẹp nhấttt'
           : `Giai điệu: ${this.audio.getCurrentTrack()?.title || 'Upbeat Pop'}`;
       }
     }

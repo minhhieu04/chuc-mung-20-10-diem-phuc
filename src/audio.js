@@ -229,7 +229,7 @@ export const ROMANTIC_PLAYLIST = [
 export const MP3_TRACKS = [
   {
     key: 'mot_ngay_buon',
-    title: 'Một ngày buồn — Kiều Chi',
+    title: 'Emm là đóa hoa đẹp nhấttt',
     src: './assets/audio/mot-ngay-buon-kieu-chi.mp3'
   },
   {

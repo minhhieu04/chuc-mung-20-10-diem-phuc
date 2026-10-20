@@ -651,7 +651,7 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
   assert.equal(typeof audio.setAudioElement, 'function');
   assert.equal(typeof audio.playSwipeSwoosh, 'function');
   assert.equal(typeof audio.playLanternGlowChime, 'function');
-  assert.equal(audio.currentSongTitle, 'Một ngày buồn — Kiều Chi');
+  assert.equal(audio.currentSongTitle, 'Emm là đóa hoa đẹp nhấttt');
 
   let played = false;
   const mockAudioEl = {
@@ -670,7 +670,7 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
   assert.equal(nextMp3.title, 'Nhạc iu đời');
   assert.equal(audio.currentSongTitle, 'Nhạc iu đời');
   const backMp3 = audio.nextMp3Track();
-  assert.equal(backMp3.title, 'Một ngày buồn — Kiều Chi');
+  assert.equal(backMp3.title, 'Emm là đóa hoa đẹp nhấttt');
   audio.stopMusic();
   assert.equal(played, false, 'AudioElement should pause when stopMusic is invoked');
 
