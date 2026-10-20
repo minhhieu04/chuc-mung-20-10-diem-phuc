@@ -391,6 +391,55 @@ button,
   text-align: center;
   box-shadow: var(--shadow-soft), var(--shadow-glow);
   backdrop-filter: blur(20px);
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), filter 0.72s ease;
+}
+
+.gift-curtain.is-hidden .gift-card-stage {
+  transform: scale(1.08) translateY(-18px);
+  filter: brightness(1.18);
+}
+
+/* Staggered Hero Entrance Choreography When Gift Curtain Unwraps */
+[data-unwrapped-entry="true"] .hero-copy .mono-badge {
+  animation: heroCinemaReveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
+}
+
+[data-unwrapped-entry="true"] .hero-copy .hero-heading {
+  animation: heroCinemaReveal 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+
+[data-unwrapped-entry="true"] .hero-copy .hero-lead {
+  animation: heroCinemaReveal 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+
+[data-unwrapped-entry="true"] .hero-copy .hero-actions {
+  animation: heroCinemaReveal 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+[data-unwrapped-entry="true"] .hero-portrait-stage {
+  animation: heroPortraitReveal3D 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
+}
+
+@keyframes heroCinemaReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroPortraitReveal3D {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) rotateY(-8deg) translateY(24px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0deg) translateY(0) scale(1);
+  }
 }
 
 /* Multi-Color Prismatic Aurora & Bokeh Backdrop */
@@ -867,6 +916,36 @@ button,
   opacity: 1;
   pointer-events: auto;
   filter: drop-shadow(0 24px 55px rgba(0, 0, 0, 0.42));
+}
+
+.photo-card-item.is-active img {
+  animation: activePhotoKenBurns 11s ease-in-out infinite alternate;
+  transform-origin: center center;
+}
+
+.photo-card-item.is-card-gliding {
+  animation: activeCardSpringIn 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes activePhotoKenBurns {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.045) translate3d(-1%, -1%, 0);
+  }
+}
+
+@keyframes activeCardSpringIn {
+  0% {
+    transform: translate3d(0, 12px, -18px) scale(0.95) rotate(-1.5deg);
+  }
+  65% {
+    transform: translate3d(0, -3px, 4px) scale(1.01) rotate(0.4deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
 }
 
 .photo-card-item.is-stacked-1 {
@@ -1711,6 +1790,8 @@ button,
 }
 
 .reason-card {
+  position: relative;
+  overflow: hidden;
   padding: var(--space-6);
   border-radius: 22px;
   background: var(--bg-card);
@@ -1721,6 +1802,74 @@ button,
   align-items: flex-start;
   cursor: pointer;
   transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.reason-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 15%,
+    rgba(253, 224, 71, 0.16) 50%,
+    transparent 85%
+  );
+  pointer-events: none;
+  transition: left 0.65s ease;
+}
+
+.reason-card:hover::after {
+  left: 150%;
+}
+
+/* Scroll-Triggered Stagger Reveal Animations */
+.section-header.is-scroll-revealed {
+  animation: scrollRevealUp 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bouquet-visual-card.is-scroll-revealed,
+.envelope-box.is-scroll-revealed {
+  animation: scrollRevealScale 0.74s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reason-card.is-scroll-revealed {
+  animation: reasonCardCascade 0.66s cubic-bezier(0.22, 1, 0.36, 1) var(--cascade-delay, 0s) both;
+}
+
+@keyframes scrollRevealUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scrollRevealScale {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reasonCardCascade {
+  0% {
+    opacity: 0;
+    transform: perspective(800px) rotateX(-8deg) translateY(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(800px) rotateX(0deg) translateY(0) scale(1);
+  }
 }
 
 .reason-card:hover {
@@ -2256,6 +2405,28 @@ button,
   color: #FEF08A;
   box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.45), 0 4px 12px rgba(0, 0, 0, 0.35);
   flex-shrink: 0;
+}
+
+.envelope-3d-scene:not(.is-open) .wax-seal-disc {
+  animation: waxSealHeartbeat 2.4s ease-in-out infinite;
+}
+
+@keyframes waxSealHeartbeat {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.45), 0 0 12px rgba(253, 224, 71, 0.35);
+  }
+  18% {
+    transform: scale(1.09);
+    box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.6), 0 0 22px rgba(253, 224, 71, 0.78);
+  }
+  34% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.55), 0 0 18px rgba(244, 63, 94, 0.65);
+  }
 }
 
 .wax-seal-ring {

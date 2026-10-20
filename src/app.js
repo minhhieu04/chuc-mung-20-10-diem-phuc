@@ -136,6 +136,7 @@ export class BirthdayAppController {
     this.initInteractiveTulips();
     this.initInteractiveLanterns();
     this.initInteractiveReasons();
+    this.initScrollRevealAnimations();
     this.initBackgroundTap();
     this.store.subscribe(() => this.renderAll());
   }
@@ -317,11 +318,12 @@ export class BirthdayAppController {
     if (this._lastReasonsName === reasonsKey && container.innerHTML !== '') return;
     this._lastReasonsName = reasonsKey;
 
-    container.innerHTML = REASONS_LIST.map((r) => {
+    container.innerHTML = REASONS_LIST.map((r, idx) => {
       const title = this.localizeRecipientText(r.title, config);
       const detail = this.localizeRecipientText(r.detail, config);
+      const cascadeDelay = (idx * 0.11).toFixed(2);
       return `
-      <article class="reason-card">
+      <article class="reason-card" style="--cascade-delay: ${cascadeDelay}s;">
         <div class="reason-number" aria-hidden="true">${escapeHtml(r.number)}</div>
         <div>
           <h3 class="reason-title">${escapeHtml(title)}</h3>
@@ -331,6 +333,7 @@ export class BirthdayAppController {
     `;
     }).join('');
     this.initInteractiveReasons();
+    this.initScrollRevealAnimations();
   }
 
   /**
@@ -722,6 +725,9 @@ export class BirthdayAppController {
       unwrapBtn.addEventListener('click', () => {
         if (typeof unwrapBtn.blur === 'function') unwrapBtn.blur();
         this.store.setGiftUnwrapped(true);
+        if (this.doc.documentElement && typeof this.doc.documentElement.setAttribute === 'function') {
+          this.doc.documentElement.setAttribute('data-unwrapped-entry', 'true');
+        }
         if (giftCurtain) {
           giftCurtain.classList.add('is-hidden');
           giftCurtain.setAttribute('aria-hidden', 'true');
@@ -1005,7 +1011,13 @@ export class BirthdayAppController {
     const updateDeckView = (direction = 0) => {
       const total = this.cardItems.length;
       this.cardItems.forEach((card, idx) => {
-        card.classList.remove('is-active', 'is-stacked-1', 'is-stacked-2', 'is-stacked-hidden');
+        card.classList.remove(
+          'is-active',
+          'is-stacked-1',
+          'is-stacked-2',
+          'is-stacked-hidden',
+          'is-card-gliding'
+        );
         if (card.style) {
           card.style.transform = '';
           card.style.opacity = '';
@@ -1014,6 +1026,10 @@ export class BirthdayAppController {
         const diff = (idx - this.activeCardIndex + total) % total;
         if (diff === 0) {
           card.classList.add('is-active');
+          if (direction !== 0) {
+            if (typeof card.offsetWidth === 'number') void card.offsetWidth;
+            card.classList.add('is-card-gliding');
+          }
         } else if (diff === 1) {
           card.classList.add('is-stacked-1');
         } else if (diff === 2) {
@@ -1349,6 +1365,31 @@ export class BirthdayAppController {
         const title = card.querySelector ? card.querySelector('.reason-title')?.textContent : '';
         this.showToast(`✦ Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
       });
+    });
+  }
+
+  initScrollRevealAnimations() {
+    if (typeof IntersectionObserver !== 'function' || !this.doc.querySelectorAll) return;
+    if (!this._scrollRevealObserver) {
+      this._scrollRevealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.target && entry.target.classList) {
+              entry.target.classList.add('is-scroll-revealed');
+              this._scrollRevealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.14, rootMargin: '0px 0px -32px 0px' }
+      );
+    }
+    const targets = this.doc.querySelectorAll(
+      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box'
+    );
+    targets.forEach((el) => {
+      if (el && el.classList && !el.classList.contains('is-scroll-revealed')) {
+        this._scrollRevealObserver.observe(el);
+      }
     });
   }
 
