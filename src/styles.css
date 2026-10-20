@@ -1179,28 +1179,29 @@ button,
   color: var(--color-velvet);
 }
 
-/* Floating Music Player Pill (Bottom-Left so it never overlaps the Photo Card Deck on the right) */
+/* Floating Music Player Pill (Fixed Size & Position at Bottom-Left) */
 .floating-music-pill {
   position: fixed;
   bottom: 24px;
   left: 24px;
   right: auto;
   z-index: 99;
+  width: 288px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 7px 16px 7px 7px;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
   border-radius: 999px;
-  background: rgba(20, 10, 32, 0.94);
+  background: rgba(20, 10, 32, 0.95);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(246, 189, 96, 0.52);
+  border: 1.5px solid rgba(246, 189, 96, 0.55);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.48), 0 0 24px rgba(244, 114, 150, 0.22);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .floating-music-pill:hover {
-  transform: translateY(-3px);
   border-color: rgba(246, 189, 96, 0.85);
 }
 
@@ -1224,6 +1225,7 @@ button,
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  outline: none !important;
 }
 
 .disc-vinyl-art {
@@ -1265,6 +1267,8 @@ button,
 }
 
 .mini-track-info {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -1276,6 +1280,8 @@ button,
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .equalizer-bars {
@@ -1311,24 +1317,31 @@ button,
 }
 
 .mini-ctrl-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 1px solid rgba(246, 189, 96, 0.38);
+  border: 1px solid rgba(246, 189, 96, 0.4);
   background: rgba(246, 189, 96, 0.14);
   color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  outline: none !important;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .mini-ctrl-btn:hover {
-  transform: scale(1.12);
   background: rgba(246, 189, 96, 0.32);
-  border-color: rgba(246, 189, 96, 0.75);
+  border-color: rgba(246, 189, 96, 0.8);
+}
+
+.mini-ctrl-btn:focus,
+.mini-ctrl-btn:focus-visible,
+.mini-disc-btn:focus,
+.mini-disc-btn:focus-visible {
+  outline: none !important;
 }
 
 [data-theme="sakura"] .mini-ctrl-btn {
@@ -1342,12 +1355,17 @@ button,
     bottom: 14px;
     left: 14px;
     right: auto;
-    padding: 5px 12px 5px 5px;
+    width: 256px;
+    padding: 5px 8px 5px 5px;
     gap: 8px;
   }
   .mini-disc-btn {
     width: 36px;
     height: 36px;
+  }
+  .mini-ctrl-btn {
+    width: 30px;
+    height: 30px;
   }
   .mini-song-name {
     font-size: 0.75rem;
