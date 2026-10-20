@@ -3371,12 +3371,7 @@ class BirthdayAppController {
     const musicBtn = this.doc.getElementById('btn-toggle-music');
     if (musicBtn) {
       musicBtn.addEventListener('click', () => {
-        const nowPlaying = this.audio.toggleMusic();
-        if (nowPlaying) {
-          this.showToast('♪ Đang phát: Một ngày buồn — Kiều Chi');
-        } else {
-          this.showToast('❙❙ Đã tạm dừng nhạc');
-        }
+        this.audio.toggleMusic();
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
         } else {
@@ -3582,12 +3577,7 @@ class BirthdayAppController {
     const miniPlayBtn = this.doc.getElementById('mini-play-btn');
     if (miniPlayBtn) {
       miniPlayBtn.addEventListener('click', () => {
-        const nowPlaying = this.audio.toggleMusic();
-        if (nowPlaying) {
-          this.showToast('♪ Đang phát: Một ngày buồn — Kiều Chi');
-        } else {
-          this.showToast('❙❙ Đã tạm dừng nhạc');
-        }
+        this.audio.toggleMusic();
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
         } else {
@@ -4037,10 +4027,15 @@ class BirthdayAppController {
     if (!toast) return;
     toast.textContent = message;
     toast.style.opacity = '1';
+    if (toast.classList) toast.classList.add('is-visible');
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => {
       toast.style.opacity = '0';
-    }, 3200);
+      if (toast.classList) toast.classList.remove('is-visible');
+    }, 2800);
+    if (this.toastTimer && typeof this.toastTimer.unref === 'function') {
+      this.toastTimer.unref();
+    }
   }
 }
 
