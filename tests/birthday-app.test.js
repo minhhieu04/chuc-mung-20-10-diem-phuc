@@ -332,17 +332,35 @@ test('7. Landing Page HTML & CSS compliance: "Diểm Phúc" + "Emm" woven natura
   assert.ok(htmlContent.includes('id="nav-avatar-img"'));
   assert.ok(htmlContent.includes('id="hero-portrait-img"'));
   assert.ok(htmlContent.includes('id="btn-toggle-music"'));
-  assert.ok(htmlContent.includes('id="btn-switch-melody"'));
   assert.ok(htmlContent.includes('id="btn-toggle-theme"'));
   assert.ok(htmlContent.includes('id="flower-bouquet"'));
   assert.ok(htmlContent.includes('id="interactive-bouquet-svg"'));
   assert.ok(htmlContent.includes('class="bouquet-poetic-caption"'));
   assert.ok(htmlContent.includes('id="btn-replay-bloom"'));
-  assert.ok(htmlContent.includes('id="lantern-sky-stage"'));
   assert.ok(htmlContent.includes('id="lantern-sky-floating-area"'));
   assert.ok(htmlContent.includes('id="letter-parchment"'));
 
-  // Verify removed clutter: NO #memories gallery, NO #lightbox-modal, NO #flower-cards-grid, NO #active-flower-blessing, NO #flower-legend-chips, NO .flower-blessing-meta, NO #music-playlist-bar
+  // Verify removed clutter: NO #memories gallery, NO #lightbox-modal, NO #flower-cards-grid, NO #active-flower-blessing, NO #flower-legend-chips, NO .flower-blessing-meta, NO #music-playlist-bar, NO #btn-switch-melody, NO #lantern-sky-stage
+  assert.equal(
+    htmlContent.includes('id="btn-switch-melody"'),
+    false,
+    '"Đổi nhạc" button (#btn-switch-melody) must be removed for single Mot ngay buon MP3 experience'
+  );
+  assert.equal(
+    htmlContent.includes('id="lantern-sky-stage"'),
+    false,
+    'Boxed #lantern-sky-stage must be removed in favor of continuous background floating lanterns'
+  );
+  assert.equal(
+    htmlContent.includes('id="sky-lanterns"'),
+    false,
+    'Boxed sky lanterns section (#sky-lanterns) must be removed'
+  );
+  assert.equal(
+    htmlContent.includes('class="floating-floral-badge"'),
+    false,
+    'Floating badges overlapping photo controls must be removed'
+  );
   assert.equal(
     htmlContent.includes('id="memories"'),
     false,
@@ -590,7 +608,9 @@ test('9. dist/bundle.js is generated, syntactically valid, and free of leftover 
 test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambient background sky lanterns & interactive micro-touches', () => {
   // 1. Verify PHOTO_STACK_ITEMS structure & first photo is 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg
   assert.ok(Array.isArray(PHOTO_STACK_ITEMS), 'PHOTO_STACK_ITEMS must be an array');
-  assert.equal(PHOTO_STACK_ITEMS.length, 6, 'Should have 6 curated photos of Diểm Phúc');
+  assert.equal(PHOTO_STACK_ITEMS.length, 5, 'Should have 5 curated unique photos of Diểm Phúc (duplicate removed)');
+  const uniqueSrcs = new Set(PHOTO_STACK_ITEMS.map((item) => item.src));
+  assert.equal(uniqueSrcs.size, 5, 'All photo sources must be unique without duplicate images');
   assert.ok(
     PHOTO_STACK_ITEMS[0].src.includes('7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'),
     'First photo must be 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'
@@ -618,10 +638,10 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
   assert.ok(htmlContent.includes('ambient-photo-backdrop'), 'index.html must have ambient floating photo backdrop');
   assert.ok(htmlContent.includes('id="floating-music-pill"'), 'index.html must have #floating-music-pill');
   assert.ok(htmlContent.includes('id="mini-play-btn"'), 'index.html must have #mini-play-btn');
-  assert.ok(htmlContent.includes('id="mini-next-btn"'), 'index.html must have #mini-next-btn');
+  assert.equal(htmlContent.includes('id="mini-next-btn"'), false, 'mini-next-btn must be removed for single-track MP3 player');
   assert.ok(htmlContent.includes('id="bg-audio-player"'), 'index.html must have #bg-audio-player');
   assert.ok(htmlContent.includes('mot-ngay-buon-kieu-chi.mp3'), 'Audio player must load mot-ngay-buon-kieu-chi.mp3');
-  assert.ok(htmlContent.includes('quick-wishes-chips'), 'index.html must have quick-wishes-chips');
+  assert.ok(htmlContent.includes('id="lantern-sky-floating-area"'), 'index.html must have #lantern-sky-floating-area');
 
   // 5. Verify audio engine audio element support & micro-sound methods
   const audio = new RomanticAudioEngine();
@@ -753,14 +773,14 @@ test('11. Verification of MP3 cycling recovery, realistic background sky lantern
   assert.doesNotThrow(() => audio.playHeartPop());
   audio.stopMusic();
 
-  // 3. Verify HTML & CSS support custom wish form & glassmorphic sky stage
+  // 3. Verify HTML & CSS support continuous background sky lanterns & micro-interactions
   const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
-  assert.ok(htmlContent.includes('id="form-custom-wish"'), 'index.html must have #form-custom-wish');
-  assert.ok(htmlContent.includes('id="input-custom-wish"'), 'index.html must have #input-custom-wish');
-  assert.ok(htmlContent.includes('id="btn-submit-wish"'), 'index.html must have #btn-submit-wish');
+  assert.equal(htmlContent.includes('id="form-custom-wish"'), false, 'Boxed #form-custom-wish must be removed');
+  assert.equal(htmlContent.includes('id="sky-lanterns"'), false, 'Boxed #sky-lanterns section must be removed');
+  assert.ok(htmlContent.includes('id="lantern-sky-floating-area"'), 'index.html must have #lantern-sky-floating-area for ambient continuous sky lanterns');
 
   const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
-  assert.ok(cssContent.includes('.custom-wish-form'));
+  assert.ok(cssContent.includes('.ambient-fullscreen-lanterns') || cssContent.includes('#lantern-sky-floating-area'));
   assert.ok(cssContent.includes('.floating-card-heart'));
   assert.ok(cssContent.includes('.reason-card.is-popping'));
   assert.ok(cssContent.includes('.floating-sky-lantern:hover'));

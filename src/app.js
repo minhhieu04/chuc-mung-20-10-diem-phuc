@@ -529,7 +529,12 @@ export class BirthdayAppController {
     const musicBtn = this.doc.getElementById('btn-toggle-music');
     if (musicBtn) {
       musicBtn.addEventListener('click', () => {
-        this.audio.toggleMusic();
+        const nowPlaying = this.audio.toggleMusic();
+        if (nowPlaying) {
+          this.showToast('🎵 Đang phát: Một ngày buồn — Kiều Chi');
+        } else {
+          this.showToast('⏸ Đã tạm dừng nhạc');
+        }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
         } else {
@@ -637,7 +642,12 @@ export class BirthdayAppController {
     const miniPlayBtn = this.doc.getElementById('mini-play-btn');
     if (miniPlayBtn) {
       miniPlayBtn.addEventListener('click', () => {
-        this.audio.toggleMusic();
+        const nowPlaying = this.audio.toggleMusic();
+        if (nowPlaying) {
+          this.showToast('🎵 Đang phát: Một ngày buồn — Kiều Chi');
+        } else {
+          this.showToast('⏸ Đã tạm dừng nhạc');
+        }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
         } else {

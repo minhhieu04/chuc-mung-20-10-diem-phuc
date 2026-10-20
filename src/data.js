@@ -122,14 +122,6 @@ export const PHOTO_STACK_ITEMS = [
     title: 'Bình Yên & Tươi Vui',
     caption: 'Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc mỗi ngày',
     tag: '☀️ Hạnh Phúc'
-  },
-  {
-    id: 'photo-6',
-    src: './assets/images/user-uploaded-diem-phuc.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Khoảnh Khắc Ngọt Ngào',
-    caption: 'Món quà 20/10 chuẩn bị trọn vẹn sự trân trọng gửi tặng Diểm Phúc',
-    tag: '💖 Yêu Thương'
   }
 ];
 

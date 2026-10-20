@@ -602,87 +602,22 @@ button,
   color: #F4DCE6;
 }
 
-.floating-floral-badge {
-  position: absolute;
-  z-index: 6;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: var(--bg-glass-strong);
-  border: 1px solid var(--border-glow);
-  color: var(--text-primary);
-  font-size: 0.82rem;
-  font-weight: 700;
-  box-shadow: var(--shadow-soft);
-  animation: floatGentle 4s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.badge-top-left {
-  top: -14px;
-  left: -14px;
-}
-
-.badge-bottom-right {
-  bottom: 64px;
-  right: -14px;
-  animation-delay: 1.5s;
-}
-
-/* Ambient Floating Photos Backdrop */
+/* Ambient Floating Backdrop Halo */
 .ambient-photo-backdrop {
   position: absolute;
-  inset: -20px -30px -40px -30px;
+  inset: -20px -20px -30px -20px;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(244, 114, 150, 0.22) 0%, rgba(246, 189, 96, 0.14) 45%, transparent 70%);
+  filter: blur(24px);
+  border-radius: 40px;
 }
 
-.ambient-floating-photo {
-  position: absolute;
-  width: 130px;
-  aspect-ratio: 3 / 4;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  opacity: 0.28;
-  filter: blur(0.4px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+[data-theme="sakura"] .ambient-photo-backdrop {
+  background: radial-gradient(circle at 50% 50%, rgba(225, 29, 72, 0.16) 0%, rgba(245, 158, 11, 0.12) 45%, transparent 70%);
 }
 
-.ambient-floating-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.ambient-floating-photo.f1 {
-  top: -24px;
-  right: -36px;
-  transform: rotate(8deg);
-  animation: floatAmbientPhoto 6.5s ease-in-out infinite alternate;
-}
-
-.ambient-floating-photo.f2 {
-  bottom: 20px;
-  left: -40px;
-  transform: rotate(-9deg);
-  animation: floatAmbientPhoto 7.2s ease-in-out infinite alternate-reverse;
-}
-
-.ambient-floating-photo.f3 {
-  top: 40%;
-  right: -48px;
-  transform: rotate(12deg) scale(0.85);
-  animation: floatAmbientPhoto 8s ease-in-out infinite alternate;
-}
-
-@keyframes floatAmbientPhoto {
-  0% { transform: translateY(0px) rotate(8deg); }
-  100% { transform: translateY(-16px) rotate(11deg); }
-}
-
-/* 3D Swipeable Photo Card Deck */
+/* 3D Swipeable Photo Card Deck - Modern Instagram / Pinterest Luxury Presentation */
 .photo-card-deck {
   position: relative;
   width: 100%;
@@ -690,6 +625,7 @@ button,
   touch-action: pan-y;
   user-select: none;
   cursor: grab;
+  perspective: 1200px;
 }
 
 .photo-card-deck:active {
@@ -701,10 +637,18 @@ button,
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 22px;
+  border-radius: 26px;
+  overflow: hidden;
   transform-style: preserve-3d;
-  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.38s ease, filter 0.38s ease;
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.42s ease, filter 0.42s ease;
   will-change: transform, opacity;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.38);
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+}
+
+[data-theme="sakura"] .photo-card-item {
+  border: 1.5px solid rgba(184, 20, 77, 0.25);
+  box-shadow: 0 20px 48px rgba(136, 19, 55, 0.16);
 }
 
 .photo-card-item img {
@@ -715,36 +659,39 @@ button,
   user-drag: none;
   user-select: none;
   pointer-events: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .photo-card-item.is-active {
   z-index: 10;
-  transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  transform: translate3d(0, 0, 0) scale(1);
   opacity: 1;
   pointer-events: auto;
+  filter: drop-shadow(0 24px 55px rgba(0, 0, 0, 0.42));
 }
 
 .photo-card-item.is-stacked-1 {
   z-index: 8;
-  transform: translate3d(14px, 14px, -30px) rotate(3.5deg) scale(0.95);
-  opacity: 0.85;
-  filter: brightness(0.85);
-  pointer-events: auto;
-  cursor: pointer;
+  transform: translate3d(0, -12px, -30px) scale(0.95);
+  opacity: 0.55;
+  filter: brightness(0.72) blur(0.5px);
+  pointer-events: none;
 }
 
 .photo-card-item.is-stacked-2 {
   z-index: 6;
-  transform: translate3d(26px, 26px, -60px) rotate(7deg) scale(0.9);
-  opacity: 0.6;
-  filter: brightness(0.72);
-  pointer-events: auto;
-  cursor: pointer;
+  transform: translate3d(0, -24px, -60px) scale(0.9);
+  opacity: 0.28;
+  filter: brightness(0.55) blur(1px);
+  pointer-events: none;
 }
 
 .photo-card-item.is-stacked-hidden {
   z-index: 1;
-  transform: translate3d(0, 0, -100px) scale(0.85);
+  transform: translate3d(0, -32px, -90px) scale(0.85);
   opacity: 0;
   pointer-events: none;
 }
@@ -774,13 +721,13 @@ button,
   }
 }
 
-/* Card Deck Navigation & Dots */
+/* Card Deck Navigation & Dots - Luxury Instagram / Pinterest Presentation */
 .card-deck-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+  gap: var(--space-4);
+  margin-top: var(--space-5);
   padding: 0 var(--space-2);
 }
 
@@ -788,52 +735,77 @@ button,
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: var(--bg-glass-strong);
-  border: 1px solid var(--border-glow);
+  border: 1.5px solid var(--border-glow);
   color: var(--text-primary);
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  flex-shrink: 0;
 }
 
 .card-arrow-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.08);
   background: var(--accent-gradient);
   color: #FFF;
-  box-shadow: 0 0 18px rgba(246, 189, 96, 0.4);
+  box-shadow: 0 0 22px rgba(246, 189, 96, 0.55);
+}
+
+.card-arrow-btn:active {
+  transform: scale(0.95);
+}
+
+[data-theme="sakura"] .card-arrow-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(184, 20, 77, 0.35);
+  color: var(--color-velvet);
+  box-shadow: 0 6px 18px rgba(184, 20, 77, 0.15);
+}
+
+[data-theme="sakura"] .card-arrow-btn:hover {
+  background: linear-gradient(135deg, #E11D48 0%, #F59E0B 100%);
+  color: #FFF;
 }
 
 .card-deck-center-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  flex: 1;
 }
 
 .card-counter-badge {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
+  letter-spacing: 0.3px;
   color: var(--color-peach-light);
-  background: rgba(0, 0, 0, 0.28);
-  padding: 4px 12px;
+  background: rgba(14, 8, 28, 0.68);
+  padding: 6px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(246, 189, 96, 0.3);
+  border: 1px solid rgba(246, 189, 96, 0.38);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 [data-theme="sakura"] .card-counter-badge {
   color: var(--color-velvet);
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(184, 20, 77, 0.25);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(184, 20, 77, 0.28);
+  box-shadow: 0 4px 14px rgba(184, 20, 77, 0.12);
 }
 
 .card-dots-list {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .card-dot-btn {
@@ -841,20 +813,20 @@ button,
   height: 8px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
   padding: 0;
   cursor: pointer;
-  transition: width 0.25s ease, background 0.25s ease;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease, box-shadow 0.3s ease;
 }
 
 [data-theme="sakura"] .card-dot-btn {
-  background: rgba(184, 20, 77, 0.25);
+  background: rgba(184, 20, 77, 0.28);
 }
 
 .card-dot-btn.is-active {
-  width: 22px;
+  width: 26px;
   background: linear-gradient(90deg, #F6BD60, #F47296);
-  box-shadow: 0 0 8px rgba(246, 189, 96, 0.6);
+  box-shadow: 0 0 10px rgba(246, 189, 96, 0.65);
 }
 
 .card-swipe-hint {
@@ -1312,138 +1284,48 @@ button,
 }
 
 /* ==========================================================================
-   Section 3: Continuous Auto-Floating Sky Lantern Wishes (Dark & Light Themes)
+   Continuous Ambient Auto-Floating Sky Lantern Wishes (Full-Screen Background)
    ========================================================================== */
-.lantern-sky-stage {
-  position: relative;
-  height: 560px;
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 84% 18%, rgba(255, 243, 176, 0.16), transparent 28%),
-    radial-gradient(circle at 26% 58%, rgba(244, 114, 150, 0.12), transparent 48%),
-    rgba(14, 8, 28, 0.42);
-  border: 1px solid rgba(246, 189, 96, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: var(--shadow-soft), 0 0 45px rgba(246, 189, 96, 0.12);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* High-Contrast Light Theme ("sakura") Sky Stage */
-[data-theme="sakura"] .lantern-sky-stage {
-  background:
-    radial-gradient(circle at 84% 18%, rgba(251, 191, 36, 0.22), transparent 32%),
-    radial-gradient(circle at 24% 62%, rgba(244, 114, 150, 0.14), transparent 52%),
-    rgba(255, 245, 248, 0.62);
-  border: 1.5px solid rgba(184, 20, 77, 0.28);
-  box-shadow: 0 20px 48px -12px rgba(157, 23, 77, 0.16);
-}
-
-/* Custom Wish Form in Toolbar */
-.custom-wish-form {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  max-width: 580px;
-  margin: var(--space-4) auto 0;
-  width: 100%;
-}
-
-.custom-wish-input {
-  flex: 1;
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(246, 189, 96, 0.38);
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.custom-wish-input:focus {
-  border-color: #F6BD60;
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 0 16px rgba(246, 189, 96, 0.3);
-}
-
-[data-theme="sakura"] .custom-wish-input {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(184, 20, 77, 0.35);
-  color: #3D1225;
-}
-
-[data-theme="sakura"] .custom-wish-input:focus {
-  border-color: #D81B60;
-  box-shadow: 0 0 16px rgba(216, 27, 96, 0.25);
-}
-
-.wish-submit-btn {
-  white-space: nowrap;
-  padding: 12px 22px;
-  font-size: 0.92rem;
-}
-
-@media (max-width: 640px) {
-  .custom-wish-form {
-    flex-direction: column;
-  }
-  .custom-wish-input,
-  .wish-submit-btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-.sky-stage-moon {
-  position: absolute;
-  top: 24px;
-  right: 42px;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #FFF9DB 0%, #F6BD60 75%, transparent 100%);
-  box-shadow: 0 0 36px rgba(246, 189, 96, 0.75);
+.ambient-fullscreen-lanterns,
+#lantern-sky-floating-area {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-  z-index: 2;
-}
-
-[data-theme="sakura"] .sky-stage-moon {
-  background: radial-gradient(circle, #FFFBEB 0%, #F59E0B 78%, transparent 100%);
-  box-shadow: 0 0 36px rgba(245, 158, 11, 0.55);
-}
-
-.lantern-sky-floating-area {
-  position: relative;
-  flex: 1;
-  width: 100%;
   overflow: hidden;
-  z-index: 3;
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
 }
 
-/* Continuous Infinite Upward Stream Track (Never Freezes on General Sky Hover) */
-.lantern-stream-track {
+.ambient-fullscreen-lanterns .lantern-stream-track,
+#lantern-sky-floating-area .lantern-stream-track {
   display: flex;
   flex-direction: column;
   width: 100%;
-  animation: lanternStreamContinuous 40s linear infinite;
+  animation: lanternStreamContinuous 50s linear infinite;
   will-change: transform;
 }
 
-.lantern-stream-cycle {
+.ambient-fullscreen-lanterns .lantern-stream-cycle,
+#lantern-sky-floating-area .lantern-stream-cycle {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 28px 36px;
-  padding: 28px 36px;
+  gap: 36px clamp(20px, 8vw, 120px);
+  padding: 30px clamp(16px, 6vw, 80px);
   width: 100%;
-  max-width: 1020px;
+  max-width: 1360px;
   margin: 0 auto;
+}
+
+/* Fallback / legacy support for theme styling */
+.lantern-sky-stage {
+  display: none;
+}
+
+[data-theme="sakura"] .lantern-sky-stage {
+  background: transparent;
 }
 
 /* Individual Floating Sky Lantern + Full Wish Card */
