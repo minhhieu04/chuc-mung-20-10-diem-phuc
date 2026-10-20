@@ -623,10 +623,13 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
     assert.ok(fs.statSync(fullPath).size > 5000, `Photo file should be non-empty: ${fullPath}`);
   }
 
-  // 3. Verify real MP3 audio asset exists and is over 1MB
+  // 3. Verify real MP3 audio assets exist and are over 1MB
   const mp3Path = path.resolve(PROJECT_ROOT, 'assets/audio/mot-ngay-buon-kieu-chi.mp3');
   assert.ok(fs.existsSync(mp3Path), `MP3 audio should exist at ${mp3Path}`);
   assert.ok(fs.statSync(mp3Path).size > 1000000, 'MP3 audio should be full audio file > 1MB');
+  const mp3Path2 = path.resolve(PROJECT_ROOT, 'assets/audio/nhac-iu-doi.mp3');
+  assert.ok(fs.existsSync(mp3Path2), `Second MP3 audio should exist at ${mp3Path2}`);
+  assert.ok(fs.statSync(mp3Path2).size > 1000000, 'Second MP3 audio should be full audio file > 1MB');
 
   // 4. Verify index.html contains swipeable deck, floating music pill, and audio tag
   const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
@@ -663,6 +666,11 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
   audio.setAudioElement(mockAudioEl);
   audio.startMusic();
   assert.equal(played, true, 'AudioElement should play when startMusic is invoked');
+  const nextMp3 = audio.nextMp3Track();
+  assert.equal(nextMp3.title, 'Nhạc iu đời');
+  assert.equal(audio.currentSongTitle, 'Nhạc iu đời');
+  const backMp3 = audio.nextMp3Track();
+  assert.equal(backMp3.title, 'Một ngày buồn — Kiều Chi');
   audio.stopMusic();
   assert.equal(played, false, 'AudioElement should pause when stopMusic is invoked');
 

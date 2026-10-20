@@ -266,7 +266,7 @@ export class BirthdayAppController {
       const songNameEl = this.doc.getElementById('mini-song-name');
       if (songNameEl) {
         songNameEl.textContent = this.audio.isMp3Mode
-          ? 'Một ngày buồn — Kiều Chi'
+          ? this.audio.currentSongTitle || 'Một ngày buồn — Kiều Chi'
           : `Giai điệu: ${this.audio.getCurrentTrack()?.title || 'Upbeat Pop'}`;
       }
     }
@@ -972,6 +972,33 @@ export class BirthdayAppController {
     if (miniPlayBtn) {
       miniPlayBtn.addEventListener('click', () => {
         this.audio.toggleMusic();
+        if (typeof this.store.setMusicState === 'function') {
+          this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
+        } else {
+          this.renderAll();
+        }
+      });
+    }
+    const switchMp3Btn = this.doc.getElementById('btn-switch-mp3');
+    if (switchMp3Btn) {
+      switchMp3Btn.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (typeof this.audio.nextMp3Track === 'function') {
+          this.audio.nextMp3Track();
+        }
+        if (typeof this.store.setMusicState === 'function') {
+          this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
+        } else {
+          this.renderAll();
+        }
+      });
+    }
+    const miniTrackInfo = this.doc.getElementById('mini-track-info');
+    if (miniTrackInfo) {
+      miniTrackInfo.addEventListener('click', () => {
+        if (typeof this.audio.nextMp3Track === 'function') {
+          this.audio.nextMp3Track();
+        }
         if (typeof this.store.setMusicState === 'function') {
           this.store.setMusicState(this.audio.isPlaying, this.audio.melodyKey);
         } else {

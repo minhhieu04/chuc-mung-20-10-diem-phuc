@@ -226,6 +226,19 @@ export const ROMANTIC_PLAYLIST = [
   }
 ];
 
+export const MP3_TRACKS = [
+  {
+    key: 'mot_ngay_buon',
+    title: 'Một ngày buồn — Kiều Chi',
+    src: './assets/audio/mot-ngay-buon-kieu-chi.mp3'
+  },
+  {
+    key: 'nhac_iu_doi',
+    title: 'Nhạc iu đời',
+    src: './assets/audio/nhac-iu-doi.mp3'
+  }
+];
+
 export class RomanticAudioEngine {
   constructor() {
     this.ctx = null;
@@ -241,9 +254,49 @@ export class RomanticAudioEngine {
     this.micCalibrating = false;
     this.masterVolume = 0.24;
     this.audioElement = null;
-    this.audioSource = './assets/audio/mot-ngay-buon-kieu-chi.mp3';
-    this.currentSongTitle = 'Một ngày buồn — Kiều Chi';
+    this.mp3Index = 0;
+    this.audioSource = MP3_TRACKS[0].src;
+    this.currentSongTitle = MP3_TRACKS[0].title;
     this.isMp3Mode = true;
+  }
+
+  /**
+   * Switches between the real MP3 tracks ("Một ngày buồn — Kiều Chi" <-> "Nhạc iu đời").
+   */
+  nextMp3Track() {
+    this.mp3Index = (this.mp3Index + 1) % MP3_TRACKS.length;
+    const track = MP3_TRACKS[this.mp3Index];
+    this.audioSource = track.src;
+    this.currentSongTitle = track.title;
+    this.isMp3Mode = true;
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+    if (this.audioElement) {
+      try {
+        if (typeof this.audioElement.pause === 'function') {
+          this.audioElement.pause();
+        }
+        if (typeof this.audioElement.setAttribute === 'function') {
+          this.audioElement.setAttribute('src', track.src);
+        }
+        this.audioElement.src = track.src;
+        if (typeof this.audioElement.load === 'function') {
+          this.audioElement.load();
+        }
+        this.isPlaying = true;
+        if (typeof this.audioElement.play === 'function') {
+          const p = this.audioElement.play();
+          if (p !== undefined && typeof p.catch === 'function') {
+            p.catch(() => {});
+          }
+        }
+      } catch {}
+    } else {
+      this.isPlaying = true;
+    }
+    return track;
   }
 
   setAudioElement(el) {
