@@ -872,6 +872,10 @@ test('13. User Experience Refinement: Link preview metadata, "Gửi tặng em b�
 
   // 5. Verify removal of redundant hero-stats-grid
   assert.equal(htmlContent.includes('class="hero-stats-grid"'), false, 'Redundant hero-stats-grid (20/10, Tulip, ∞) must be removed');
+
+  // 6. Verify floral wreath encircling avatar
+  assert.ok(htmlContent.includes('class="gift-avatar-container"'), 'index.html must have gift-avatar-container');
+  assert.ok(htmlContent.includes('class="gift-avatar-wreath"'), 'index.html must have floral wreath encircling avatar');
 });
 
 
