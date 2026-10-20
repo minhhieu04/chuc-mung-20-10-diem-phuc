@@ -370,6 +370,15 @@ export class RomanticAudioEngine {
     overtoneGain.connect(gainNode);
     gainNode.connect(ctx.destination);
 
+    oscMain.onended = () => {
+      try {
+        oscMain.disconnect();
+        oscOvertone.disconnect();
+        overtoneGain.disconnect();
+        gainNode.disconnect();
+      } catch {}
+    };
+
     oscMain.start(now);
     oscOvertone.start(now);
     oscMain.stop(now + durationSec * 1.22);
@@ -501,6 +510,12 @@ export class RomanticAudioEngine {
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
       osc.connect(gain);
       gain.connect(ctx.destination);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+          gain.disconnect();
+        } catch {}
+      };
       osc.start(now);
       osc.stop(now + 0.15);
     } catch {}
@@ -520,6 +535,12 @@ export class RomanticAudioEngine {
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
       osc.connect(gain);
       gain.connect(ctx.destination);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+          gain.disconnect();
+        } catch {}
+      };
       osc.start(now);
       osc.stop(now + 0.13);
     } catch {}

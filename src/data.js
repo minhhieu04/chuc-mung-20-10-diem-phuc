@@ -92,12 +92,30 @@ export const PHOTO_STACK_ITEMS = [
     tag: '✦ Nụ Cười Tỏa Nắng'
   },
   {
+    id: 'photo-ai-1',
+    src: './assets/images/stickers/sticker-chibi-bouquet.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Cô Nàng Ôm Hoa Giấy Hồng',
+    caption: 'Phiên bản Chibi Anime Kawaii mắt long lanh rạng rỡ ngày 20/10',
+    tag: '✦ Chibi Kawaii AI',
+    isAiArt: true
+  },
+  {
     id: 'photo-2',
     src: './assets/images/IMG_5937.JPG',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
     tag: '✦ Rạng Ngời'
+  },
+  {
+    id: 'photo-ai-2',
+    src: './assets/images/stickers/sticker-3d-daisy.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Nàng Thơ Cúc Họa Mi',
+    caption: 'Tạo hình 3D Pixar & Pop Mart trong trẻo, đáng yêu của Emm',
+    tag: '✦ 3D Pixar AI',
+    isAiArt: true
   },
   {
     id: 'photo-3',
@@ -108,12 +126,30 @@ export const PHOTO_STACK_ITEMS = [
     tag: '✦ Dịu Dàng'
   },
   {
+    id: 'photo-ai-3',
+    src: './assets/images/stickers/sticker-watercolor-grad.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Tân Cử Nhân Rạng Rỡ',
+    caption: 'Tranh màu nước Storybook lưu giữ khoảnh khắc thanh xuân tươi đẹp',
+    tag: '✦ Storybook AI',
+    isAiArt: true
+  },
+  {
     id: 'photo-4',
     src: './assets/images/IMG_7101.JPG',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
     tag: '✦ Tinh Khôi'
+  },
+  {
+    id: 'photo-ai-4',
+    src: './assets/images/stickers/sticker-webtoon-glasses.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Nét Trong Trẻo Webtoon',
+    caption: 'Phong cách Manhwa Hàn Quốc ngọt ngào và dịu dàng',
+    tag: '✦ Webtoon AI',
+    isAiArt: true
   },
   {
     id: 'photo-5',

@@ -133,7 +133,6 @@ export class BirthdayAppController {
     this.bindEvents();
     this.initAudioEngine();
     this.initCardSwipeDeck();
-    this.initInteractiveStickers();
     this.initInteractiveTulips();
     this.initInteractiveLanterns();
     this.initInteractiveReasons();
@@ -714,11 +713,7 @@ export class BirthdayAppController {
       );
     }
 
-    // 3D Tilt on Hero Portrait Card
-    const heroCard = this.doc.getElementById('hero-portrait-3d');
-    if (heroCard) {
-      this.attach3DTilt(heroCard, 8);
-    }
+    // Note: #hero-portrait-3d no longer uses mousemove 3D tilt so swipe deck transforms stay 100% stable
 
     // Stage 0: Unwrap Gift Curtain Button
     const unwrapBtn = this.doc.getElementById('btn-unwrap-gift');
@@ -1035,11 +1030,27 @@ export class BirthdayAppController {
     if (this.cardItems.length === 0) return;
 
     this.activeCardIndex = 0;
-    let isAnimating = false;
+    let lastSwipeEndedAt = 0;
+    let pendingCleanupFn = null;
 
-    const updateDeckView = (direction = 0) => {
+    const flushPendingCleanup = () => {
+      if (typeof pendingCleanupFn === 'function') {
+        const fn = pendingCleanupFn;
+        pendingCleanupFn = null;
+        fn(true);
+      }
+    };
+
+    const updateDeckView = (direction = 0, fromSwipe = false, skipCardIdx = -1) => {
       const total = this.cardItems.length;
       this.cardItems.forEach((card, idx) => {
+        if (idx !== skipCardIdx && card.style) {
+          card.style.transition = '';
+          card.style.transform = '';
+          card.style.opacity = '';
+          card.style.zIndex = '';
+          card.style.pointerEvents = '';
+        }
         card.classList.remove(
           'is-active',
           'is-stacked-1',
@@ -1047,16 +1058,10 @@ export class BirthdayAppController {
           'is-stacked-hidden',
           'is-card-gliding'
         );
-        if (card.style) {
-          card.style.transform = '';
-          card.style.opacity = '';
-          card.style.transition = '';
-        }
         const diff = (idx - this.activeCardIndex + total) % total;
         if (diff === 0) {
           card.classList.add('is-active');
-          if (direction !== 0) {
-            if (typeof card.offsetWidth === 'number') void card.offsetWidth;
+          if (direction !== 0 && !fromSwipe) {
             card.classList.add('is-card-gliding');
           }
         } else if (diff === 1) {
@@ -1092,36 +1097,44 @@ export class BirthdayAppController {
           dot.className = `card-dot-btn ${idx === 0 ? 'is-active' : ''}`;
           dot.setAttribute('aria-label', `Ảnh ${idx + 1}`);
           dot.addEventListener('click', () => {
-            this.goToCard(idx, idx > this.activeCardIndex ? 1 : -1);
+            if (idx === this.activeCardIndex) return;
+            this.goToCard(idx, idx > this.activeCardIndex ? 1 : -1, false);
           });
           dotsContainer.appendChild(dot);
         }
       });
     }
 
-    this.goToCard = (index, dir = 0) => {
+    this.goToCard = (index, dir = 0, fromSwipe = false, skipCardIdx = -1) => {
+      if (skipCardIdx === -1) {
+        flushPendingCleanup();
+      }
       const total = this.cardItems.length;
       this.activeCardIndex = (index + total) % total;
-      updateDeckView(dir);
+      updateDeckView(dir, fromSwipe, skipCardIdx);
     };
 
     if (prevBtn) {
-      prevBtn.addEventListener('click', () => this.goToCard(this.activeCardIndex - 1, -1));
+      prevBtn.addEventListener('click', () => {
+        this.goToCard(this.activeCardIndex - 1, -1, false);
+      });
     }
     if (nextBtn) {
-      nextBtn.addEventListener('click', () => this.goToCard(this.activeCardIndex + 1, 1));
+      nextBtn.addEventListener('click', () => {
+        this.goToCard(this.activeCardIndex + 1, 1, false);
+      });
     }
 
     // Direct click/tap on cards (stacked cards rotate, active card spawns hearts)
     this.cardItems.forEach((card, idx) => {
       card.addEventListener('click', (e) => {
-        if (isDragging) return;
+        if (isDragging || Date.now() - lastSwipeEndedAt < 260) return;
         const total = this.cardItems.length;
         const diff = (idx - this.activeCardIndex + total) % total;
         if (diff === 1) {
-          this.goToCard(this.activeCardIndex + 1, 1);
+          this.goToCard(this.activeCardIndex + 1, 1, false);
         } else if (diff === 2) {
-          this.goToCard(this.activeCardIndex + 2, 1);
+          this.goToCard(this.activeCardIndex + 2, 1, false);
         } else if (diff === 0) {
           this.spawnCardHeart(e.clientX, e.clientY);
           if (typeof this.audio.playHeartPop === 'function') {
@@ -1138,9 +1151,21 @@ export class BirthdayAppController {
     let isDragging = false;
     let isDirectionLocked = false;
     let isHorizontalSwipe = false;
+    let activeInputMode = '';
 
-    const onDragStart = (x, y) => {
-      if (isAnimating) return;
+    const resetNonActivePreviewStyles = (excludeIdx = -1) => {
+      this.cardItems.forEach((card, idx) => {
+        if (idx === this.activeCardIndex || idx === excludeIdx || !card.style) return;
+        card.style.transition = '';
+        card.style.transform = '';
+        card.style.opacity = '';
+        card.style.zIndex = '';
+        card.style.pointerEvents = '';
+      });
+    };
+
+    const onDragStart = (x, y, mode = '') => {
+      flushPendingCleanup();
       startX = x;
       startY = y;
       currentDeltaX = 0;
@@ -1148,19 +1173,21 @@ export class BirthdayAppController {
       isDragging = true;
       isDirectionLocked = false;
       isHorizontalSwipe = false;
+      activeInputMode = mode;
     };
 
     const onDragMove = (x, y, e) => {
-      if (!isDragging || isAnimating) return;
+      if (!isDragging) return;
       currentDeltaX = x - startX;
       currentDeltaY = y - startY;
 
       if (!isDirectionLocked) {
         if (Math.abs(currentDeltaY) > Math.abs(currentDeltaX) && Math.abs(currentDeltaY) > 8) {
           isDragging = false;
+          activeInputMode = '';
           return;
         }
-        if (Math.abs(currentDeltaX) > 8) {
+        if (Math.abs(currentDeltaX) > 6) {
           isDirectionLocked = true;
           isHorizontalSwipe = true;
         }
@@ -1170,11 +1197,30 @@ export class BirthdayAppController {
         if (e && e.cancelable && typeof e.preventDefault === 'function') {
           e.preventDefault();
         }
+        const total = this.cardItems.length;
         const activeCard = this.cardItems[this.activeCardIndex];
-        if (activeCard && !this.store.getState().config.reducedMotion) {
-          const rot = Math.max(-14, Math.min(14, currentDeltaX * 0.08));
+        if (activeCard && activeCard.style && !this.store.getState().config.reducedMotion) {
+          const clampedX = Math.max(-260, Math.min(260, currentDeltaX));
+          const rot = Math.max(-10, Math.min(10, clampedX * 0.05));
           activeCard.style.transition = 'none';
-          activeCard.style.transform = `translate3d(${currentDeltaX * 0.85}px, ${Math.abs(currentDeltaX) * 0.06}px, 0) rotate(${rot}deg)`;
+          activeCard.style.zIndex = '12';
+          activeCard.style.transform = `translate3d(${(clampedX * 0.88).toFixed(1)}px, ${(Math.abs(clampedX) * 0.03).toFixed(1)}px, 0) rotate(${rot.toFixed(2)}deg)`;
+
+          if (total > 1) {
+            const dir = currentDeltaX > 0 ? -1 : 1;
+            const previewIdx = (this.activeCardIndex + dir + total) % total;
+            resetNonActivePreviewStyles(previewIdx);
+            const previewCard = this.cardItems[previewIdx];
+            if (previewCard && previewCard.style) {
+              const progress = Math.min(1, Math.abs(clampedX) / 130);
+              const scale = (0.95 + 0.05 * progress).toFixed(4);
+              const liftY = (10 * (1 - progress)).toFixed(2);
+              previewCard.style.transition = 'none';
+              previewCard.style.zIndex = '9';
+              previewCard.style.opacity = '1';
+              previewCard.style.transform = `translate3d(0, ${liftY}px, 0) scale(${scale})`;
+            }
+          }
         }
       }
     };
@@ -1182,59 +1228,157 @@ export class BirthdayAppController {
     const onDragEnd = () => {
       if (!isDragging) return;
       isDragging = false;
-      const activeCard = this.cardItems[this.activeCardIndex];
-      if (!activeCard) return;
+      activeInputMode = '';
+      const total = this.cardItems.length;
+      const outgoingIdx = this.activeCardIndex;
+      const outgoingCard = this.cardItems[outgoingIdx];
+      if (!outgoingCard) return;
 
-      if (Math.abs(currentDeltaX) > 48 && isHorizontalSwipe) {
-        isAnimating = true;
+      if (Math.abs(currentDeltaX) > 36 && isHorizontalSwipe && total > 1) {
+        lastSwipeEndedAt = Date.now();
         const dir = currentDeltaX > 0 ? -1 : 1;
-        const flyX = currentDeltaX > 0 ? '120%' : '-120%';
-        const flyRot = currentDeltaX > 0 ? '16deg' : '-16deg';
-        activeCard.style.transition = 'transform 0.24s ease-out, opacity 0.24s ease-out';
-        activeCard.style.transform = `translate3d(${flyX}, 0, 0) rotate(${flyRot})`;
-        activeCard.style.opacity = '0';
+        const targetIdx = (outgoingIdx + dir + total) % total;
+        const flyX = currentDeltaX > 0 ? '105%' : '-105%';
+        const flyRot = currentDeltaX > 0 ? '10deg' : '-10deg';
 
-        setTimeout(() => {
-          this.goToCard(this.activeCardIndex + dir, dir);
-          isAnimating = false;
-        }, 220);
+        this.goToCard(targetIdx, dir, true, outgoingIdx);
+
+        if (outgoingCard.style && !this.store.getState().config.reducedMotion) {
+          outgoingCard.style.pointerEvents = 'none';
+          outgoingCard.style.zIndex = '12';
+          outgoingCard.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease-out';
+          outgoingCard.style.transform = `translate3d(${flyX}, 6px, 0) rotate(${flyRot})`;
+          outgoingCard.style.opacity = '0';
+
+          let timerId = null;
+          const cleanup = (flushedEarly = false) => {
+            if (timerId) {
+              clearTimeout(timerId);
+              timerId = null;
+            }
+            if (outgoingCard.style) {
+              outgoingCard.style.transition = 'none';
+              outgoingCard.style.transform = '';
+              outgoingCard.style.zIndex = '';
+              outgoingCard.style.pointerEvents = '';
+              if (flushedEarly) {
+                outgoingCard.style.opacity = '';
+              }
+              if (typeof outgoingCard.offsetWidth === 'number') {
+                void outgoingCard.offsetWidth;
+              }
+              outgoingCard.style.transition = '';
+              if (!flushedEarly) {
+                outgoingCard.style.opacity = '';
+              }
+            }
+            if (pendingCleanupFn === cleanup) {
+              pendingCleanupFn = null;
+            }
+          };
+          pendingCleanupFn = cleanup;
+          timerId = setTimeout(() => cleanup(false), 225);
+          if (timerId && typeof timerId.unref === 'function') {
+            timerId.unref();
+          }
+        }
       } else {
-        activeCard.style.transition = 'transform 0.26s cubic-bezier(0.18, 0.89, 0.32, 1.15)';
-        activeCard.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-        setTimeout(() => {
-          if (activeCard.style) activeCard.style.transition = '';
-        }, 280);
+        if (isHorizontalSwipe) {
+          lastSwipeEndedAt = Date.now();
+        }
+        resetNonActivePreviewStyles(-1);
+        if (outgoingCard.style) {
+          outgoingCard.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+          outgoingCard.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+          let resetTimer = null;
+          const cancelCleanup = () => {
+            if (resetTimer) {
+              clearTimeout(resetTimer);
+              resetTimer = null;
+            }
+            if (outgoingCard.style) {
+              outgoingCard.style.transition = 'none';
+              outgoingCard.style.transform = '';
+              outgoingCard.style.zIndex = '';
+              if (typeof outgoingCard.offsetWidth === 'number') {
+                void outgoingCard.offsetWidth;
+              }
+              outgoingCard.style.transition = '';
+            }
+            if (pendingCleanupFn === cancelCleanup) {
+              pendingCleanupFn = null;
+            }
+          };
+          pendingCleanupFn = cancelCleanup;
+          resetTimer = setTimeout(cancelCleanup, 230);
+          if (resetTimer && typeof resetTimer.unref === 'function') {
+            resetTimer.unref();
+          }
+        }
       }
       currentDeltaX = 0;
       currentDeltaY = 0;
     };
 
     deck.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY, 'touch');
     }, { passive: true });
 
     deck.addEventListener('touchmove', (e) => {
+      if (activeInputMode !== 'touch') return;
       if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX, e.touches[0].clientY, e);
     }, { passive: false });
 
-    deck.addEventListener('touchend', onDragEnd, { passive: true });
+    deck.addEventListener('touchend', () => {
+      if (activeInputMode === 'touch') onDragEnd();
+    }, { passive: true });
+    deck.addEventListener('touchcancel', () => {
+      if (activeInputMode === 'touch') onDragEnd();
+    }, { passive: true });
+
+    deck.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' || (typeof e.button === 'number' && e.button !== 0)) return;
+      if (typeof deck.setPointerCapture === 'function' && typeof e.pointerId === 'number') {
+        try {
+          deck.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore pointer capture errors on synthetic events
+        }
+      }
+      onDragStart(e.clientX, e.clientY, 'pointer');
+    });
+
+    deck.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch' || activeInputMode !== 'pointer' || !isDragging) return;
+      onDragMove(e.clientX, e.clientY, e);
+    });
+
+    deck.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'touch' || activeInputMode !== 'pointer' || !isDragging) return;
+      onDragEnd();
+    });
+
+    deck.addEventListener('pointercancel', (e) => {
+      if (e.pointerType === 'touch' || activeInputMode !== 'pointer' || !isDragging) return;
+      onDragEnd();
+    });
 
     deck.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
+      if (isDragging || e.button !== 0) return;
       if (typeof e.preventDefault === 'function') e.preventDefault();
-      onDragStart(e.clientX, e.clientY);
+      onDragStart(e.clientX, e.clientY, 'mouse');
     });
 
     if (typeof window !== 'undefined') {
       window.addEventListener('mousemove', (e) => {
-        if (isDragging) onDragMove(e.clientX, e.clientY, e);
+        if (isDragging && activeInputMode === 'mouse') onDragMove(e.clientX, e.clientY, e);
       });
       window.addEventListener('mouseup', () => {
-        if (isDragging) onDragEnd();
+        if (isDragging && activeInputMode === 'mouse') onDragEnd();
       });
     }
 
-    updateDeckView(0);
+    updateDeckView(0, true);
   }
 
   spawnCardHeart(x, y) {
@@ -1397,92 +1541,6 @@ export class BirthdayAppController {
     });
   }
 
-  initInteractiveStickers() {
-    this.isDeckStickerMode = false;
-    const toggleBtn = this.doc.getElementById('btn-deck-sticker-toggle');
-    const deck = this.doc.getElementById('photo-card-deck');
-
-    if (toggleBtn && deck) {
-      toggleBtn.addEventListener('click', () => {
-        this.isDeckStickerMode = !this.isDeckStickerMode;
-        toggleBtn.setAttribute('aria-pressed', String(this.isDeckStickerMode));
-        if (deck.classList) {
-          deck.classList.toggle('is-sticker-mode', this.isDeckStickerMode);
-        }
-        const labelEl = toggleBtn.querySelector ? toggleBtn.querySelector('.deck-toggle-label') : null;
-        if (labelEl) {
-          labelEl.textContent = this.isDeckStickerMode
-            ? 'Xem Ảnh Thật Gốc'
-            : 'Hoá Phép Sticker AI';
-        }
-        const imgs = deck.querySelectorAll ? deck.querySelectorAll('.portrait-image') : [];
-        imgs.forEach((img) => {
-          const targetSrc = this.isDeckStickerMode
-            ? img.getAttribute('data-sticker-src')
-            : img.getAttribute('data-real-src');
-          if (targetSrc) {
-            img.setAttribute('src', targetSrc);
-          }
-        });
-        this.audio.playSparkleChime();
-        if (typeof this.particles.triggerCelebrationBurst === 'function') {
-          const rect = deck.getBoundingClientRect ? deck.getBoundingClientRect() : null;
-          const x = rect ? rect.left + rect.width / 2 : 300;
-          const y = rect ? rect.top + rect.height / 2 : 300;
-          this.particles.triggerCelebrationBurst(x, y, 22);
-        }
-        this.showToast(
-          this.isDeckStickerMode
-            ? '✦ Đã hoá phép bộ ảnh của Emm sang chế độ Sticker AI!'
-            : '✦ Đã chuyển về chế độ Ảnh Thật Gốc của Emm!'
-        );
-      });
-    }
-
-    const stickerCards = this.doc.querySelectorAll
-      ? this.doc.querySelectorAll('.sticker-pack-card')
-      : [];
-    stickerCards.forEach((card) => {
-      const downloadBtn = card.querySelector ? card.querySelector('.sticker-download-btn') : null;
-      if (downloadBtn) {
-        downloadBtn.addEventListener('click', (e) => {
-          if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-          this.audio.playSparkleChime();
-          this.showToast('✦ Đang tải Sticker AI của Diểm Phúc về máy!');
-        });
-      }
-
-      const flipSticker = () => {
-        if (!card.classList) return;
-        const isFlipped = card.classList.toggle('is-flipped');
-        if (typeof this.audio.playHeartPop === 'function') {
-          this.audio.playHeartPop();
-        } else {
-          this.audio.playSparkleChime();
-        }
-        if (typeof this.particles.triggerCelebrationBurst === 'function') {
-          const rect = card.getBoundingClientRect ? card.getBoundingClientRect() : null;
-          const x = rect ? rect.left + rect.width / 2 : 250;
-          const y = rect ? rect.top + rect.height / 2 : 300;
-          this.particles.triggerCelebrationBurst(x, y, 16);
-        }
-        this.showToast(
-          isFlipped
-            ? '📷 Đang xem Ảnh Thật Gốc — Chạm lần nữa để lật lại mặt Sticker AI!'
-            : '✦ Đang xem bản vẽ Sticker AI của Emm!'
-        );
-      };
-
-      card.addEventListener('click', flipSticker);
-      card.addEventListener('keydown', (e) => {
-        if (e && (e.key === 'Enter' || e.key === ' ')) {
-          if (typeof e.preventDefault === 'function') e.preventDefault();
-          flipSticker();
-        }
-      });
-    });
-  }
-
   initScrollRevealAnimations() {
     if (typeof IntersectionObserver !== 'function' || !this.doc.querySelectorAll) return;
     if (!this._scrollRevealObserver) {
@@ -1499,7 +1557,7 @@ export class BirthdayAppController {
       );
     }
     const targets = this.doc.querySelectorAll(
-      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box, .sticker-pack-card'
+      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box'
     );
     targets.forEach((el) => {
       if (el && el.classList && !el.classList.contains('is-scroll-revealed')) {
@@ -1523,7 +1581,6 @@ export class BirthdayAppController {
             target.closest('a') ||
             target.closest('input') ||
             target.closest('#photo-card-deck') ||
-            target.closest('.sticker-pack-card') ||
             target.closest('#floating-music-pill') ||
             target.closest('#gift-curtain') ||
             target.closest('#envelope-box') ||

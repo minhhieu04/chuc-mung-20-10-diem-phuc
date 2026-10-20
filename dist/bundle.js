@@ -92,12 +92,30 @@ const PHOTO_STACK_ITEMS = [
     tag: '✦ Nụ Cười Tỏa Nắng'
   },
   {
+    id: 'photo-ai-1',
+    src: './assets/images/stickers/sticker-chibi-bouquet.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Cô Nàng Ôm Hoa Giấy Hồng',
+    caption: 'Phiên bản Chibi Anime Kawaii mắt long lanh rạng rỡ ngày 20/10',
+    tag: '✦ Chibi Kawaii AI',
+    isAiArt: true
+  },
+  {
     id: 'photo-2',
     src: './assets/images/IMG_5937.JPG',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
     tag: '✦ Rạng Ngời'
+  },
+  {
+    id: 'photo-ai-2',
+    src: './assets/images/stickers/sticker-3d-daisy.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Nàng Thơ Cúc Họa Mi',
+    caption: 'Tạo hình 3D Pixar & Pop Mart trong trẻo, đáng yêu của Emm',
+    tag: '✦ 3D Pixar AI',
+    isAiArt: true
   },
   {
     id: 'photo-3',
@@ -108,12 +126,30 @@ const PHOTO_STACK_ITEMS = [
     tag: '✦ Dịu Dàng'
   },
   {
+    id: 'photo-ai-3',
+    src: './assets/images/stickers/sticker-watercolor-grad.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Tân Cử Nhân Rạng Rỡ',
+    caption: 'Tranh màu nước Storybook lưu giữ khoảnh khắc thanh xuân tươi đẹp',
+    tag: '✦ Storybook AI',
+    isAiArt: true
+  },
+  {
     id: 'photo-4',
     src: './assets/images/IMG_7101.JPG',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
     tag: '✦ Tinh Khôi'
+  },
+  {
+    id: 'photo-ai-4',
+    src: './assets/images/stickers/sticker-webtoon-glasses.jpg',
+    fallbackSrc: './assets/images/hero-portrait.jpg',
+    title: 'Nét Trong Trẻo Webtoon',
+    caption: 'Phong cách Manhwa Hàn Quốc ngọt ngào và dịu dàng',
+    tag: '✦ Webtoon AI',
+    isAiArt: true
   },
   {
     id: 'photo-5',
@@ -1220,6 +1256,15 @@ class RomanticAudioEngine {
     overtoneGain.connect(gainNode);
     gainNode.connect(ctx.destination);
 
+    oscMain.onended = () => {
+      try {
+        oscMain.disconnect();
+        oscOvertone.disconnect();
+        overtoneGain.disconnect();
+        gainNode.disconnect();
+      } catch {}
+    };
+
     oscMain.start(now);
     oscOvertone.start(now);
     oscMain.stop(now + durationSec * 1.22);
@@ -1351,6 +1396,12 @@ class RomanticAudioEngine {
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
       osc.connect(gain);
       gain.connect(ctx.destination);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+          gain.disconnect();
+        } catch {}
+      };
       osc.start(now);
       osc.stop(now + 0.15);
     } catch {}
@@ -1370,6 +1421,12 @@ class RomanticAudioEngine {
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
       osc.connect(gain);
       gain.connect(ctx.destination);
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+          gain.disconnect();
+        } catch {}
+      };
       osc.start(now);
       osc.stop(now + 0.13);
     } catch {}
@@ -1654,7 +1711,22 @@ class RomanticParticleEngine {
     this.skyLanterns = [];
 
     this.pointer = { x: -1000, y: -1000, active: false };
+    this._lastPointerSpawnAt = 0;
+    this._lastPointerX = -1000;
+    this._lastPointerY = -1000;
+    this._lastFrameTime = 0;
+    this._scheduledTimeouts = [];
     this.handleResize = this.resize.bind(this);
+    this.handleVisibilityChange = this.onVisibilityChange.bind(this);
+  }
+
+  onVisibilityChange() {
+    if (typeof document === 'undefined') return;
+    if (document.hidden) {
+      this.stop();
+    } else if (!this.reducedMotion) {
+      this.start();
+    }
   }
 
   init() {
@@ -1662,6 +1734,9 @@ class RomanticParticleEngine {
     this.seedAmbientParticles();
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', this.handleResize, { passive: true });
+    }
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
     if (this.reducedMotion) {
       this.renderStaticFrame();
@@ -1674,6 +1749,9 @@ class RomanticParticleEngine {
     this.stop();
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', this.handleResize);
+    }
+    if (typeof document !== 'undefined' && typeof document.removeEventListener === 'function') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     }
   }
 
@@ -1702,8 +1780,13 @@ class RomanticParticleEngine {
       typeof window !== 'undefined' ? window.innerWidth : this.canvas.width || 1280;
     const h =
       typeof window !== 'undefined' ? window.innerHeight : this.canvas.height || 800;
+    const isMobile = w < 768;
     this.dpr =
-      typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+      typeof window !== 'undefined'
+        ? isMobile
+          ? 1
+          : Math.min(window.devicePixelRatio || 1, 1.5)
+        : 1;
     this.width = Math.max(320, w);
     this.height = Math.max(480, h);
 
@@ -1722,9 +1805,9 @@ class RomanticParticleEngine {
 
   seedAmbientParticles() {
     const isMobile = this.width < 768;
-    const starCount = isMobile ? 60 : 120;
-    const petalCount = isMobile ? 24 : 44;
-    const fireflyCount = isMobile ? 16 : 30;
+    const starCount = isMobile ? 28 : 48;
+    const petalCount = isMobile ? 10 : 18;
+    const fireflyCount = isMobile ? 6 : 12;
 
     this.stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * this.width,
@@ -1750,16 +1833,19 @@ class RomanticParticleEngine {
       color: Math.random() > 0.45 ? '#FFD166' : '#FF8FA3'
     }));
 
-    const lanternCount = isMobile ? 8 : 12;
+    const lanternCount = isMobile ? 6 : 8;
     this.skyLanterns = Array.from({ length: lanternCount }, (_, i) => ({
-      x: Math.random() * this.width,
+      x:
+        i % 2 === 0
+          ? this.width * (0.04 + Math.random() * 0.11)
+          : this.width * (0.85 + Math.random() * 0.11),
       y: Math.random() * this.height,
-      vx: (Math.random() - 0.5) * 0.28,
-      vy: -(Math.random() * 0.45 + 0.32),
-      size: Math.random() * 6 + 16,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: -(Math.random() * 0.42 + 0.28),
+      size: Math.random() * 5 + 14,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: Math.random() * 0.22 + 0.36,
+      alpha: Math.random() * 0.14 + 0.20,
       label: LANTERN_WISH_POOL[i % LANTERN_WISH_POOL.length],
       author: '',
       isAmbient: true
@@ -1771,7 +1857,7 @@ class RomanticParticleEngine {
       { upper: '#38BDF8', lower: '#F472B6', glow: 'rgba(56, 189, 248, 0.32)' },
       { upper: '#FFD166', lower: '#FB7185', glow: 'rgba(255, 209, 102, 0.35)' }
     ];
-    const butterflyCount = isMobile ? 5 : 8;
+    const butterflyCount = isMobile ? 3 : 4;
     this.butterflies = Array.from({ length: butterflyCount }, (_, i) => {
       const pal = butterflyPalettes[i % butterflyPalettes.length];
       return {
@@ -1821,8 +1907,27 @@ class RomanticParticleEngine {
   start() {
     if (this.running || this.reducedMotion || !this.ctx) return;
     this.running = true;
-    const loop = () => {
+    this._lastFrameTime = 0;
+    const loop = (timestamp) => {
       if (!this.running) return;
+      const hasActiveBursts =
+        this.burstParticles.length > 0 ||
+        this.shockwaves.length > 0 ||
+        this.shootingStars.length > 0;
+      const minFrameMs = hasActiveBursts ? 14 : 30;
+      if (
+        typeof timestamp === 'number' &&
+        this._lastFrameTime > 0 &&
+        timestamp - this._lastFrameTime < minFrameMs
+      ) {
+        if (typeof requestAnimationFrame === 'function') {
+          this.rafId = requestAnimationFrame(loop);
+        }
+        return;
+      }
+      if (typeof timestamp === 'number') {
+        this._lastFrameTime = timestamp;
+      }
       this.update();
       this.draw();
       if (typeof requestAnimationFrame === 'function') {
@@ -1836,14 +1941,19 @@ class RomanticParticleEngine {
 
   stop() {
     this.running = false;
+    this._lastFrameTime = 0;
     if (this.rafId && typeof cancelAnimationFrame === 'function') {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+    if (Array.isArray(this._scheduledTimeouts) && this._scheduledTimeouts.length > 0) {
+      this._scheduledTimeouts.forEach((id) => clearTimeout(id));
+      this._scheduledTimeouts = [];
+    }
   }
 
   /**
-   * Spawns subtle floral & stardust trail along cursor movement.
+   * Spawns subtle floral & stardust trail along cursor movement (throttled for 60fps performance).
    * @param {number} x
    * @param {number} y
    */
@@ -1853,21 +1963,29 @@ class RomanticParticleEngine {
     this.pointer.active = true;
     if (this.reducedMotion) return;
 
-    if (this.burstParticles.length < 260 && Math.random() > 0.3) {
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const dx = x - this._lastPointerX;
+    const dy = y - this._lastPointerY;
+    if (now - this._lastPointerSpawnAt < 45 || dx * dx + dy * dy < 324) return;
+    this._lastPointerSpawnAt = now;
+    this._lastPointerX = x;
+    this._lastPointerY = y;
+
+    if (this.burstParticles.length < 72) {
       const shapes = ['tulip', 'flower', 'heart', 'star'];
       this.burstParticles.push({
-        x: x + (Math.random() - 0.5) * 16,
-        y: y + (Math.random() - 0.5) * 16,
-        vx: (Math.random() - 0.5) * 1.15,
-        vy: (Math.random() - 0.7) * 1.25,
-        size: Math.random() * 4.2 + 2.5,
-        alpha: 0.88,
-        decay: 0.022,
+        x: x + (Math.random() - 0.5) * 14,
+        y: y + (Math.random() - 0.5) * 14,
+        vx: (Math.random() - 0.5) * 1.05,
+        vy: (Math.random() - 0.7) * 1.15,
+        size: Math.random() * 3.8 + 2.4,
+        alpha: 0.85,
+        decay: 0.028,
         gravity: 0.012,
         rotation: (Math.random() - 0.5) * 0.5,
         spin: (Math.random() - 0.5) * 0.04,
-        bloomProgress: 0.25,
-        bloomSpeed: 0.045,
+        bloomProgress: 0.3,
+        bloomSpeed: 0.05,
         color: CELEBRATION_COLORS[Math.floor(Math.random() * CELEBRATION_COLORS.length)],
         shape: shapes[Math.floor(Math.random() * shapes.length)]
       });
@@ -1978,9 +2096,12 @@ class RomanticParticleEngine {
       { x: this.width * 0.65, y: this.height * 0.32, delay: 1050 }
     ];
     positions.forEach((pos) => {
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         this.triggerCelebrationBurst(pos.x, pos.y, 48);
       }, pos.delay);
+      if (Array.isArray(this._scheduledTimeouts)) {
+        this._scheduledTimeouts.push(tid);
+      }
     });
   }
 
@@ -2048,12 +2169,15 @@ class RomanticParticleEngine {
     const count = 5;
     for (let i = 0; i < count; i++) {
       const w = wishes[i % Math.max(1, wishes.length)] || {};
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         this.spawnCanvasLantern(
           w.text || 'Chúc Diểm Phúc 20/10 hạnh phúc!',
           ''
         );
       }, i * 220);
+      if (Array.isArray(this._scheduledTimeouts)) {
+        this._scheduledTimeouts.push(tid);
+      }
     }
     return count;
   }
@@ -2131,12 +2255,17 @@ class RomanticParticleEngine {
       if (l.y < -120) {
         if (l.isAmbient) {
           l.y = this.height + 40 + Math.random() * 80;
-          l.x = Math.random() * this.width;
+          l.x =
+            Math.random() < 0.5
+              ? this.width * (0.04 + Math.random() * 0.11)
+              : this.width * (0.85 + Math.random() * 0.11);
           l.swayPhase = Math.random() * Math.PI * 2;
           l.flickerPhase = Math.random() * Math.PI * 2;
-          l.size = Math.random() * 6 + 16;
-          l.alpha = Math.random() * 0.22 + 0.36;
+          l.size = Math.random() * 5 + 14;
+          l.alpha = Math.random() * 0.14 + 0.20;
           l.label = LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
+          l._haloGrad = null;
+          l._bodyGrad = null;
         } else {
           this.skyLanterns.splice(i, 1);
         }
@@ -2395,17 +2524,18 @@ class RomanticParticleEngine {
       ctx.restore();
     }
 
-    // 3. Fireflies
+    // 3. Fireflies (concentric alpha circles to avoid per-frame CanvasGradient allocations)
     for (const f of this.fireflies) {
       const glowAlpha = 0.35 + (Math.sin(f.phase) + 1) * 0.28;
       ctx.save();
-      ctx.globalAlpha = glowAlpha;
-      const grad = ctx.createRadialGradient(f.x, f.y, 0.2, f.x, f.y, f.radius * 3.5);
-      grad.addColorStop(0, f.color);
-      grad.addColorStop(1, 'rgba(255, 209, 102, 0)');
-      ctx.fillStyle = grad;
+      ctx.fillStyle = f.color;
+      ctx.globalAlpha = glowAlpha * 0.24;
       ctx.beginPath();
-      ctx.arc(f.x, f.y, f.radius * 3.5, 0, Math.PI * 2);
+      ctx.arc(f.x, f.y, f.radius * 3.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = glowAlpha;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.radius * 1.15, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -2435,7 +2565,7 @@ class RomanticParticleEngine {
       ctx.restore();
     }
 
-    // 5. Rising Sky Lanterns with Wish Labels
+    // 5. Rising Sky Lanterns with cached gradients & Wish Labels on interactive lanterns
     for (const l of this.skyLanterns) {
       ctx.save();
       ctx.translate(l.x, l.y);
@@ -2443,15 +2573,18 @@ class RomanticParticleEngine {
 
       const flicker = 1 + Math.sin(l.flickerPhase || 0) * 0.08;
 
-      // Outer warm golden-peach aura
+      // Outer warm golden-peach aura (cached per lantern size)
       if (typeof ctx.createRadialGradient === 'function') {
-        const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, l.size * 2.2 * flicker);
-        if (halo && halo.addColorStop) {
-          halo.addColorStop(0, 'rgba(255, 225, 140, 0.45)');
-          halo.addColorStop(0.5, 'rgba(255, 170, 100, 0.16)');
-          halo.addColorStop(1, 'rgba(255, 120, 120, 0)');
+        if (!l._haloGrad || l._gradSize !== l.size) {
+          const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, l.size * 2.2);
+          if (halo && halo.addColorStop) {
+            halo.addColorStop(0, 'rgba(255, 225, 140, 0.45)');
+            halo.addColorStop(0.5, 'rgba(255, 170, 100, 0.16)');
+            halo.addColorStop(1, 'rgba(255, 120, 120, 0)');
+          }
+          l._haloGrad = halo;
         }
-        ctx.fillStyle = halo;
+        ctx.fillStyle = l._haloGrad;
         ctx.beginPath();
         ctx.arc(0, 0, l.size * 2.2 * flicker, 0, Math.PI * 2);
         ctx.fill();
@@ -2463,17 +2596,23 @@ class RomanticParticleEngine {
         ctx.fillRect(-l.size * 0.16, -l.size * 0.72, l.size * 0.32, l.size * 0.1);
       }
 
-      // Lantern dome & tapered body with gradient
+      // Lantern dome & tapered body with cached linear gradient
       let bodyFill = '#FFAE33';
       if (typeof ctx.createLinearGradient === 'function') {
-        const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
-        if (bodyGrad && bodyGrad.addColorStop) {
-          bodyGrad.addColorStop(0, '#FFA876');
-          bodyGrad.addColorStop(0.48, '#FFCD56');
-          bodyGrad.addColorStop(1, '#FFF5C0');
-          bodyFill = bodyGrad;
+        if (!l._bodyGrad || l._gradSize !== l.size) {
+          const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
+          if (bodyGrad && bodyGrad.addColorStop) {
+            bodyGrad.addColorStop(0, '#FFA876');
+            bodyGrad.addColorStop(0.48, '#FFCD56');
+            bodyGrad.addColorStop(1, '#FFF5C0');
+            l._bodyGrad = bodyGrad;
+          }
+        }
+        if (l._bodyGrad) {
+          bodyFill = l._bodyGrad;
         }
       }
+      l._gradSize = l.size;
       ctx.fillStyle = bodyFill;
       ctx.beginPath();
       ctx.moveTo(-l.size * 0.34, -l.size * 0.62);
@@ -2523,11 +2662,15 @@ class RomanticParticleEngine {
       ctx.lineTo(0, l.size * 0.85);
       ctx.stroke();
 
-      // Wish label text beneath lantern inside a translucent glowing ribbon badge
-      if (l.label && typeof ctx.fillText === 'function') {
+      // Wish label text beneath user-spawned lanterns inside a translucent glowing ribbon badge
+      if (l.label && !l.isAmbient && typeof ctx.fillText === 'function') {
         const textStr = String(l.label);
         ctx.font = '600 10.5px "Plus Jakarta Sans", sans-serif';
-        const textWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6;
+        if (l._cachedLabel !== textStr || typeof l._cachedWidth !== 'number') {
+          l._cachedLabel = textStr;
+          l._cachedWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6;
+        }
+        const textWidth = l._cachedWidth;
         const iconSize = 8;
         const padX = 7;
         const badgeW = textWidth + padX * 2 + iconSize + 3;
@@ -2818,7 +2961,6 @@ class BirthdayAppController {
     this.bindEvents();
     this.initAudioEngine();
     this.initCardSwipeDeck();
-    this.initInteractiveStickers();
     this.initInteractiveTulips();
     this.initInteractiveLanterns();
     this.initInteractiveReasons();
@@ -3399,11 +3541,7 @@ class BirthdayAppController {
       );
     }
 
-    // 3D Tilt on Hero Portrait Card
-    const heroCard = this.doc.getElementById('hero-portrait-3d');
-    if (heroCard) {
-      this.attach3DTilt(heroCard, 8);
-    }
+    // Note: #hero-portrait-3d no longer uses mousemove 3D tilt so swipe deck transforms stay 100% stable
 
     // Stage 0: Unwrap Gift Curtain Button
     const unwrapBtn = this.doc.getElementById('btn-unwrap-gift');
@@ -3720,11 +3858,27 @@ class BirthdayAppController {
     if (this.cardItems.length === 0) return;
 
     this.activeCardIndex = 0;
-    let isAnimating = false;
+    let lastSwipeEndedAt = 0;
+    let pendingCleanupFn = null;
 
-    const updateDeckView = (direction = 0) => {
+    const flushPendingCleanup = () => {
+      if (typeof pendingCleanupFn === 'function') {
+        const fn = pendingCleanupFn;
+        pendingCleanupFn = null;
+        fn(true);
+      }
+    };
+
+    const updateDeckView = (direction = 0, fromSwipe = false, skipCardIdx = -1) => {
       const total = this.cardItems.length;
       this.cardItems.forEach((card, idx) => {
+        if (idx !== skipCardIdx && card.style) {
+          card.style.transition = '';
+          card.style.transform = '';
+          card.style.opacity = '';
+          card.style.zIndex = '';
+          card.style.pointerEvents = '';
+        }
         card.classList.remove(
           'is-active',
           'is-stacked-1',
@@ -3732,16 +3886,10 @@ class BirthdayAppController {
           'is-stacked-hidden',
           'is-card-gliding'
         );
-        if (card.style) {
-          card.style.transform = '';
-          card.style.opacity = '';
-          card.style.transition = '';
-        }
         const diff = (idx - this.activeCardIndex + total) % total;
         if (diff === 0) {
           card.classList.add('is-active');
-          if (direction !== 0) {
-            if (typeof card.offsetWidth === 'number') void card.offsetWidth;
+          if (direction !== 0 && !fromSwipe) {
             card.classList.add('is-card-gliding');
           }
         } else if (diff === 1) {
@@ -3777,36 +3925,44 @@ class BirthdayAppController {
           dot.className = `card-dot-btn ${idx === 0 ? 'is-active' : ''}`;
           dot.setAttribute('aria-label', `Ảnh ${idx + 1}`);
           dot.addEventListener('click', () => {
-            this.goToCard(idx, idx > this.activeCardIndex ? 1 : -1);
+            if (idx === this.activeCardIndex) return;
+            this.goToCard(idx, idx > this.activeCardIndex ? 1 : -1, false);
           });
           dotsContainer.appendChild(dot);
         }
       });
     }
 
-    this.goToCard = (index, dir = 0) => {
+    this.goToCard = (index, dir = 0, fromSwipe = false, skipCardIdx = -1) => {
+      if (skipCardIdx === -1) {
+        flushPendingCleanup();
+      }
       const total = this.cardItems.length;
       this.activeCardIndex = (index + total) % total;
-      updateDeckView(dir);
+      updateDeckView(dir, fromSwipe, skipCardIdx);
     };
 
     if (prevBtn) {
-      prevBtn.addEventListener('click', () => this.goToCard(this.activeCardIndex - 1, -1));
+      prevBtn.addEventListener('click', () => {
+        this.goToCard(this.activeCardIndex - 1, -1, false);
+      });
     }
     if (nextBtn) {
-      nextBtn.addEventListener('click', () => this.goToCard(this.activeCardIndex + 1, 1));
+      nextBtn.addEventListener('click', () => {
+        this.goToCard(this.activeCardIndex + 1, 1, false);
+      });
     }
 
     // Direct click/tap on cards (stacked cards rotate, active card spawns hearts)
     this.cardItems.forEach((card, idx) => {
       card.addEventListener('click', (e) => {
-        if (isDragging) return;
+        if (isDragging || Date.now() - lastSwipeEndedAt < 260) return;
         const total = this.cardItems.length;
         const diff = (idx - this.activeCardIndex + total) % total;
         if (diff === 1) {
-          this.goToCard(this.activeCardIndex + 1, 1);
+          this.goToCard(this.activeCardIndex + 1, 1, false);
         } else if (diff === 2) {
-          this.goToCard(this.activeCardIndex + 2, 1);
+          this.goToCard(this.activeCardIndex + 2, 1, false);
         } else if (diff === 0) {
           this.spawnCardHeart(e.clientX, e.clientY);
           if (typeof this.audio.playHeartPop === 'function') {
@@ -3823,9 +3979,21 @@ class BirthdayAppController {
     let isDragging = false;
     let isDirectionLocked = false;
     let isHorizontalSwipe = false;
+    let activeInputMode = '';
 
-    const onDragStart = (x, y) => {
-      if (isAnimating) return;
+    const resetNonActivePreviewStyles = (excludeIdx = -1) => {
+      this.cardItems.forEach((card, idx) => {
+        if (idx === this.activeCardIndex || idx === excludeIdx || !card.style) return;
+        card.style.transition = '';
+        card.style.transform = '';
+        card.style.opacity = '';
+        card.style.zIndex = '';
+        card.style.pointerEvents = '';
+      });
+    };
+
+    const onDragStart = (x, y, mode = '') => {
+      flushPendingCleanup();
       startX = x;
       startY = y;
       currentDeltaX = 0;
@@ -3833,19 +4001,21 @@ class BirthdayAppController {
       isDragging = true;
       isDirectionLocked = false;
       isHorizontalSwipe = false;
+      activeInputMode = mode;
     };
 
     const onDragMove = (x, y, e) => {
-      if (!isDragging || isAnimating) return;
+      if (!isDragging) return;
       currentDeltaX = x - startX;
       currentDeltaY = y - startY;
 
       if (!isDirectionLocked) {
         if (Math.abs(currentDeltaY) > Math.abs(currentDeltaX) && Math.abs(currentDeltaY) > 8) {
           isDragging = false;
+          activeInputMode = '';
           return;
         }
-        if (Math.abs(currentDeltaX) > 8) {
+        if (Math.abs(currentDeltaX) > 6) {
           isDirectionLocked = true;
           isHorizontalSwipe = true;
         }
@@ -3855,11 +4025,30 @@ class BirthdayAppController {
         if (e && e.cancelable && typeof e.preventDefault === 'function') {
           e.preventDefault();
         }
+        const total = this.cardItems.length;
         const activeCard = this.cardItems[this.activeCardIndex];
-        if (activeCard && !this.store.getState().config.reducedMotion) {
-          const rot = Math.max(-14, Math.min(14, currentDeltaX * 0.08));
+        if (activeCard && activeCard.style && !this.store.getState().config.reducedMotion) {
+          const clampedX = Math.max(-260, Math.min(260, currentDeltaX));
+          const rot = Math.max(-10, Math.min(10, clampedX * 0.05));
           activeCard.style.transition = 'none';
-          activeCard.style.transform = `translate3d(${currentDeltaX * 0.85}px, ${Math.abs(currentDeltaX) * 0.06}px, 0) rotate(${rot}deg)`;
+          activeCard.style.zIndex = '12';
+          activeCard.style.transform = `translate3d(${(clampedX * 0.88).toFixed(1)}px, ${(Math.abs(clampedX) * 0.03).toFixed(1)}px, 0) rotate(${rot.toFixed(2)}deg)`;
+
+          if (total > 1) {
+            const dir = currentDeltaX > 0 ? -1 : 1;
+            const previewIdx = (this.activeCardIndex + dir + total) % total;
+            resetNonActivePreviewStyles(previewIdx);
+            const previewCard = this.cardItems[previewIdx];
+            if (previewCard && previewCard.style) {
+              const progress = Math.min(1, Math.abs(clampedX) / 130);
+              const scale = (0.95 + 0.05 * progress).toFixed(4);
+              const liftY = (10 * (1 - progress)).toFixed(2);
+              previewCard.style.transition = 'none';
+              previewCard.style.zIndex = '9';
+              previewCard.style.opacity = '1';
+              previewCard.style.transform = `translate3d(0, ${liftY}px, 0) scale(${scale})`;
+            }
+          }
         }
       }
     };
@@ -3867,59 +4056,157 @@ class BirthdayAppController {
     const onDragEnd = () => {
       if (!isDragging) return;
       isDragging = false;
-      const activeCard = this.cardItems[this.activeCardIndex];
-      if (!activeCard) return;
+      activeInputMode = '';
+      const total = this.cardItems.length;
+      const outgoingIdx = this.activeCardIndex;
+      const outgoingCard = this.cardItems[outgoingIdx];
+      if (!outgoingCard) return;
 
-      if (Math.abs(currentDeltaX) > 48 && isHorizontalSwipe) {
-        isAnimating = true;
+      if (Math.abs(currentDeltaX) > 36 && isHorizontalSwipe && total > 1) {
+        lastSwipeEndedAt = Date.now();
         const dir = currentDeltaX > 0 ? -1 : 1;
-        const flyX = currentDeltaX > 0 ? '120%' : '-120%';
-        const flyRot = currentDeltaX > 0 ? '16deg' : '-16deg';
-        activeCard.style.transition = 'transform 0.24s ease-out, opacity 0.24s ease-out';
-        activeCard.style.transform = `translate3d(${flyX}, 0, 0) rotate(${flyRot})`;
-        activeCard.style.opacity = '0';
+        const targetIdx = (outgoingIdx + dir + total) % total;
+        const flyX = currentDeltaX > 0 ? '105%' : '-105%';
+        const flyRot = currentDeltaX > 0 ? '10deg' : '-10deg';
 
-        setTimeout(() => {
-          this.goToCard(this.activeCardIndex + dir, dir);
-          isAnimating = false;
-        }, 220);
+        this.goToCard(targetIdx, dir, true, outgoingIdx);
+
+        if (outgoingCard.style && !this.store.getState().config.reducedMotion) {
+          outgoingCard.style.pointerEvents = 'none';
+          outgoingCard.style.zIndex = '12';
+          outgoingCard.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease-out';
+          outgoingCard.style.transform = `translate3d(${flyX}, 6px, 0) rotate(${flyRot})`;
+          outgoingCard.style.opacity = '0';
+
+          let timerId = null;
+          const cleanup = (flushedEarly = false) => {
+            if (timerId) {
+              clearTimeout(timerId);
+              timerId = null;
+            }
+            if (outgoingCard.style) {
+              outgoingCard.style.transition = 'none';
+              outgoingCard.style.transform = '';
+              outgoingCard.style.zIndex = '';
+              outgoingCard.style.pointerEvents = '';
+              if (flushedEarly) {
+                outgoingCard.style.opacity = '';
+              }
+              if (typeof outgoingCard.offsetWidth === 'number') {
+                void outgoingCard.offsetWidth;
+              }
+              outgoingCard.style.transition = '';
+              if (!flushedEarly) {
+                outgoingCard.style.opacity = '';
+              }
+            }
+            if (pendingCleanupFn === cleanup) {
+              pendingCleanupFn = null;
+            }
+          };
+          pendingCleanupFn = cleanup;
+          timerId = setTimeout(() => cleanup(false), 225);
+          if (timerId && typeof timerId.unref === 'function') {
+            timerId.unref();
+          }
+        }
       } else {
-        activeCard.style.transition = 'transform 0.26s cubic-bezier(0.18, 0.89, 0.32, 1.15)';
-        activeCard.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-        setTimeout(() => {
-          if (activeCard.style) activeCard.style.transition = '';
-        }, 280);
+        if (isHorizontalSwipe) {
+          lastSwipeEndedAt = Date.now();
+        }
+        resetNonActivePreviewStyles(-1);
+        if (outgoingCard.style) {
+          outgoingCard.style.transition = 'transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)';
+          outgoingCard.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+          let resetTimer = null;
+          const cancelCleanup = () => {
+            if (resetTimer) {
+              clearTimeout(resetTimer);
+              resetTimer = null;
+            }
+            if (outgoingCard.style) {
+              outgoingCard.style.transition = 'none';
+              outgoingCard.style.transform = '';
+              outgoingCard.style.zIndex = '';
+              if (typeof outgoingCard.offsetWidth === 'number') {
+                void outgoingCard.offsetWidth;
+              }
+              outgoingCard.style.transition = '';
+            }
+            if (pendingCleanupFn === cancelCleanup) {
+              pendingCleanupFn = null;
+            }
+          };
+          pendingCleanupFn = cancelCleanup;
+          resetTimer = setTimeout(cancelCleanup, 230);
+          if (resetTimer && typeof resetTimer.unref === 'function') {
+            resetTimer.unref();
+          }
+        }
       }
       currentDeltaX = 0;
       currentDeltaY = 0;
     };
 
     deck.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY, 'touch');
     }, { passive: true });
 
     deck.addEventListener('touchmove', (e) => {
+      if (activeInputMode !== 'touch') return;
       if (e.touches && e.touches[0]) onDragMove(e.touches[0].clientX, e.touches[0].clientY, e);
     }, { passive: false });
 
-    deck.addEventListener('touchend', onDragEnd, { passive: true });
+    deck.addEventListener('touchend', () => {
+      if (activeInputMode === 'touch') onDragEnd();
+    }, { passive: true });
+    deck.addEventListener('touchcancel', () => {
+      if (activeInputMode === 'touch') onDragEnd();
+    }, { passive: true });
+
+    deck.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch' || (typeof e.button === 'number' && e.button !== 0)) return;
+      if (typeof deck.setPointerCapture === 'function' && typeof e.pointerId === 'number') {
+        try {
+          deck.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore pointer capture errors on synthetic events
+        }
+      }
+      onDragStart(e.clientX, e.clientY, 'pointer');
+    });
+
+    deck.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch' || activeInputMode !== 'pointer' || !isDragging) return;
+      onDragMove(e.clientX, e.clientY, e);
+    });
+
+    deck.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'touch' || activeInputMode !== 'pointer' || !isDragging) return;
+      onDragEnd();
+    });
+
+    deck.addEventListener('pointercancel', (e) => {
+      if (e.pointerType === 'touch' || activeInputMode !== 'pointer' || !isDragging) return;
+      onDragEnd();
+    });
 
     deck.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
+      if (isDragging || e.button !== 0) return;
       if (typeof e.preventDefault === 'function') e.preventDefault();
-      onDragStart(e.clientX, e.clientY);
+      onDragStart(e.clientX, e.clientY, 'mouse');
     });
 
     if (typeof window !== 'undefined') {
       window.addEventListener('mousemove', (e) => {
-        if (isDragging) onDragMove(e.clientX, e.clientY, e);
+        if (isDragging && activeInputMode === 'mouse') onDragMove(e.clientX, e.clientY, e);
       });
       window.addEventListener('mouseup', () => {
-        if (isDragging) onDragEnd();
+        if (isDragging && activeInputMode === 'mouse') onDragEnd();
       });
     }
 
-    updateDeckView(0);
+    updateDeckView(0, true);
   }
 
   spawnCardHeart(x, y) {
@@ -4082,92 +4369,6 @@ class BirthdayAppController {
     });
   }
 
-  initInteractiveStickers() {
-    this.isDeckStickerMode = false;
-    const toggleBtn = this.doc.getElementById('btn-deck-sticker-toggle');
-    const deck = this.doc.getElementById('photo-card-deck');
-
-    if (toggleBtn && deck) {
-      toggleBtn.addEventListener('click', () => {
-        this.isDeckStickerMode = !this.isDeckStickerMode;
-        toggleBtn.setAttribute('aria-pressed', String(this.isDeckStickerMode));
-        if (deck.classList) {
-          deck.classList.toggle('is-sticker-mode', this.isDeckStickerMode);
-        }
-        const labelEl = toggleBtn.querySelector ? toggleBtn.querySelector('.deck-toggle-label') : null;
-        if (labelEl) {
-          labelEl.textContent = this.isDeckStickerMode
-            ? 'Xem Ảnh Thật Gốc'
-            : 'Hoá Phép Sticker AI';
-        }
-        const imgs = deck.querySelectorAll ? deck.querySelectorAll('.portrait-image') : [];
-        imgs.forEach((img) => {
-          const targetSrc = this.isDeckStickerMode
-            ? img.getAttribute('data-sticker-src')
-            : img.getAttribute('data-real-src');
-          if (targetSrc) {
-            img.setAttribute('src', targetSrc);
-          }
-        });
-        this.audio.playSparkleChime();
-        if (typeof this.particles.triggerCelebrationBurst === 'function') {
-          const rect = deck.getBoundingClientRect ? deck.getBoundingClientRect() : null;
-          const x = rect ? rect.left + rect.width / 2 : 300;
-          const y = rect ? rect.top + rect.height / 2 : 300;
-          this.particles.triggerCelebrationBurst(x, y, 22);
-        }
-        this.showToast(
-          this.isDeckStickerMode
-            ? '✦ Đã hoá phép bộ ảnh của Emm sang chế độ Sticker AI!'
-            : '✦ Đã chuyển về chế độ Ảnh Thật Gốc của Emm!'
-        );
-      });
-    }
-
-    const stickerCards = this.doc.querySelectorAll
-      ? this.doc.querySelectorAll('.sticker-pack-card')
-      : [];
-    stickerCards.forEach((card) => {
-      const downloadBtn = card.querySelector ? card.querySelector('.sticker-download-btn') : null;
-      if (downloadBtn) {
-        downloadBtn.addEventListener('click', (e) => {
-          if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-          this.audio.playSparkleChime();
-          this.showToast('✦ Đang tải Sticker AI của Diểm Phúc về máy!');
-        });
-      }
-
-      const flipSticker = () => {
-        if (!card.classList) return;
-        const isFlipped = card.classList.toggle('is-flipped');
-        if (typeof this.audio.playHeartPop === 'function') {
-          this.audio.playHeartPop();
-        } else {
-          this.audio.playSparkleChime();
-        }
-        if (typeof this.particles.triggerCelebrationBurst === 'function') {
-          const rect = card.getBoundingClientRect ? card.getBoundingClientRect() : null;
-          const x = rect ? rect.left + rect.width / 2 : 250;
-          const y = rect ? rect.top + rect.height / 2 : 300;
-          this.particles.triggerCelebrationBurst(x, y, 16);
-        }
-        this.showToast(
-          isFlipped
-            ? '📷 Đang xem Ảnh Thật Gốc — Chạm lần nữa để lật lại mặt Sticker AI!'
-            : '✦ Đang xem bản vẽ Sticker AI của Emm!'
-        );
-      };
-
-      card.addEventListener('click', flipSticker);
-      card.addEventListener('keydown', (e) => {
-        if (e && (e.key === 'Enter' || e.key === ' ')) {
-          if (typeof e.preventDefault === 'function') e.preventDefault();
-          flipSticker();
-        }
-      });
-    });
-  }
-
   initScrollRevealAnimations() {
     if (typeof IntersectionObserver !== 'function' || !this.doc.querySelectorAll) return;
     if (!this._scrollRevealObserver) {
@@ -4184,7 +4385,7 @@ class BirthdayAppController {
       );
     }
     const targets = this.doc.querySelectorAll(
-      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box, .sticker-pack-card'
+      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box'
     );
     targets.forEach((el) => {
       if (el && el.classList && !el.classList.contains('is-scroll-revealed')) {
@@ -4208,7 +4409,6 @@ class BirthdayAppController {
             target.closest('a') ||
             target.closest('input') ||
             target.closest('#photo-card-deck') ||
-            target.closest('.sticker-pack-card') ||
             target.closest('#floating-music-pill') ||
             target.closest('#gift-curtain') ||
             target.closest('#envelope-box') ||

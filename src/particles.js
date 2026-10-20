@@ -68,7 +68,22 @@ export class RomanticParticleEngine {
     this.skyLanterns = [];
 
     this.pointer = { x: -1000, y: -1000, active: false };
+    this._lastPointerSpawnAt = 0;
+    this._lastPointerX = -1000;
+    this._lastPointerY = -1000;
+    this._lastFrameTime = 0;
+    this._scheduledTimeouts = [];
     this.handleResize = this.resize.bind(this);
+    this.handleVisibilityChange = this.onVisibilityChange.bind(this);
+  }
+
+  onVisibilityChange() {
+    if (typeof document === 'undefined') return;
+    if (document.hidden) {
+      this.stop();
+    } else if (!this.reducedMotion) {
+      this.start();
+    }
   }
 
   init() {
@@ -76,6 +91,9 @@ export class RomanticParticleEngine {
     this.seedAmbientParticles();
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', this.handleResize, { passive: true });
+    }
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
     if (this.reducedMotion) {
       this.renderStaticFrame();
@@ -88,6 +106,9 @@ export class RomanticParticleEngine {
     this.stop();
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', this.handleResize);
+    }
+    if (typeof document !== 'undefined' && typeof document.removeEventListener === 'function') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     }
   }
 
@@ -116,8 +137,13 @@ export class RomanticParticleEngine {
       typeof window !== 'undefined' ? window.innerWidth : this.canvas.width || 1280;
     const h =
       typeof window !== 'undefined' ? window.innerHeight : this.canvas.height || 800;
+    const isMobile = w < 768;
     this.dpr =
-      typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+      typeof window !== 'undefined'
+        ? isMobile
+          ? 1
+          : Math.min(window.devicePixelRatio || 1, 1.5)
+        : 1;
     this.width = Math.max(320, w);
     this.height = Math.max(480, h);
 
@@ -136,9 +162,9 @@ export class RomanticParticleEngine {
 
   seedAmbientParticles() {
     const isMobile = this.width < 768;
-    const starCount = isMobile ? 60 : 120;
-    const petalCount = isMobile ? 24 : 44;
-    const fireflyCount = isMobile ? 16 : 30;
+    const starCount = isMobile ? 28 : 48;
+    const petalCount = isMobile ? 10 : 18;
+    const fireflyCount = isMobile ? 6 : 12;
 
     this.stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * this.width,
@@ -164,16 +190,19 @@ export class RomanticParticleEngine {
       color: Math.random() > 0.45 ? '#FFD166' : '#FF8FA3'
     }));
 
-    const lanternCount = isMobile ? 8 : 12;
+    const lanternCount = isMobile ? 6 : 8;
     this.skyLanterns = Array.from({ length: lanternCount }, (_, i) => ({
-      x: Math.random() * this.width,
+      x:
+        i % 2 === 0
+          ? this.width * (0.04 + Math.random() * 0.11)
+          : this.width * (0.85 + Math.random() * 0.11),
       y: Math.random() * this.height,
-      vx: (Math.random() - 0.5) * 0.28,
-      vy: -(Math.random() * 0.45 + 0.32),
-      size: Math.random() * 6 + 16,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: -(Math.random() * 0.42 + 0.28),
+      size: Math.random() * 5 + 14,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: Math.random() * 0.22 + 0.36,
+      alpha: Math.random() * 0.14 + 0.20,
       label: LANTERN_WISH_POOL[i % LANTERN_WISH_POOL.length],
       author: '',
       isAmbient: true
@@ -185,7 +214,7 @@ export class RomanticParticleEngine {
       { upper: '#38BDF8', lower: '#F472B6', glow: 'rgba(56, 189, 248, 0.32)' },
       { upper: '#FFD166', lower: '#FB7185', glow: 'rgba(255, 209, 102, 0.35)' }
     ];
-    const butterflyCount = isMobile ? 5 : 8;
+    const butterflyCount = isMobile ? 3 : 4;
     this.butterflies = Array.from({ length: butterflyCount }, (_, i) => {
       const pal = butterflyPalettes[i % butterflyPalettes.length];
       return {
@@ -235,8 +264,27 @@ export class RomanticParticleEngine {
   start() {
     if (this.running || this.reducedMotion || !this.ctx) return;
     this.running = true;
-    const loop = () => {
+    this._lastFrameTime = 0;
+    const loop = (timestamp) => {
       if (!this.running) return;
+      const hasActiveBursts =
+        this.burstParticles.length > 0 ||
+        this.shockwaves.length > 0 ||
+        this.shootingStars.length > 0;
+      const minFrameMs = hasActiveBursts ? 14 : 30;
+      if (
+        typeof timestamp === 'number' &&
+        this._lastFrameTime > 0 &&
+        timestamp - this._lastFrameTime < minFrameMs
+      ) {
+        if (typeof requestAnimationFrame === 'function') {
+          this.rafId = requestAnimationFrame(loop);
+        }
+        return;
+      }
+      if (typeof timestamp === 'number') {
+        this._lastFrameTime = timestamp;
+      }
       this.update();
       this.draw();
       if (typeof requestAnimationFrame === 'function') {
@@ -250,14 +298,19 @@ export class RomanticParticleEngine {
 
   stop() {
     this.running = false;
+    this._lastFrameTime = 0;
     if (this.rafId && typeof cancelAnimationFrame === 'function') {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+    if (Array.isArray(this._scheduledTimeouts) && this._scheduledTimeouts.length > 0) {
+      this._scheduledTimeouts.forEach((id) => clearTimeout(id));
+      this._scheduledTimeouts = [];
+    }
   }
 
   /**
-   * Spawns subtle floral & stardust trail along cursor movement.
+   * Spawns subtle floral & stardust trail along cursor movement (throttled for 60fps performance).
    * @param {number} x
    * @param {number} y
    */
@@ -267,21 +320,29 @@ export class RomanticParticleEngine {
     this.pointer.active = true;
     if (this.reducedMotion) return;
 
-    if (this.burstParticles.length < 260 && Math.random() > 0.3) {
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const dx = x - this._lastPointerX;
+    const dy = y - this._lastPointerY;
+    if (now - this._lastPointerSpawnAt < 45 || dx * dx + dy * dy < 324) return;
+    this._lastPointerSpawnAt = now;
+    this._lastPointerX = x;
+    this._lastPointerY = y;
+
+    if (this.burstParticles.length < 72) {
       const shapes = ['tulip', 'flower', 'heart', 'star'];
       this.burstParticles.push({
-        x: x + (Math.random() - 0.5) * 16,
-        y: y + (Math.random() - 0.5) * 16,
-        vx: (Math.random() - 0.5) * 1.15,
-        vy: (Math.random() - 0.7) * 1.25,
-        size: Math.random() * 4.2 + 2.5,
-        alpha: 0.88,
-        decay: 0.022,
+        x: x + (Math.random() - 0.5) * 14,
+        y: y + (Math.random() - 0.5) * 14,
+        vx: (Math.random() - 0.5) * 1.05,
+        vy: (Math.random() - 0.7) * 1.15,
+        size: Math.random() * 3.8 + 2.4,
+        alpha: 0.85,
+        decay: 0.028,
         gravity: 0.012,
         rotation: (Math.random() - 0.5) * 0.5,
         spin: (Math.random() - 0.5) * 0.04,
-        bloomProgress: 0.25,
-        bloomSpeed: 0.045,
+        bloomProgress: 0.3,
+        bloomSpeed: 0.05,
         color: CELEBRATION_COLORS[Math.floor(Math.random() * CELEBRATION_COLORS.length)],
         shape: shapes[Math.floor(Math.random() * shapes.length)]
       });
@@ -392,9 +453,12 @@ export class RomanticParticleEngine {
       { x: this.width * 0.65, y: this.height * 0.32, delay: 1050 }
     ];
     positions.forEach((pos) => {
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         this.triggerCelebrationBurst(pos.x, pos.y, 48);
       }, pos.delay);
+      if (Array.isArray(this._scheduledTimeouts)) {
+        this._scheduledTimeouts.push(tid);
+      }
     });
   }
 
@@ -462,12 +526,15 @@ export class RomanticParticleEngine {
     const count = 5;
     for (let i = 0; i < count; i++) {
       const w = wishes[i % Math.max(1, wishes.length)] || {};
-      setTimeout(() => {
+      const tid = setTimeout(() => {
         this.spawnCanvasLantern(
           w.text || 'Chúc Diểm Phúc 20/10 hạnh phúc!',
           ''
         );
       }, i * 220);
+      if (Array.isArray(this._scheduledTimeouts)) {
+        this._scheduledTimeouts.push(tid);
+      }
     }
     return count;
   }
@@ -545,12 +612,17 @@ export class RomanticParticleEngine {
       if (l.y < -120) {
         if (l.isAmbient) {
           l.y = this.height + 40 + Math.random() * 80;
-          l.x = Math.random() * this.width;
+          l.x =
+            Math.random() < 0.5
+              ? this.width * (0.04 + Math.random() * 0.11)
+              : this.width * (0.85 + Math.random() * 0.11);
           l.swayPhase = Math.random() * Math.PI * 2;
           l.flickerPhase = Math.random() * Math.PI * 2;
-          l.size = Math.random() * 6 + 16;
-          l.alpha = Math.random() * 0.22 + 0.36;
+          l.size = Math.random() * 5 + 14;
+          l.alpha = Math.random() * 0.14 + 0.20;
           l.label = LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
+          l._haloGrad = null;
+          l._bodyGrad = null;
         } else {
           this.skyLanterns.splice(i, 1);
         }
@@ -809,17 +881,18 @@ export class RomanticParticleEngine {
       ctx.restore();
     }
 
-    // 3. Fireflies
+    // 3. Fireflies (concentric alpha circles to avoid per-frame CanvasGradient allocations)
     for (const f of this.fireflies) {
       const glowAlpha = 0.35 + (Math.sin(f.phase) + 1) * 0.28;
       ctx.save();
-      ctx.globalAlpha = glowAlpha;
-      const grad = ctx.createRadialGradient(f.x, f.y, 0.2, f.x, f.y, f.radius * 3.5);
-      grad.addColorStop(0, f.color);
-      grad.addColorStop(1, 'rgba(255, 209, 102, 0)');
-      ctx.fillStyle = grad;
+      ctx.fillStyle = f.color;
+      ctx.globalAlpha = glowAlpha * 0.24;
       ctx.beginPath();
-      ctx.arc(f.x, f.y, f.radius * 3.5, 0, Math.PI * 2);
+      ctx.arc(f.x, f.y, f.radius * 3.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = glowAlpha;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.radius * 1.15, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -849,7 +922,7 @@ export class RomanticParticleEngine {
       ctx.restore();
     }
 
-    // 5. Rising Sky Lanterns with Wish Labels
+    // 5. Rising Sky Lanterns with cached gradients & Wish Labels on interactive lanterns
     for (const l of this.skyLanterns) {
       ctx.save();
       ctx.translate(l.x, l.y);
@@ -857,15 +930,18 @@ export class RomanticParticleEngine {
 
       const flicker = 1 + Math.sin(l.flickerPhase || 0) * 0.08;
 
-      // Outer warm golden-peach aura
+      // Outer warm golden-peach aura (cached per lantern size)
       if (typeof ctx.createRadialGradient === 'function') {
-        const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, l.size * 2.2 * flicker);
-        if (halo && halo.addColorStop) {
-          halo.addColorStop(0, 'rgba(255, 225, 140, 0.45)');
-          halo.addColorStop(0.5, 'rgba(255, 170, 100, 0.16)');
-          halo.addColorStop(1, 'rgba(255, 120, 120, 0)');
+        if (!l._haloGrad || l._gradSize !== l.size) {
+          const halo = ctx.createRadialGradient(0, 0, 1, 0, 0, l.size * 2.2);
+          if (halo && halo.addColorStop) {
+            halo.addColorStop(0, 'rgba(255, 225, 140, 0.45)');
+            halo.addColorStop(0.5, 'rgba(255, 170, 100, 0.16)');
+            halo.addColorStop(1, 'rgba(255, 120, 120, 0)');
+          }
+          l._haloGrad = halo;
         }
-        ctx.fillStyle = halo;
+        ctx.fillStyle = l._haloGrad;
         ctx.beginPath();
         ctx.arc(0, 0, l.size * 2.2 * flicker, 0, Math.PI * 2);
         ctx.fill();
@@ -877,17 +953,23 @@ export class RomanticParticleEngine {
         ctx.fillRect(-l.size * 0.16, -l.size * 0.72, l.size * 0.32, l.size * 0.1);
       }
 
-      // Lantern dome & tapered body with gradient
+      // Lantern dome & tapered body with cached linear gradient
       let bodyFill = '#FFAE33';
       if (typeof ctx.createLinearGradient === 'function') {
-        const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
-        if (bodyGrad && bodyGrad.addColorStop) {
-          bodyGrad.addColorStop(0, '#FFA876');
-          bodyGrad.addColorStop(0.48, '#FFCD56');
-          bodyGrad.addColorStop(1, '#FFF5C0');
-          bodyFill = bodyGrad;
+        if (!l._bodyGrad || l._gradSize !== l.size) {
+          const bodyGrad = ctx.createLinearGradient(0, -l.size * 0.65, 0, l.size * 0.55);
+          if (bodyGrad && bodyGrad.addColorStop) {
+            bodyGrad.addColorStop(0, '#FFA876');
+            bodyGrad.addColorStop(0.48, '#FFCD56');
+            bodyGrad.addColorStop(1, '#FFF5C0');
+            l._bodyGrad = bodyGrad;
+          }
+        }
+        if (l._bodyGrad) {
+          bodyFill = l._bodyGrad;
         }
       }
+      l._gradSize = l.size;
       ctx.fillStyle = bodyFill;
       ctx.beginPath();
       ctx.moveTo(-l.size * 0.34, -l.size * 0.62);
@@ -937,11 +1019,15 @@ export class RomanticParticleEngine {
       ctx.lineTo(0, l.size * 0.85);
       ctx.stroke();
 
-      // Wish label text beneath lantern inside a translucent glowing ribbon badge
-      if (l.label && typeof ctx.fillText === 'function') {
+      // Wish label text beneath user-spawned lanterns inside a translucent glowing ribbon badge
+      if (l.label && !l.isAmbient && typeof ctx.fillText === 'function') {
         const textStr = String(l.label);
         ctx.font = '600 10.5px "Plus Jakarta Sans", sans-serif';
-        const textWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6;
+        if (l._cachedLabel !== textStr || typeof l._cachedWidth !== 'number') {
+          l._cachedLabel = textStr;
+          l._cachedWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6;
+        }
+        const textWidth = l._cachedWidth;
         const iconSize = 8;
         const padX = 7;
         const badgeW = textWidth + padX * 2 + iconSize + 3;

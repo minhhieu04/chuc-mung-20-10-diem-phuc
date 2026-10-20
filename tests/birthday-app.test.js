@@ -606,11 +606,11 @@ test('9. dist/bundle.js is generated, syntactically valid, and free of leftover 
 });
 
 test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambient background sky lanterns & interactive micro-touches', () => {
-  // 1. Verify PHOTO_STACK_ITEMS structure & first photo is 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg
+  // 1. Verify PHOTO_STACK_ITEMS structure (5 real photos + 4 AI sticker illustrations = 9 cards) & first photo is 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg
   assert.ok(Array.isArray(PHOTO_STACK_ITEMS), 'PHOTO_STACK_ITEMS must be an array');
-  assert.equal(PHOTO_STACK_ITEMS.length, 5, 'Should have 5 curated unique photos of Diểm Phúc (duplicate removed)');
+  assert.equal(PHOTO_STACK_ITEMS.length, 9, 'Should have 9 curated cards (5 real photos + 4 AI sticker illustrations)');
   const uniqueSrcs = new Set(PHOTO_STACK_ITEMS.map((item) => item.src));
-  assert.equal(uniqueSrcs.size, 5, 'All photo sources must be unique without duplicate images');
+  assert.equal(uniqueSrcs.size, 9, 'All 9 card sources must be unique');
   assert.ok(
     PHOTO_STACK_ITEMS[0].src.includes('7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'),
     'First photo must be 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'
@@ -791,7 +791,6 @@ test('11. Verification of MP3 cycling recovery, realistic background sky lantern
   assert.ok(cssContent.includes('.ambient-fullscreen-lanterns') || cssContent.includes('#lantern-sky-floating-area'));
   assert.ok(cssContent.includes('.floating-card-heart'));
   assert.ok(cssContent.includes('.reason-card.is-popping'));
-  assert.ok(cssContent.includes('.floating-sky-lantern:hover'));
 });
 
 test('12. Verification of Heart Favicon assets, refined subtle lanterns without author/OS emojis, and multi-browser support', () => {
@@ -845,6 +844,7 @@ test('12. Verification of Heart Favicon assets, refined subtle lanterns without 
       rotate: () => {},
       scale: () => {},
       fillText: () => {},
+      measureText: () => ({ width: 80 }),
       createLinearGradient: () => ({ addColorStop: () => {} }),
       createRadialGradient: () => ({ addColorStop: () => {} })
     })
@@ -1039,11 +1039,12 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.equal(USER_PROVIDED_PORTRAIT_URL.includes('photos.fife'), false, 'Default avatar URL must be local for 0ms load on any device');
 });
 
-test('15. Single-Row Floating Capsule Header & 4-Style AI Sticker Pack Studio', async () => {
+test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of #ai-stickers Section, and Symmetrical Bidirectional Swipe', async () => {
+  const { BirthdayAppController } = await import('../src/app.js');
   const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
   const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
 
-  // 1. Verify all 4 AI Sticker files exist and are non-empty
+  // 1. Verify all 4 AI Sticker files exist and are integrated directly inside #photo-card-deck
   const stickerFiles = [
     'assets/images/stickers/sticker-chibi-bouquet.jpg',
     'assets/images/stickers/sticker-3d-daisy.jpg',
@@ -1054,21 +1055,143 @@ test('15. Single-Row Floating Capsule Header & 4-Style AI Sticker Pack Studio', 
     const absPath = path.resolve(PROJECT_ROOT, relPath);
     assert.ok(fs.existsSync(absPath), `AI Sticker file ${relPath} must exist`);
     assert.ok(fs.statSync(absPath).size > 10000, `AI Sticker file ${relPath} must be a valid image`);
+    assert.ok(htmlContent.includes(relPath), `index.html must include ${relPath} inside #photo-card-deck`);
   }
 
-  // 2. Verify Single-Row Floating Capsule Header in HTML & CSS
-  assert.ok(htmlContent.includes('class="nav-avatar-ring"'), 'Header must include glowing .nav-avatar-ring');
-  assert.ok(htmlContent.includes('class="nav-music-dot"'), 'Music button must include live status dot .nav-music-dot');
-  assert.ok(cssContent.includes('.sticker-pack-grid'), 'CSS must include .sticker-pack-grid');
-  assert.ok(cssContent.includes('.sticker-pack-card.is-flipped .sticker-card-inner'), 'CSS must include 3D flip rule for sticker cards');
+  // 2. Verify #ai-stickers section and #btn-deck-sticker-toggle are completely removed
+  assert.equal(htmlContent.includes('id="ai-stickers"'), false, '#ai-stickers section must be removed');
+  assert.equal(htmlContent.includes('id="sticker-pack-grid"'), false, '#sticker-pack-grid must be removed');
+  assert.equal(htmlContent.includes('id="btn-deck-sticker-toggle"'), false, '#btn-deck-sticker-toggle must be removed');
+  assert.equal(htmlContent.includes('href="#ai-stickers"'), false, 'Navbar link to #ai-stickers must be removed');
 
-  // 3. Verify AI Sticker section & Hero Sticker Mode Toggle in HTML
-  assert.ok(htmlContent.includes('id="ai-stickers"'), 'index.html must include #ai-stickers section');
-  assert.ok(htmlContent.includes('id="sticker-pack-grid"'), 'index.html must include #sticker-pack-grid');
-  assert.ok(htmlContent.includes('id="btn-deck-sticker-toggle"'), 'index.html must include #btn-deck-sticker-toggle in Hero card deck');
+  // 3. Verify #btn-toggle-theme is an icon-only button (.icon-btn) with .sr-only label text
+  assert.ok(htmlContent.includes('id="btn-toggle-theme"'), 'Navbar must include #btn-toggle-theme');
+  assert.ok(htmlContent.includes('class="icon-btn nav-theme-btn"'), '#btn-toggle-theme must use icon-btn class');
+  assert.ok(htmlContent.includes('<span class="btn-label-text sr-only">Giao Diện Sáng</span>'), '#btn-toggle-theme label must be visually hidden via .sr-only');
+  assert.ok(cssContent.includes('.sr-only'), 'CSS must define .sr-only utility class');
+
+  // 4. Verify 9 cards in #photo-card-deck HTML (data-index="0" through data-index="8")
+  for (let i = 0; i < 9; i++) {
+    assert.ok(htmlContent.includes(`data-index="${i}"`), `#photo-card-deck must contain card with data-index="${i}"`);
+  }
+
+  // 5. Verify Symmetrical Bidirectional Swipe (Right-to-Left AND Left-to-Right) in BirthdayAppController
+  const elementsById = new Map();
+  const makeSimpleEl = (id) => {
+    const classes = new Set();
+    const listeners = new Map();
+    const el = {
+      id,
+      offsetWidth: 320,
+      textContent: '',
+      innerHTML: '',
+      style: {},
+      classList: {
+        add: (...c) => c.forEach((x) => classes.add(x)),
+        remove: (...c) => c.forEach((x) => classes.delete(x)),
+        toggle: (c, force) => {
+          const next = force !== undefined ? Boolean(force) : !classes.has(c);
+          if (next) classes.add(c);
+          else classes.delete(c);
+          return next;
+        },
+        contains: (c) => classes.has(c)
+      },
+      setAttribute: () => {},
+      getAttribute: () => null,
+      addEventListener: (evt, fn) => {
+        if (!listeners.has(evt)) listeners.set(evt, []);
+        listeners.get(evt).push(fn);
+      },
+      trigger: (evt, payload = {}) => {
+        (listeners.get(evt) || []).forEach((fn) => fn(payload));
+      },
+      querySelector: () => ({ textContent: '' }),
+      querySelectorAll: () => [],
+      appendChild: () => {},
+      getBoundingClientRect: () => ({ width: 320, height: 420, left: 0, top: 0 })
+    };
+    elementsById.set(id, el);
+    return el;
+  };
+
+  const deckEl = makeSimpleEl('photo-card-deck');
+  const cardEls = Array.from({ length: 9 }, (_, i) => {
+    const card = makeSimpleEl(`card-${i}`);
+    if (i === 0) card.classList.add('is-active');
+    else if (i === 1) card.classList.add('is-stacked-1');
+    else if (i === 2) card.classList.add('is-stacked-2');
+    else card.classList.add('is-stacked-hidden');
+    return card;
+  });
+  deckEl.querySelectorAll = (sel) => (sel === '.photo-card-item' ? cardEls : []);
+
+  makeSimpleEl('btn-card-prev');
+  makeSimpleEl('btn-card-next');
+  makeSimpleEl('card-counter');
+  makeSimpleEl('card-dots');
+
+  const docListeners = new Map();
+  const mockDoc = {
+    title: '',
+    documentElement: makeSimpleEl('html'),
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelectorAll: () => [],
+    createElement: () => makeSimpleEl('dynamic'),
+    addEventListener: (evt, fn) => {
+      if (!docListeners.has(evt)) docListeners.set(evt, []);
+      docListeners.get(evt).push(fn);
+    },
+    trigger: (evt, payload = {}) => {
+      (docListeners.get(evt) || []).forEach((fn) => fn(payload));
+    }
+  };
+
+  const controller = new BirthdayAppController(mockDoc, new BirthdayStateStore(null));
+  controller.initCardSwipeDeck();
+  assert.equal(controller.activeCardIndex, 0, 'Deck starts at index 0');
+
+  // Swipe Right-to-Left (deltaX = -90): should preview Card 1 during drag and advance to Card 1 on release
+  deckEl.trigger('pointerdown', { clientX: 200, clientY: 200 });
+  deckEl.trigger('pointermove', { clientX: 110, clientY: 202 });
+  assert.equal(cardEls[1].style.zIndex, '9', 'Incoming next card (index 1) must be brought to z-index 9 beneath active card during R-to-L drag');
+  deckEl.trigger('pointerup', {});
+  assert.equal(controller.activeCardIndex, 1, 'Right-to-Left swipe (deltaX < -36) advances to index 1');
+  assert.equal(cardEls[1].classList.contains('is-active'), true);
+  assert.equal(cardEls[1].style.transform, '', 'Incoming active card inline transform must be cleared so it settles at .is-active');
+  assert.equal(cardEls[0].style.opacity, '0', 'Outgoing card animates out to opacity 0');
+
+  // Swipe Left-to-Right (deltaX = +95): flushes previous outgoing card cleanup, previews Card 0 during drag, and returns to Card 0 on release
+  deckEl.trigger('pointerdown', { clientX: 100, clientY: 200 });
+  assert.equal(cardEls[0].style.transform, '', 'Previous outgoing card inline transform is flushed cleanly');
+  deckEl.trigger('pointermove', { clientX: 195, clientY: 200 });
+  assert.equal(cardEls[0].style.zIndex, '9', 'Incoming prev card (index 0) must be brought to z-index 9 beneath active card during L-to-R drag');
+  deckEl.trigger('pointerup', {});
+  assert.equal(controller.activeCardIndex, 0, 'Left-to-Right swipe (deltaX > 36) returns to index 0');
+  assert.equal(cardEls[0].classList.contains('is-active'), true);
+  assert.equal(cardEls[0].style.transform, '', 'Incoming active card inline transform must be cleared');
+  assert.equal(cardEls[1].style.opacity, '0', 'Outgoing card animates out to opacity 0');
+
+  // Swipe Left-to-Right from index 0 (wraps around to index 8)
+  deckEl.trigger('pointerdown', { clientX: 100, clientY: 200 });
+  deckEl.trigger('pointermove', { clientX: 195, clientY: 200 });
+  assert.equal(cardEls[8].style.zIndex, '9', 'Incoming wrap-around card (index 8) must be previewed at z-index 9 during L-to-R drag from index 0');
+  assert.equal(cardEls[8].style.opacity, '1', 'Incoming L-to-R preview card must have opacity 1 so .is-stacked-1 never bleeds through');
+  deckEl.trigger('pointerup', {});
+  assert.equal(controller.activeCardIndex, 8, 'Left-to-Right swipe from index 0 wraps smoothly to index 8');
+  assert.equal(cardEls[8].classList.contains('is-active'), true);
+
+  // Short cancelled drag (|deltaX| <= 36) snaps back and flushes cleanly on next drag
+  deckEl.trigger('pointerdown', { clientX: 150, clientY: 200 });
+  deckEl.trigger('pointermove', { clientX: 170, clientY: 200 });
+  deckEl.trigger('pointerup', {});
+  assert.equal(controller.activeCardIndex, 8, 'Short drag (|deltaX| <= 36) does not change active card');
+  assert.equal(cardEls[8].style.transform, 'translate3d(0, 0, 0) rotate(0deg)', 'Cancelled drag snaps active card back to origin');
+  deckEl.trigger('pointerdown', { clientX: 150, clientY: 200 });
+  assert.equal(cardEls[8].style.transform, '', 'Next pointerdown flushes cancelled drag inline transform');
+  assert.equal(cardEls[8].style.zIndex, '', 'Next pointerdown flushes cancelled drag inline zIndex');
+  deckEl.trigger('pointerup', {});
+
+  // Verify dead initInteractiveStickers method is completely removed
+  assert.equal(typeof controller.initInteractiveStickers, 'undefined', 'Dead initInteractiveStickers method must be removed');
 });
-
-
-
-
-
