@@ -394,18 +394,36 @@ export class BirthdayAppController {
   }
 
   renderLoveLetter(config, envelopeOpened) {
+    const isOpen = Boolean(envelopeOpened);
     const parchment = this.doc.getElementById('letter-parchment');
     const sealBtn = this.doc.getElementById('btn-open-envelope');
+    const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    const envelopeBox = this.doc.getElementById('envelope-box');
+    const topFlap = this.doc.getElementById('envelope-top-flap');
+    const innerLetter = this.doc.getElementById('envelope-inner-letter');
+
     if (parchment) {
-      parchment.classList.toggle('is-open', Boolean(envelopeOpened));
+      parchment.classList.toggle('is-open', isOpen);
+    }
+    if (envelopeScene && envelopeScene.classList) {
+      envelopeScene.classList.toggle('is-open', isOpen);
+    }
+    if (envelopeBox && envelopeBox.classList) {
+      envelopeBox.classList.toggle('is-open', isOpen);
+    }
+    if (topFlap && topFlap.classList) {
+      topFlap.classList.toggle('is-open', isOpen);
+    }
+    if (innerLetter && innerLetter.classList) {
+      innerLetter.classList.toggle('is-open', isOpen);
     }
     if (sealBtn) {
-      sealBtn.setAttribute('aria-expanded', String(Boolean(envelopeOpened)));
+      sealBtn.setAttribute('aria-expanded', String(isOpen));
       const label = sealBtn.querySelector('.seal-btn-text');
       if (label) {
-        label.textContent = envelopeOpened
+        label.textContent = isOpen
           ? 'Lá Thư Chúc Mừng 20/10'
-          : 'Mở Phong Thư 20/10';
+          : 'Chạm Để Mở Phong Thư & Lấy Thư Ra';
       }
     }
 
@@ -421,6 +439,42 @@ export class BirthdayAppController {
 
     const sigEl = this.doc.getElementById('letter-signature');
     if (sigEl) sigEl.textContent = config.letterSignature;
+  }
+
+  /**
+   * Opens or closes the 3D envelope with choreographed flap-open & letter-extraction graphics.
+   * @param {boolean} [forceState]
+   */
+  toggleEnvelopeWithExtraction(forceState) {
+    const currentlyOpen = Boolean(this.store.getState().envelopeOpened);
+    const nextOpen = typeof forceState === 'boolean' ? forceState : !currentlyOpen;
+    if (nextOpen === currentlyOpen) return;
+
+    const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    if (nextOpen && envelopeScene && envelopeScene.classList) {
+      envelopeScene.classList.remove('is-extracting');
+      if (typeof envelopeScene.getBoundingClientRect === 'function') {
+        envelopeScene.getBoundingClientRect();
+      }
+      envelopeScene.classList.add('is-extracting');
+    }
+
+    this.store.setEnvelopeOpened(nextOpen);
+
+    if (nextOpen) {
+      this.audio.playCelebrationChord();
+      this.particles.triggerCelebrationBurst();
+      if (typeof this.particles.triggerShockwave === 'function') {
+        this.particles.triggerShockwave();
+      }
+      if (typeof this.particles.triggerFlowerShower === 'function') {
+        this.particles.triggerFlowerShower(44);
+      }
+      this.showToast('✦ Đang mở phong thư & lấy lá thư chúc 20/10 gửi Diểm Phúc!');
+    } else {
+      this.audio.playSparkleChime();
+      this.showToast('✦ Đã cất lá thư vào trong phong bì');
+    }
   }
 
   attach3DTilt(element, maxDeg = 8) {
@@ -616,19 +670,29 @@ export class BirthdayAppController {
       });
     }
 
-    // Love Letter Wax Seal Button
+    // Love Letter Wax Seal Button & 3D Interactive Envelope Stage
     const sealBtn = this.doc.getElementById('btn-open-envelope');
     if (sealBtn) {
-      sealBtn.addEventListener('click', () => {
-        const currentlyOpen = this.store.getState().envelopeOpened;
-        this.store.setEnvelopeOpened(!currentlyOpen);
+      sealBtn.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        this.toggleEnvelopeWithExtraction();
+      });
+    }
+
+    const interactiveEnvelope = this.doc.getElementById('interactive-envelope');
+    if (interactiveEnvelope) {
+      interactiveEnvelope.addEventListener('click', () => {
+        const currentlyOpen = Boolean(this.store.getState().envelopeOpened);
         if (!currentlyOpen) {
-          this.audio.playCelebrationChord();
-          this.particles.triggerCelebrationBurst();
-          if (typeof this.particles.triggerFlowerShower === 'function') {
-            this.particles.triggerFlowerShower(40);
-          }
+          this.toggleEnvelopeWithExtraction(true);
         }
+      });
+    }
+
+    const closeEnvelopeBtn = this.doc.getElementById('btn-close-envelope');
+    if (closeEnvelopeBtn) {
+      closeEnvelopeBtn.addEventListener('click', () => {
+        this.toggleEnvelopeWithExtraction(false);
       });
     }
   }

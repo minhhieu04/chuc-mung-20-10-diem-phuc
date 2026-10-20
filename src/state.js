@@ -32,7 +32,7 @@ export function createInitialState() {
     bloomedFlowers: FLOWER_BOUQUET_ITEMS.map((f) => f.id),
     activeLanternId: DEFAULT_WISH_LANTERNS[0].id,
     allCandlesBlown: false,
-    envelopeOpened: true,
+    envelopeOpened: false,
     giftUnwrapped: false,
     musicPlaying: false,
     currentMelody: 'birthday', // 'birthday' | 'starlight' | 'rose_waltz' | 'moonlight' | 'spring_flower'

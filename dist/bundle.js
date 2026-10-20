@@ -289,7 +289,7 @@ function createInitialState() {
     bloomedFlowers: FLOWER_BOUQUET_ITEMS.map((f) => f.id),
     activeLanternId: DEFAULT_WISH_LANTERNS[0].id,
     allCandlesBlown: false,
-    envelopeOpened: true,
+    envelopeOpened: false,
     giftUnwrapped: false,
     musicPlaying: false,
     currentMelody: 'birthday', // 'birthday' | 'starlight' | 'rose_waltz' | 'moonlight' | 'spring_flower'
@@ -1592,6 +1592,8 @@ class RomanticParticleEngine {
     this.stars = [];
     this.sakuraPetals = [];
     this.fireflies = [];
+    this.butterflies = [];
+    this.shockwaves = [];
     this.burstParticles = [];
     this.shootingStars = [];
     this.skyLanterns = [];
@@ -1707,6 +1709,31 @@ class RomanticParticleEngine {
       author: '',
       isAmbient: true
     }));
+
+    const butterflyPalettes = [
+      { upper: '#FF6B9D', lower: '#FFD166', glow: 'rgba(255, 107, 157, 0.35)' },
+      { upper: '#C77DFF', lower: '#FF8FA3', glow: 'rgba(199, 125, 255, 0.35)' },
+      { upper: '#38BDF8', lower: '#F472B6', glow: 'rgba(56, 189, 248, 0.32)' },
+      { upper: '#FFD166', lower: '#FB7185', glow: 'rgba(255, 209, 102, 0.35)' }
+    ];
+    const butterflyCount = isMobile ? 5 : 8;
+    this.butterflies = Array.from({ length: butterflyCount }, (_, i) => {
+      const pal = butterflyPalettes[i % butterflyPalettes.length];
+      return {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        vx: (Math.random() - 0.5) * 0.9 + (i % 2 === 0 ? 0.45 : -0.45),
+        vy: -(Math.random() * 0.5 + 0.25),
+        size: Math.random() * 5 + 10,
+        wingPhase: Math.random() * Math.PI * 2,
+        wingSpeed: Math.random() * 0.14 + 0.14,
+        swayPhase: Math.random() * Math.PI * 2,
+        alpha: Math.random() * 0.28 + 0.58,
+        upperColor: pal.upper,
+        lowerColor: pal.lower,
+        glowColor: pal.glow
+      };
+    });
   }
 
   createSakuraPetal(randomY = false, indexHint = 0) {
@@ -1800,6 +1827,7 @@ class RomanticParticleEngine {
    */
   triggerCelebrationBurst(x = this.width / 2, y = this.height / 2, count = 55) {
     if (this.reducedMotion) return 0;
+    this.triggerShockwave(x, y);
     const safeCount = Math.min(140, Math.max(8, count));
     for (let i = 0; i < safeCount; i++) {
       const angle = (Math.PI * 2 * i) / safeCount + (Math.random() - 0.5) * 0.25;
@@ -1823,6 +1851,27 @@ class RomanticParticleEngine {
       });
     }
     return safeCount;
+  }
+
+  /**
+   * Triggers expanding prismatic light shockwave rings at (x, y).
+   * @param {number} [x]
+   * @param {number} [y]
+   */
+  triggerShockwave(x = this.width / 2, y = this.height / 2) {
+    if (this.reducedMotion) return;
+    const colors = ['#FFD166', '#FF4D79', '#C77DFF'];
+    colors.forEach((color, idx) => {
+      this.shockwaves.push({
+        x,
+        y,
+        radius: 12 + idx * 14,
+        maxRadius: 210 + idx * 55,
+        speed: 5.2 - idx * 0.6,
+        alpha: 0.72 - idx * 0.14,
+        color
+      });
+    });
   }
 
   /**
@@ -2055,6 +2104,30 @@ class RomanticParticleEngine {
       b.alpha -= b.decay;
       if (b.alpha <= 0 || b.y > this.height + 60) {
         this.burstParticles.splice(i, 1);
+      }
+    }
+
+    // Update Fluttering Butterflies
+    for (const bf of this.butterflies) {
+      bf.wingPhase += bf.wingSpeed;
+      bf.swayPhase += 0.025;
+      bf.x += bf.vx + Math.sin(bf.swayPhase) * 0.55;
+      bf.y += bf.vy + Math.cos(bf.swayPhase * 0.8) * 0.25;
+      if (bf.y < -40) {
+        bf.y = this.height + 30;
+        bf.x = Math.random() * this.width;
+      }
+      if (bf.x < -40) bf.x = this.width + 30;
+      if (bf.x > this.width + 40) bf.x = -30;
+    }
+
+    // Update Shockwaves
+    for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+      const sw = this.shockwaves[i];
+      sw.radius += sw.speed;
+      sw.alpha *= 0.94;
+      if (sw.alpha <= 0.02 || sw.radius >= sw.maxRadius) {
+        this.shockwaves.splice(i, 1);
       }
     }
   }
@@ -2509,6 +2582,56 @@ class RomanticParticleEngine {
       }
       ctx.restore();
     }
+
+    // 7. Iridescent Fluttering Butterflies
+    for (const bf of this.butterflies) {
+      ctx.save();
+      ctx.translate(bf.x, bf.y);
+      const heading = Math.atan2(bf.vy, bf.vx) + Math.PI * 0.5;
+      ctx.rotate(heading * 0.25);
+      ctx.globalAlpha = Math.max(0, Math.min(1, bf.alpha));
+
+      const wingSpread = 0.28 + Math.abs(Math.sin(bf.wingPhase)) * 0.72;
+      const s = bf.size;
+
+      // Upper wings
+      ctx.save();
+      ctx.scale(wingSpread, 1);
+      ctx.fillStyle = bf.upperColor;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-s * 1.25, -s * 1.15, -s * 1.35, s * 0.15, 0, s * 0.1);
+      ctx.bezierCurveTo(s * 1.35, s * 0.15, s * 1.25, -s * 1.15, 0, 0);
+      ctx.fill();
+
+      // Lower wings
+      ctx.fillStyle = bf.lowerColor;
+      ctx.beginPath();
+      ctx.moveTo(0, s * 0.08);
+      ctx.bezierCurveTo(-s * 0.95, s * 0.2, -s * 0.85, s * 1.05, 0, s * 0.52);
+      ctx.bezierCurveTo(s * 0.85, s * 1.05, s * 0.95, s * 0.2, 0, s * 0.08);
+      ctx.fill();
+      ctx.restore();
+
+      // Glowing butterfly body
+      ctx.fillStyle = '#FFFBEB';
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(1.1, s * 0.12), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 8. Expanding Prismatic Shockwave Rings
+    for (const sw of this.shockwaves) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, sw.alpha);
+      ctx.strokeStyle = sw.color;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
@@ -2901,18 +3024,36 @@ class BirthdayAppController {
   }
 
   renderLoveLetter(config, envelopeOpened) {
+    const isOpen = Boolean(envelopeOpened);
     const parchment = this.doc.getElementById('letter-parchment');
     const sealBtn = this.doc.getElementById('btn-open-envelope');
+    const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    const envelopeBox = this.doc.getElementById('envelope-box');
+    const topFlap = this.doc.getElementById('envelope-top-flap');
+    const innerLetter = this.doc.getElementById('envelope-inner-letter');
+
     if (parchment) {
-      parchment.classList.toggle('is-open', Boolean(envelopeOpened));
+      parchment.classList.toggle('is-open', isOpen);
+    }
+    if (envelopeScene && envelopeScene.classList) {
+      envelopeScene.classList.toggle('is-open', isOpen);
+    }
+    if (envelopeBox && envelopeBox.classList) {
+      envelopeBox.classList.toggle('is-open', isOpen);
+    }
+    if (topFlap && topFlap.classList) {
+      topFlap.classList.toggle('is-open', isOpen);
+    }
+    if (innerLetter && innerLetter.classList) {
+      innerLetter.classList.toggle('is-open', isOpen);
     }
     if (sealBtn) {
-      sealBtn.setAttribute('aria-expanded', String(Boolean(envelopeOpened)));
+      sealBtn.setAttribute('aria-expanded', String(isOpen));
       const label = sealBtn.querySelector('.seal-btn-text');
       if (label) {
-        label.textContent = envelopeOpened
+        label.textContent = isOpen
           ? 'Lá Thư Chúc Mừng 20/10'
-          : 'Mở Phong Thư 20/10';
+          : 'Chạm Để Mở Phong Thư & Lấy Thư Ra';
       }
     }
 
@@ -2928,6 +3069,42 @@ class BirthdayAppController {
 
     const sigEl = this.doc.getElementById('letter-signature');
     if (sigEl) sigEl.textContent = config.letterSignature;
+  }
+
+  /**
+   * Opens or closes the 3D envelope with choreographed flap-open & letter-extraction graphics.
+   * @param {boolean} [forceState]
+   */
+  toggleEnvelopeWithExtraction(forceState) {
+    const currentlyOpen = Boolean(this.store.getState().envelopeOpened);
+    const nextOpen = typeof forceState === 'boolean' ? forceState : !currentlyOpen;
+    if (nextOpen === currentlyOpen) return;
+
+    const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    if (nextOpen && envelopeScene && envelopeScene.classList) {
+      envelopeScene.classList.remove('is-extracting');
+      if (typeof envelopeScene.getBoundingClientRect === 'function') {
+        envelopeScene.getBoundingClientRect();
+      }
+      envelopeScene.classList.add('is-extracting');
+    }
+
+    this.store.setEnvelopeOpened(nextOpen);
+
+    if (nextOpen) {
+      this.audio.playCelebrationChord();
+      this.particles.triggerCelebrationBurst();
+      if (typeof this.particles.triggerShockwave === 'function') {
+        this.particles.triggerShockwave();
+      }
+      if (typeof this.particles.triggerFlowerShower === 'function') {
+        this.particles.triggerFlowerShower(44);
+      }
+      this.showToast('✦ Đang mở phong thư & lấy lá thư chúc 20/10 gửi Diểm Phúc!');
+    } else {
+      this.audio.playSparkleChime();
+      this.showToast('✦ Đã cất lá thư vào trong phong bì');
+    }
   }
 
   attach3DTilt(element, maxDeg = 8) {
@@ -3123,19 +3300,29 @@ class BirthdayAppController {
       });
     }
 
-    // Love Letter Wax Seal Button
+    // Love Letter Wax Seal Button & 3D Interactive Envelope Stage
     const sealBtn = this.doc.getElementById('btn-open-envelope');
     if (sealBtn) {
-      sealBtn.addEventListener('click', () => {
-        const currentlyOpen = this.store.getState().envelopeOpened;
-        this.store.setEnvelopeOpened(!currentlyOpen);
+      sealBtn.addEventListener('click', (e) => {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        this.toggleEnvelopeWithExtraction();
+      });
+    }
+
+    const interactiveEnvelope = this.doc.getElementById('interactive-envelope');
+    if (interactiveEnvelope) {
+      interactiveEnvelope.addEventListener('click', () => {
+        const currentlyOpen = Boolean(this.store.getState().envelopeOpened);
         if (!currentlyOpen) {
-          this.audio.playCelebrationChord();
-          this.particles.triggerCelebrationBurst();
-          if (typeof this.particles.triggerFlowerShower === 'function') {
-            this.particles.triggerFlowerShower(40);
-          }
+          this.toggleEnvelopeWithExtraction(true);
         }
+      });
+    }
+
+    const closeEnvelopeBtn = this.doc.getElementById('btn-close-envelope');
+    if (closeEnvelopeBtn) {
+      closeEnvelopeBtn.addEventListener('click', () => {
+        this.toggleEnvelopeWithExtraction(false);
       });
     }
   }

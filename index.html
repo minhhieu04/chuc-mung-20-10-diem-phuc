@@ -30,12 +30,22 @@
   <link rel="shortcut icon" href="./favicon.ico" />
   <link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23F43F5E' d='M16 28.2C15.4 28.2 4.8 20.6 2.3 14.8c-2-4.6-.2-9.6 4-11.8 4.3-2.3 9.4-.5 10.7 2 1.3-2.5 6.4-4.3 10.7-2 4.2 2.2 6 7.2 4 11.8C27.2 20.6 16.6 28.2 16 28.2z'/%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="./assets/images/favicon-heart.svg" />
-  <link rel="stylesheet" href="./src/styles.css?v=9" />
+  <link rel="stylesheet" href="./src/styles.css?v=10" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Chuyển đến nội dung chính</a>
 
-  <!-- Ambient Romantic Canvas (Twinkling Stars, Floating Tulip Blossoms, Fireflies, Celebration Sparks) -->
+  <!-- Multi-Color Prismatic Aurora & Bokeh Graphic Backdrop -->
+  <div id="aurora-sky-layer" class="aurora-sky-layer" aria-hidden="true">
+    <div class="aurora-ribbon aurora-ribbon-1"></div>
+    <div class="aurora-ribbon aurora-ribbon-2"></div>
+    <div class="aurora-ribbon aurora-ribbon-3"></div>
+    <div class="aurora-bokeh-orb orb-1"></div>
+    <div class="aurora-bokeh-orb orb-2"></div>
+    <div class="aurora-bokeh-orb orb-3"></div>
+  </div>
+
+  <!-- Ambient Romantic Canvas (Twinkling Stars, Floating Tulip Blossoms, Butterflies, Fireflies, Celebration Sparks) -->
   <canvas id="romantic-canvas" aria-hidden="true"></canvas>
 
   <!-- Continuous Ambient Sky Lantern Wishes Floating Across Entire Background -->
@@ -50,150 +60,250 @@
     aria-labelledby="gift-curtain-title"
   >
     <div class="gift-card-stage">
-      <div class="gift-avatar-container" aria-label="Khung ảnh Diểm Phúc viền đóa hoa Tulip nở rộ">
-        <!-- SVG Floral Wreath Encircling Avatar -->
-        <svg class="gift-avatar-wreath" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <div class="gift-avatar-container" aria-label="Khung ảnh Diểm Phúc viền vòng hoa Anh Đào và Hồng Trà nở rộ">
+        <!-- Prismatic Multi-Color Aurora Halo Behind Avatar -->
+        <div class="gift-avatar-aurora-glow" aria-hidden="true"></div>
+
+        <!-- Haute-Couture Multi-Petal Sakura & Royal Camellia Rose Wreath Encircling Avatar -->
+        <svg class="gift-avatar-wreath" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
-            <linearGradient id="wreath-stem-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#84CC16" />
-              <stop offset="50%" stop-color="#4D7C0F" />
-              <stop offset="100%" stop-color="#272E1B" />
+            <!-- Metallic Gold & Rose-Gold Filigree Gradients -->
+            <linearGradient id="wreath-gold-foil" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FFFBEB" />
+              <stop offset="35%" stop-color="#FDE68A" />
+              <stop offset="70%" stop-color="#D97706" />
+              <stop offset="100%" stop-color="#FEF3C7" />
             </linearGradient>
-            <linearGradient id="wreath-leaf-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#A3E635" />
-              <stop offset="40%" stop-color="#65A30D" />
-              <stop offset="100%" stop-color="#365314" />
+            <linearGradient id="wreath-rose-branch" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FDE68A" />
+              <stop offset="50%" stop-color="#E5989B" />
+              <stop offset="100%" stop-color="#B5838D" />
             </linearGradient>
-            <linearGradient id="wreath-tulip-rose" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stop-color="#BE123C" />
-              <stop offset="45%" stop-color="#FB7185" />
-              <stop offset="100%" stop-color="#FFE4E6" />
+            <!-- Soft Botanical Sage & Dusty Emerald Leaf Gradient -->
+            <linearGradient id="wreath-sage-leaf" x1="0" y1="0" x2="0.8" y2="1">
+              <stop offset="0%" stop-color="#A7F3D0" />
+              <stop offset="45%" stop-color="#52796F" />
+              <stop offset="100%" stop-color="#2F3E46" />
             </linearGradient>
-            <linearGradient id="wreath-tulip-peach" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stop-color="#E11D48" />
-              <stop offset="50%" stop-color="#FB923C" />
-              <stop offset="100%" stop-color="#FEF08A" />
+            <linearGradient id="wreath-gold-leaf" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FEF3C7" />
+              <stop offset="55%" stop-color="#F59E0B" />
+              <stop offset="100%" stop-color="#B45309" />
             </linearGradient>
-            <linearGradient id="wreath-tulip-champagne" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stop-color="#F43F5E" />
-              <stop offset="60%" stop-color="#FECDD3" />
-              <stop offset="100%" stop-color="#FFFFFF" />
+            <!-- Multi-Petal Flower Gradients -->
+            <linearGradient id="sakura-petal-blush" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFFFFF" />
+              <stop offset="55%" stop-color="#FFB3C6" />
+              <stop offset="100%" stop-color="#FB7185" />
             </linearGradient>
-            <linearGradient id="wreath-tulip-lilac" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stop-color="#7E22CE" />
-              <stop offset="50%" stop-color="#C084FC" />
-              <stop offset="100%" stop-color="#F5D0FE" />
+            <linearGradient id="sakura-petal-peach" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFFBEB" />
+              <stop offset="50%" stop-color="#FDBA74" />
+              <stop offset="100%" stop-color="#F43F5E" />
             </linearGradient>
-            <filter id="wreath-bloom-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            <linearGradient id="camellia-outer-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFF1F2" />
+              <stop offset="60%" stop-color="#FDA4AF" />
+              <stop offset="100%" stop-color="#E11D48" />
+            </linearGradient>
+            <linearGradient id="camellia-mid-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFE4E6" />
+              <stop offset="50%" stop-color="#FB7185" />
+              <stop offset="100%" stop-color="#BE123C" />
+            </linearGradient>
+            <linearGradient id="camellia-inner-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FECDD3" />
+              <stop offset="50%" stop-color="#F43F5E" />
+              <stop offset="100%" stop-color="#881337" />
+            </linearGradient>
+            <radialGradient id="pearl-sheen" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#FFFFFF" />
+              <stop offset="55%" stop-color="#FFE4E6" />
+              <stop offset="100%" stop-color="#F47296" />
+            </radialGradient>
+            <filter id="wreath-soft-shadow" x="-25%" y="-25%" width="150%" height="150%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#881337" flood-opacity="0.38" />
             </filter>
+
+            <!-- REUSABLE BOTANICAL LEAF (Tapered Rose/Eucalyptus Leaf with Gold Midrib) -->
+            <g id="botanical-leaf">
+              <path d="M0,0 C-4.8,-6 -5.2,-15 0,-21 C5.2,-15 4.8,-6 0,0 Z" fill="url(#wreath-sage-leaf)" />
+              <path d="M0,-1.5 L0,-17.5" stroke="#FDE68A" stroke-width="0.65" stroke-linecap="round" opacity="0.7" />
+            </g>
+            <g id="golden-foliage-leaf">
+              <path d="M0,0 C-3.8,-5 -4.2,-12 0,-16.5 C4.2,-12 3.8,-5 0,0 Z" fill="url(#wreath-gold-leaf)" opacity="0.9" />
+              <path d="M0,-1 L0,-13.5" stroke="#FFFBEB" stroke-width="0.55" stroke-linecap="round" opacity="0.8" />
+            </g>
+
+            <!-- REUSABLE 5-PETAL NOTCHED SAKURA BLOSSOM (Genuine Heart-Notched Cherry Blossom) -->
+            <g id="sakura-petal-unit">
+              <path d="M0,0 C-4.2,-4.2 -7.8,-12.2 -3.4,-16.8 C-1.4,-18.6 -0.2,-16.2 0,-14.6 C0.2,-16.2 1.4,-18.6 3.4,-16.8 C7.8,-12.2 4.2,-4.2 0,0 Z" fill="url(#sakura-petal-blush)" stroke="#FFE4E6" stroke-width="0.4" />
+              <path d="M0,-2 L0,-11" stroke="#F43F5E" stroke-width="0.45" stroke-linecap="round" opacity="0.35" />
+            </g>
+            <g id="sakura-blossom" filter="url(#wreath-soft-shadow)">
+              <use href="#sakura-petal-unit" transform="rotate(0)" />
+              <use href="#sakura-petal-unit" transform="rotate(72)" />
+              <use href="#sakura-petal-unit" transform="rotate(144)" />
+              <use href="#sakura-petal-unit" transform="rotate(216)" />
+              <use href="#sakura-petal-unit" transform="rotate(288)" />
+              <circle cx="0" cy="0" r="3.4" fill="#F43F5E" opacity="0.65" />
+              <!-- Delicate Golden Stamens -->
+              <g stroke="#FEF08A" stroke-width="0.6" stroke-linecap="round">
+                <line x1="0" y1="0" x2="0" y2="-5.5" />
+                <line x1="0" y1="0" x2="4.5" y2="-3.2" />
+                <line x1="0" y1="0" x2="4.8" y2="2.2" />
+                <line x1="0" y1="0" x2="1.8" y2="5.2" />
+                <line x1="0" y1="0" x2="-1.8" y2="5.2" />
+                <line x1="0" y1="0" x2="-4.8" y2="2.2" />
+                <line x1="0" y1="0" x2="-4.5" y2="-3.2" />
+              </g>
+              <circle cx="0" cy="-5.8" r="0.9" fill="#FEF08A" />
+              <circle cx="4.7" cy="-3.4" r="0.9" fill="#FEF08A" />
+              <circle cx="5.0" cy="2.3" r="0.9" fill="#FEF08A" />
+              <circle cx="1.9" cy="5.4" r="0.9" fill="#FEF08A" />
+              <circle cx="-1.9" cy="5.4" r="0.9" fill="#FEF08A" />
+              <circle cx="-5.0" cy="2.3" r="0.9" fill="#FEF08A" />
+              <circle cx="-4.7" cy="-3.4" r="0.9" fill="#FEF08A" />
+              <circle cx="0" cy="0" r="1.8" fill="#FDE047" />
+            </g>
+
+            <!-- REUSABLE MULTI-LAYERED ROYAL CAMELLIA ROSE (17 Layered Petals) -->
+            <g id="camellia-outer-petal">
+              <path d="M0,0 C-6,-4 -9.5,-13 -4.5,-18.5 C-1.8,-21 1.8,-21 4.5,-18.5 C9.5,-13 6,-4 0,0 Z" fill="url(#camellia-outer-grad)" stroke="#FFF1F2" stroke-width="0.45" />
+            </g>
+            <g id="camellia-mid-petal">
+              <path d="M0,0 C-5,-3.2 -7.5,-10 -3.5,-14.2 C-1.2,-16.2 1.2,-16.2 3.5,-14.2 C7.5,-10 5,-3.2 0,0 Z" fill="url(#camellia-mid-grad)" stroke="#FFE4E6" stroke-width="0.4" />
+            </g>
+            <g id="camellia-inner-petal">
+              <path d="M0,0 C-3.6,-2.4 -5.2,-7 -2.4,-10 C-0.8,-11.4 0.8,-11.4 2.4,-10 C5.2,-7 3.6,-2.4 0,0 Z" fill="url(#camellia-inner-grad)" stroke="#FECDD3" stroke-width="0.35" />
+            </g>
+            <g id="camellia-rose" filter="url(#wreath-soft-shadow)">
+              <!-- Outer 6-Petal Ruffled Ring -->
+              <use href="#camellia-outer-petal" transform="rotate(0)" />
+              <use href="#camellia-outer-petal" transform="rotate(60)" />
+              <use href="#camellia-outer-petal" transform="rotate(120)" />
+              <use href="#camellia-outer-petal" transform="rotate(180)" />
+              <use href="#camellia-outer-petal" transform="rotate(240)" />
+              <use href="#camellia-outer-petal" transform="rotate(300)" />
+              <!-- Middle 6-Petal Ring (Offset 30 deg) -->
+              <use href="#camellia-mid-petal" transform="rotate(30)" />
+              <use href="#camellia-mid-petal" transform="rotate(90)" />
+              <use href="#camellia-mid-petal" transform="rotate(150)" />
+              <use href="#camellia-mid-petal" transform="rotate(210)" />
+              <use href="#camellia-mid-petal" transform="rotate(270)" />
+              <use href="#camellia-mid-petal" transform="rotate(330)" />
+              <!-- Inner 5-Petal Cupped Whorl -->
+              <use href="#camellia-inner-petal" transform="rotate(18)" />
+              <use href="#camellia-inner-petal" transform="rotate(90)" />
+              <use href="#camellia-inner-petal" transform="rotate(162)" />
+              <use href="#camellia-inner-petal" transform="rotate(234)" />
+              <use href="#camellia-inner-petal" transform="rotate(306)" />
+              <!-- Golden Pearl Center -->
+              <circle cx="0" cy="0" r="3.2" fill="#FDE047" />
+              <circle cx="-1.2" cy="-1.2" r="1" fill="#FFFBEB" />
+              <circle cx="1.4" cy="-0.8" r="0.8" fill="#FEF08A" />
+              <circle cx="0" cy="1.5" r="0.8" fill="#FEF08A" />
+            </g>
+
+            <!-- REUSABLE DAINTY 5-PETAL FLORET -->
+            <g id="dainty-floret" filter="url(#wreath-soft-shadow)">
+              <use href="#sakura-petal-unit" transform="scale(0.52) rotate(0)" />
+              <use href="#sakura-petal-unit" transform="scale(0.52) rotate(72)" />
+              <use href="#sakura-petal-unit" transform="scale(0.52) rotate(144)" />
+              <use href="#sakura-petal-unit" transform="scale(0.52) rotate(216)" />
+              <use href="#sakura-petal-unit" transform="scale(0.52) rotate(288)" />
+              <circle cx="0" cy="0" r="2" fill="#FDE68A" />
+            </g>
+
+            <!-- REUSABLE 4-POINT DIAMOND STAR -->
+            <g id="diamond-star">
+              <path d="M0,-5.5 Q0,0 5.5,0 Q0,0 0,5.5 Q0,0 -5.5,0 Q0,0 0,-5.5 Z" fill="#FEF08A" />
+              <circle cx="0" cy="0" r="1.2" fill="#FFFFFF" />
+            </g>
           </defs>
 
-          <!-- Circular Base Twig / Vines -->
-          <circle cx="110" cy="110" r="70" stroke="#8B5CF6" stroke-opacity="0.15" stroke-width="1.5" stroke-dasharray="3 5" />
-          <circle cx="110" cy="110" r="72" stroke="url(#wreath-stem-grad)" stroke-width="2" stroke-linecap="round" opacity="0.85" />
-          <circle cx="110" cy="110" r="68" stroke="#F47296" stroke-opacity="0.35" stroke-width="1.2" stroke-dasharray="4 6" />
-
-          <!-- Botanical Leaves around the perimeter -->
-          <!-- Top Arch Leaves -->
-          <path d="M110,38 C102,32 94,36 90,44 C98,42 105,40 110,38 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M110,38 C118,32 126,36 130,44 C122,42 115,40 110,38 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M88,46 C78,44 72,50 70,58 C78,56 84,52 88,46 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M132,46 C142,44 148,50 150,58 C142,56 136,52 132,46 Z" fill="url(#wreath-leaf-grad)" />
-
-          <!-- Mid-Left Leaves -->
-          <path d="M44,96 C36,90 34,80 36,72 C42,78 44,88 44,96 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M38,114 C30,116 28,126 32,134 C36,126 38,120 38,114 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M48,138 C42,144 40,154 46,162 C48,154 50,146 48,138 Z" fill="url(#wreath-leaf-grad)" />
-
-          <!-- Mid-Right Leaves -->
-          <path d="M176,96 C184,90 186,80 184,72 C178,78 176,88 176,96 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M182,114 C190,116 192,126 188,134 C184,126 182,120 182,114 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M172,138 C178,144 180,154 174,162 C172,154 170,146 172,138 Z" fill="url(#wreath-leaf-grad)" />
-
-          <!-- Bottom Flanking Leaves -->
-          <path d="M82,180 C74,186 64,184 58,176 C66,174 76,176 82,180 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M138,180 C146,186 156,184 162,176 C154,174 144,176 138,180 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M98,188 C90,194 82,192 78,186 C86,184 94,186 98,188 Z" fill="url(#wreath-leaf-grad)" />
-          <path d="M122,188 C130,194 138,192 142,186 C134,184 126,186 122,188 Z" fill="url(#wreath-leaf-grad)" />
-
-          <!-- WREATH BLOSSOMS -->
-          <!-- Top Center Graceful Bud -->
-          <g transform="translate(110, 36)">
-            <path d="M-7,0 C-10,-8 0,-14 0,-14 C0,-14 10,-8 7,0 C5,5 -5,5 -7,0 Z" fill="url(#wreath-tulip-champagne)" />
-            <path d="M-4,0 C-6,-6 0,-11 0,-11 C0,-11 6,-6 4,0 Z" fill="url(#wreath-tulip-rose)" opacity="0.75" />
+          <!-- LAYER 1: Rotating Celestial Outer Constellation Ring -->
+          <g class="wreath-celestial-orbit">
+            <circle cx="120" cy="120" r="98" stroke="url(#wreath-gold-foil)" stroke-width="0.9" stroke-dasharray="2 7 6 7" opacity="0.65" />
+            <circle cx="120" cy="120" r="92" stroke="#F47296" stroke-width="0.6" stroke-dasharray="1 10" opacity="0.45" />
+            <use href="#diamond-star" transform="translate(120, 22) scale(0.85)" />
+            <use href="#diamond-star" transform="translate(218, 120) scale(0.75)" />
+            <use href="#diamond-star" transform="translate(22, 120) scale(0.75)" />
+            <use href="#diamond-star" transform="translate(50, 50) scale(0.65)" />
+            <use href="#diamond-star" transform="translate(190, 50) scale(0.65)" />
+            <use href="#diamond-star" transform="translate(50, 190) scale(0.65)" />
+            <use href="#diamond-star" transform="translate(190, 190) scale(0.65)" />
           </g>
 
-          <!-- Top-Left Blossom (Tulip/Peony) -->
-          <g transform="translate(64, 52) rotate(-35)">
-            <path d="M-10,4 C-14,-6 -2,-16 0,-16 C2,-16 14,-6 10,4 C6,10 -6,10 -10,4 Z" fill="url(#wreath-tulip-peach)" />
-            <path d="M-6,3 C-8,-4 0,-12 0,-12 C0,-12 8,-4 6,3 Z" fill="url(#wreath-tulip-rose)" />
-            <circle cx="0" cy="-2" r="2" fill="#FDE047" />
-          </g>
+          <!-- LAYER 2: Intertwined Golden & Rose-Quartz Filigree Vines -->
+          <circle cx="120" cy="120" r="74" stroke="url(#wreath-rose-branch)" stroke-width="2.2" opacity="0.9" />
+          <circle cx="120" cy="120" r="77" stroke="url(#wreath-gold-foil)" stroke-width="1.2" stroke-dasharray="10 6" opacity="0.82" />
 
-          <!-- Top-Right Blossom (Lilac/Pink Tulip) -->
-          <g transform="translate(156, 52) rotate(35)">
-            <path d="M-10,4 C-14,-6 -2,-16 0,-16 C2,-16 14,-6 10,4 C6,10 -6,10 -10,4 Z" fill="url(#wreath-tulip-lilac)" />
-            <path d="M-6,3 C-8,-4 0,-12 0,-12 C0,-12 8,-4 6,3 Z" fill="url(#wreath-tulip-rose)" />
-            <circle cx="0" cy="-2" r="2" fill="#FDE047" />
-          </g>
+          <!-- LAYER 3: Symmetrical Botanical Sage & Golden Leaves Hugging the Wreath Rim -->
+          <!-- Bottom Foliage Bed -->
+          <use href="#botanical-leaf" transform="translate(96, 191) rotate(-72) scale(1.15)" />
+          <use href="#botanical-leaf" transform="translate(144, 191) rotate(72) scale(1.15)" />
+          <use href="#botanical-leaf" transform="translate(76, 180) rotate(-52) scale(1.0)" />
+          <use href="#botanical-leaf" transform="translate(164, 180) rotate(52) scale(1.0)" />
+          <use href="#golden-foliage-leaf" transform="translate(104, 196) rotate(-82) scale(1.05)" />
+          <use href="#golden-foliage-leaf" transform="translate(136, 196) rotate(82) scale(1.05)" />
+          <!-- Left Arch Foliage -->
+          <use href="#botanical-leaf" transform="translate(52, 152) rotate(-25) scale(0.95)" />
+          <use href="#botanical-leaf" transform="translate(45, 134) rotate(-8) scale(0.95)" />
+          <use href="#golden-foliage-leaf" transform="translate(44, 102) rotate(12) scale(0.95)" />
+          <use href="#botanical-leaf" transform="translate(52, 84) rotate(32) scale(0.95)" />
+          <use href="#botanical-leaf" transform="translate(74, 58) rotate(55) scale(0.9)" />
+          <!-- Right Arch Foliage -->
+          <use href="#botanical-leaf" transform="translate(188, 152) rotate(25) scale(0.95)" />
+          <use href="#botanical-leaf" transform="translate(195, 134) rotate(8) scale(0.95)" />
+          <use href="#golden-foliage-leaf" transform="translate(196, 102) rotate(-12) scale(0.95)" />
+          <use href="#botanical-leaf" transform="translate(188, 84) rotate(-32) scale(0.95)" />
+          <use href="#botanical-leaf" transform="translate(166, 58) rotate(-55) scale(0.9)" />
+          <!-- Top Crown Foliage -->
+          <use href="#botanical-leaf" transform="translate(102, 47) rotate(-75) scale(0.88)" />
+          <use href="#botanical-leaf" transform="translate(138, 47) rotate(75) scale(0.88)" />
+          <use href="#golden-foliage-leaf" transform="translate(86, 52) rotate(-62) scale(0.85)" />
+          <use href="#golden-foliage-leaf" transform="translate(154, 52) rotate(62) scale(0.85)" />
 
-          <!-- Mid-Left Blooming Cherry Blossom / Rose -->
-          <g transform="translate(36, 104) rotate(-85)">
-            <path d="M0,0 C-8,-5 -8,-14 0,-16 C8,-14 8,-5 0,0 Z" fill="url(#wreath-tulip-rose)" />
-            <path d="M0,0 C-14,-8 -16,2 -8,8 C-4,11 -1,4 0,0 Z" fill="url(#wreath-tulip-champagne)" />
-            <path d="M0,0 C8,8 16,2 14,-8 C11,-4 4,-1 0,0 Z" fill="url(#wreath-tulip-champagne)" />
-            <circle cx="0" cy="-3" r="2.5" fill="#FDE047" />
-          </g>
+          <!-- LAYER 4: Multi-Petal Sakura & Royal Camellia Rose Blossoms -->
+          <!-- Top-Center Crown Blossom Cluster -->
+          <use href="#sakura-blossom" transform="translate(120, 44) scale(0.78)" />
+          <use href="#dainty-floret" transform="translate(96, 48) rotate(-18)" />
+          <use href="#dainty-floret" transform="translate(144, 48) rotate(18)" />
 
-          <!-- Mid-Right Blooming Cherry Blossom / Rose -->
-          <g transform="translate(184, 104) rotate(85)">
-            <path d="M0,0 C-8,-5 -8,-14 0,-16 C8,-14 8,-5 0,0 Z" fill="url(#wreath-tulip-rose)" />
-            <path d="M0,0 C-14,-8 -16,2 -8,8 C-4,11 -1,4 0,0 Z" fill="url(#wreath-tulip-champagne)" />
-            <path d="M0,0 C8,8 16,2 14,-8 C11,-4 4,-1 0,0 Z" fill="url(#wreath-tulip-champagne)" />
-            <circle cx="0" cy="-3" r="2.5" fill="#FDE047" />
-          </g>
+          <!-- Top-Left & Top-Right Sakura Blossoms -->
+          <use href="#sakura-blossom" transform="translate(64, 68) rotate(-28) scale(0.84)" />
+          <use href="#sakura-blossom" transform="translate(176, 68) rotate(28) scale(0.84)" />
 
-          <!-- Bottom-Left Side Bud -->
-          <g transform="translate(60, 164) rotate(-130)">
-            <path d="M-8,3 C-12,-4 -2,-13 0,-13 C2,-13 12,-4 8,3 C5,8 -5,8 -8,3 Z" fill="url(#wreath-tulip-peach)" />
-            <path d="M-5,2 C-7,-3 0,-10 0,-10 C0,-10 7,-3 5,2 Z" fill="url(#wreath-tulip-rose)" />
-          </g>
+          <!-- Mid-Left & Mid-Right Royal Camellia Roses & Florets -->
+          <use href="#camellia-rose" transform="translate(45, 118) rotate(-15) scale(0.82)" />
+          <use href="#dainty-floret" transform="translate(49, 95) rotate(12)" />
+          <use href="#dainty-floret" transform="translate(49, 141) rotate(-22)" />
 
-          <!-- Bottom-Right Side Bud -->
-          <g transform="translate(160, 164) rotate(130)">
-            <path d="M-8,3 C-12,-4 -2,-13 0,-13 C2,-13 12,-4 8,3 C5,8 -5,8 -8,3 Z" fill="url(#wreath-tulip-lilac)" />
-            <path d="M-5,2 C-7,-3 0,-10 0,-10 C0,-10 7,-3 5,2 Z" fill="url(#wreath-tulip-rose)" />
-          </g>
+          <use href="#camellia-rose" transform="translate(195, 118) rotate(15) scale(0.82)" />
+          <use href="#dainty-floret" transform="translate(191, 95) rotate(-12)" />
+          <use href="#dainty-floret" transform="translate(191, 141) rotate(22)" />
 
-          <!-- BOTTOM CENTER QUEEN TULIP FOCAL (Exquisite Layered Bloom) -->
-          <g transform="translate(110, 184)">
-            <!-- Outer Calyx Wings -->
-            <path d="M-22,-4 C-30,-14 -18,-24 -12,-18 C-6,-12 -12,2 -22,-4 Z" fill="url(#wreath-leaf-grad)" />
-            <path d="M22,-4 C30,-14 18,-24 12,-18 C6,-12 12,2 22,-4 Z" fill="url(#wreath-leaf-grad)" />
+          <!-- Bottom-Left & Bottom-Right Sakura Blossoms -->
+          <use href="#sakura-blossom" transform="translate(64, 170) rotate(24) scale(0.9)" />
+          <use href="#sakura-blossom" transform="translate(176, 170) rotate(-24) scale(0.9)" />
 
-            <!-- Tulip Outer Petals -->
-            <path d="M-18,-6 C-24,-20 -6,-30 -2,-24 C1,-18 -10,0 -18,-6 Z" fill="url(#wreath-tulip-rose)" opacity="0.9" />
-            <path d="M18,-6 C24,-20 6,-30 2,-24 C-1,-18 10,0 18,-6 Z" fill="url(#wreath-tulip-peach)" opacity="0.9" />
+          <!-- Bottom-Center Sovereign Camellia Rose & Flanking Sakura Cluster -->
+          <use href="#dainty-floret" transform="translate(86, 186) rotate(-15) scale(1.1)" />
+          <use href="#dainty-floret" transform="translate(154, 186) rotate(15) scale(1.1)" />
+          <use href="#sakura-blossom" transform="translate(98, 191) rotate(-12) scale(0.82)" />
+          <use href="#sakura-blossom" transform="translate(142, 191) rotate(12) scale(0.82)" />
+          <use href="#camellia-rose" transform="translate(120, 195) scale(1.12)" />
 
-            <!-- Center Sovereign Tulip Goblet -->
-            <path d="M-14,0 C-18,-18 0,-32 0,-32 C0,-32 18,-18 14,0 C10,8 -10,8 -14,0 Z" fill="url(#wreath-tulip-rose)" filter="url(#wreath-bloom-glow)" />
-            <path d="M-10,-2 C-13,-16 0,-28 0,-28 C0,-28 13,-16 10,-2 C7,5 -7,5 -10,-2 Z" fill="url(#wreath-tulip-champagne)" />
-            <path d="M-5,-4 C-7,-14 0,-24 0,-24 C0,-24 7,-14 5,-4 C3,2 -3,2 -5,-4 Z" fill="url(#wreath-tulip-peach)" />
-
-            <!-- Golden Inner Stamen Glimmer -->
-            <ellipse cx="0" cy="-12" rx="3" ry="5" fill="#FDE047" opacity="0.95" />
-          </g>
-
-          <!-- Tiny Golden Star Sparkles along the wreath rim -->
-          <circle cx="110" cy="22" r="1.8" fill="#FDE047" opacity="0.9" />
-          <circle cx="42" cy="60" r="1.4" fill="#FDE047" opacity="0.85" />
-          <circle cx="178" cy="60" r="1.4" fill="#FDE047" opacity="0.85" />
-          <circle cx="26" cy="118" r="1.6" fill="#FFFFFF" opacity="0.9" />
-          <circle cx="194" cy="118" r="1.6" fill="#FFFFFF" opacity="0.9" />
-          <circle cx="50" cy="176" r="1.4" fill="#FDE047" opacity="0.8" />
-          <circle cx="170" cy="176" r="1.4" fill="#FDE047" opacity="0.8" />
+          <!-- LAYER 5: Luminous Pearl Dewdrops Along the Wreath -->
+          <circle cx="79" cy="55" r="2.4" fill="url(#pearl-sheen)" />
+          <circle cx="161" cy="55" r="2.4" fill="url(#pearl-sheen)" />
+          <circle cx="53" cy="82" r="2.2" fill="url(#pearl-sheen)" />
+          <circle cx="187" cy="82" r="2.2" fill="url(#pearl-sheen)" />
+          <circle cx="54" cy="156" r="2.4" fill="url(#pearl-sheen)" />
+          <circle cx="186" cy="156" r="2.4" fill="url(#pearl-sheen)" />
+          <circle cx="78" cy="182" r="2.6" fill="url(#pearl-sheen)" />
+          <circle cx="162" cy="182" r="2.6" fill="url(#pearl-sheen)" />
         </svg>
 
         <div class="gift-avatar-halo">
@@ -1311,26 +1421,139 @@
           </div>
 
           <div class="envelope-wrapper">
-            <div class="envelope-box">
-              <button
-                type="button"
-                id="btn-open-envelope"
-                class="wax-seal-btn"
-                aria-expanded="true"
-                aria-controls="letter-parchment"
-              >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-                <span class="seal-btn-text">
-                  Lá Thư Chúc Mừng 20/10
-                </span>
-              </button>
+            <div id="envelope-box" class="envelope-box">
+              <!-- Prismatic Aurora Glow Behind the 3D Envelope -->
+              <div class="envelope-aurora-glow" aria-hidden="true"></div>
 
-              <article id="letter-parchment" class="letter-parchment is-open">
+              <!-- Interactive 3D Envelope Graphic with Letter Extraction Animation -->
+              <div id="envelope-3d-scene" class="envelope-3d-scene" role="region" aria-label="Phong bì thư 3D tương tác">
+                <!-- Floating Magical Sparkles & Petals Around Envelope -->
+                <div class="envelope-floating-sparkles" aria-hidden="true">
+                  <span class="env-sparkle s1">✦</span>
+                  <span class="env-sparkle s2">✧</span>
+                  <span class="env-sparkle s3">✦</span>
+                  <span class="env-sparkle s4">✧</span>
+                </div>
+
+                <div id="interactive-envelope" class="envelope-3d-body" title="Chạm vào phong thư để mở và lấy thư ra">
+                  <!-- LAYER 1: Envelope Back Wall & Metallic Inner Lining -->
+                  <div class="envelope-back-lining" aria-hidden="true">
+                    <div class="envelope-inner-glow"></div>
+                  </div>
+
+                  <!-- LAYER 2: The Letter Sheet Tucked Inside (Slides UP Out of Pocket on Click!) -->
+                  <div id="envelope-inner-letter" class="envelope-sliding-letter" aria-hidden="true">
+                    <div class="sliding-letter-sheet">
+                      <div class="sliding-letter-crest">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#E11D48" />
+                        </svg>
+                        <span>THƯ CHÚC 20/10 • DIỂM PHÚC</span>
+                      </div>
+                      <p class="sliding-letter-preview-title">Gửi Diểm Phúc nhân ngày Phụ nữ Việt Nam 20/10,</p>
+                      <div class="sliding-letter-lines">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                      <p class="sliding-letter-preview-sign">— Ông chú Viettel</p>
+                    </div>
+                  </div>
+
+                  <!-- LAYER 3: Sculpted Front Envelope Pocket Folds (Covers Letter Until Extracted) -->
+                  <div class="envelope-front-pocket" aria-hidden="true">
+                    <svg class="envelope-pocket-svg" viewBox="0 0 460 280" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="env-fold-left" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stop-color="#FFF5F7" />
+                          <stop offset="60%" stop-color="#FCE7F3" />
+                          <stop offset="100%" stop-color="#FBCFE8" />
+                        </linearGradient>
+                        <linearGradient id="env-fold-right" x1="1" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#FFF1F2" />
+                          <stop offset="60%" stop-color="#FCE7F3" />
+                          <stop offset="100%" stop-color="#F9A8D4" />
+                        </linearGradient>
+                        <linearGradient id="env-fold-bottom" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#FFFDF9" />
+                          <stop offset="45%" stop-color="#FFF0F5" />
+                          <stop offset="100%" stop-color="#FCE7F3" />
+                        </linearGradient>
+                        <linearGradient id="env-gold-seam" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stop-color="#FDE68A" />
+                          <stop offset="50%" stop-color="#D97706" />
+                          <stop offset="100%" stop-color="#FDE68A" />
+                        </linearGradient>
+                      </defs>
+                      <!-- Left Triangular Pocket Fold -->
+                      <polygon points="0,0 230,152 0,280" fill="url(#env-fold-left)" stroke="url(#env-gold-seam)" stroke-width="1.2" />
+                      <!-- Right Triangular Pocket Fold -->
+                      <polygon points="460,0 230,152 460,280" fill="url(#env-fold-right)" stroke="url(#env-gold-seam)" stroke-width="1.2" />
+                      <!-- Bottom Overlapping Trapezoid Pocket Fold -->
+                      <polygon points="0,280 185,126 275,126 460,280" fill="url(#env-fold-bottom)" stroke="url(#env-gold-seam)" stroke-width="1.5" />
+                      <!-- Delicate Gold Inner Border Line -->
+                      <rect x="8" y="8" width="444" height="264" rx="10" fill="none" stroke="#E5B869" stroke-width="0.9" stroke-dasharray="6 4" opacity="0.65" />
+                    </svg>
+
+                    <!-- Vintage Floral Postage Stamp on Envelope Corner -->
+                    <div class="envelope-postage-stamp">
+                      <span class="stamp-date">20 • 10</span>
+                      <span class="stamp-sub">SPECIAL GIFT</span>
+                    </div>
+                  </div>
+
+                  <!-- LAYER 4: 3D Top Triangular Flap (Rotates Open 180deg in 3D) -->
+                  <div id="envelope-top-flap" class="envelope-top-flap" aria-hidden="true">
+                    <svg class="envelope-flap-svg" viewBox="0 0 460 165" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="env-top-flap-grad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#FFE4E6" />
+                          <stop offset="65%" stop-color="#FFF5F7" />
+                          <stop offset="100%" stop-color="#FCE7F3" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M0,0 L460,0 L248,152 C237,160 223,160 212,152 Z" fill="url(#env-top-flap-grad)" stroke="#D97706" stroke-width="1.5" />
+                      <path d="M16,6 L444,6 L244,143 C235,149 225,149 216,143 Z" fill="none" stroke="#F59E0B" stroke-width="0.8" stroke-dasharray="4 4" opacity="0.6" />
+                    </svg>
+                  </div>
+
+                  <!-- LAYER 5: Interactive 3D Royal Wax Seal Button -->
+                  <button
+                    type="button"
+                    id="btn-open-envelope"
+                    class="wax-seal-btn"
+                    aria-expanded="false"
+                    aria-controls="letter-parchment"
+                  >
+                    <span class="wax-seal-disc" aria-hidden="true">
+                      <span class="wax-seal-ring"></span>
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                      </svg>
+                    </span>
+                    <span class="seal-btn-text">
+                      Chạm Để Mở Phong Thư &amp; Lấy Thư Ra
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- LAYER 6: Unfurled Ornate Parchment Letter (Revealed After Letter Slides Out of Envelope) -->
+              <article id="letter-parchment" class="letter-parchment">
+                <div class="letter-shimmer-sweep" aria-hidden="true"></div>
+                <div class="letter-ornate-header" aria-hidden="true">
+                  <span class="ornate-line"></span>
+                  <span class="ornate-gem">✦ 20/10 ✦</span>
+                  <span class="ornate-line"></span>
+                </div>
                 <h3 id="letter-greeting" class="letter-greeting"></h3>
                 <div id="letter-body" class="letter-body"></div>
                 <p id="letter-signature" class="letter-signature"></p>
+                <div class="letter-footer-actions">
+                  <button type="button" id="btn-close-envelope" class="btn-fold-letter">
+                    <span>Cất Lại Vào Phong Thư</span>
+                  </button>
+                </div>
               </article>
             </div>
           </div>
@@ -1386,6 +1609,6 @@
     aria-live="polite"
   ></div>
 
-  <script src="./dist/bundle.js?v=9" defer></script>
+  <script src="./dist/bundle.js?v=10" defer></script>
 </body>
 </html>

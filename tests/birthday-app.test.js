@@ -878,5 +878,129 @@ test('13. User Experience Refinement: Link preview metadata, "Gửi tặng em b�
   assert.ok(htmlContent.includes('class="gift-avatar-wreath"'), 'index.html must have floral wreath encircling avatar');
 });
 
+test('14. Interactive 3D Envelope Letter Extraction, Multi-Petal Sakura/Camellia Wreath, and Aurora/Butterfly Effects', async () => {
+  const { BirthdayAppController } = await import('../src/app.js');
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+
+  // 1. Verify multi-petal Sakura & Camellia Rose wreath and prismatic aurora halo
+  assert.ok(htmlContent.includes('id="sakura-blossom"'), 'Wreath must include multi-petal #sakura-blossom symbol');
+  assert.ok(htmlContent.includes('id="camellia-rose"'), 'Wreath must include multi-layered #camellia-rose symbol');
+  assert.ok(htmlContent.includes('class="gift-avatar-aurora-glow"'), 'Avatar must have prismatic aurora glow');
+  assert.ok(htmlContent.includes('class="wreath-celestial-orbit"'), 'Avatar wreath must have rotating celestial orbit');
+  assert.equal(htmlContent.includes('#A3E635'), false, 'Old neon lime green leaf color must be removed');
+
+  // 2. Verify 3D Interactive Envelope & Letter Extraction DOM elements
+  assert.ok(htmlContent.includes('id="aurora-sky-layer"'), 'Page must include multi-color aurora backdrop');
+  assert.ok(htmlContent.includes('id="envelope-3d-scene"'), 'Love letter section must have #envelope-3d-scene');
+  assert.ok(htmlContent.includes('id="interactive-envelope"'), 'Love letter section must have #interactive-envelope');
+  assert.ok(htmlContent.includes('id="envelope-inner-letter"'), 'Love letter section must have sliding #envelope-inner-letter');
+  assert.ok(htmlContent.includes('id="envelope-top-flap"'), 'Love letter section must have 3D #envelope-top-flap');
+  assert.ok(htmlContent.includes('id="btn-close-envelope"'), 'Love letter section must have #btn-close-envelope to fold letter back');
+
+  // 3. Verify envelope starts closed by default and extracts letter on click
+  const store = new BirthdayStateStore(null);
+  assert.equal(store.getState().envelopeOpened, false, 'Envelope must start closed so user can tap to extract letter');
+
+  const elementsById = new Map();
+  const makeEl = (id) => {
+    const classes = new Set();
+    const attrs = new Map();
+    const listeners = new Map();
+    const children = new Map();
+    const el = {
+      id,
+      textContent: '',
+      innerHTML: '',
+      style: {},
+      classList: {
+        add: (...c) => c.forEach((x) => classes.add(x)),
+        remove: (...c) => c.forEach((x) => classes.delete(x)),
+        toggle: (c, force) => {
+          const next = force !== undefined ? Boolean(force) : !classes.has(c);
+          if (next) classes.add(c);
+          else classes.delete(c);
+          return next;
+        },
+        contains: (c) => classes.has(c)
+      },
+      setAttribute: (k, v) => attrs.set(k, String(v)),
+      getAttribute: (k) => (attrs.has(k) ? attrs.get(k) : null),
+      addEventListener: (evt, fn) => {
+        if (!listeners.has(evt)) listeners.set(evt, []);
+        listeners.get(evt).push(fn);
+      },
+      trigger: (evt, payload = {}) => {
+        (listeners.get(evt) || []).forEach((fn) => fn(payload));
+      },
+      querySelector: (sel) => children.get(sel) || { textContent: '' },
+      getBoundingClientRect: () => ({ width: 320, height: 220, left: 0, top: 0 })
+    };
+    if (id === 'btn-open-envelope') {
+      const labelNode = { textContent: '' };
+      children.set('.seal-btn-text', labelNode);
+    }
+    elementsById.set(id, el);
+    return el;
+  };
+
+  [
+    'romantic-canvas',
+    'gift-curtain',
+    'gift-avatar-img',
+    'nav-avatar-img',
+    'hero-portrait-img',
+    'btn-toggle-theme',
+    'btn-toggle-motion',
+    'btn-toggle-music',
+    'interactive-bouquet-svg',
+    'flower-blessing-wish',
+    'btn-replay-bloom',
+    'reasons-grid',
+    'lantern-sky-floating-area',
+    'envelope-box',
+    'envelope-3d-scene',
+    'interactive-envelope',
+    'envelope-top-flap',
+    'envelope-inner-letter',
+    'letter-parchment',
+    'btn-open-envelope',
+    'btn-close-envelope',
+    'letter-greeting',
+    'letter-body',
+    'letter-signature',
+    'live-toast'
+  ].forEach((id) => makeEl(id));
+
+  const mockDoc = {
+    title: '',
+    documentElement: makeEl('html'),
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  const controller = new BirthdayAppController(mockDoc, store);
+  controller.init();
+
+  // Initially closed
+  assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), false);
+  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-open'), false);
+
+  // Click interactive envelope -> extracts letter & opens parchment
+  elementsById.get('interactive-envelope').trigger('click');
+  assert.equal(store.getState().envelopeOpened, true);
+  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-extracting'), true);
+  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-open'), true);
+  assert.equal(elementsById.get('envelope-top-flap').classList.contains('is-open'), true);
+  assert.equal(elementsById.get('envelope-inner-letter').classList.contains('is-open'), true);
+  assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), true);
+
+  // Click close envelope button -> folds letter back inside
+  elementsById.get('btn-close-envelope').trigger('click');
+  assert.equal(store.getState().envelopeOpened, false);
+  assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), false);
+});
+
+
 
 
