@@ -1805,42 +1805,48 @@ button,
 .envelope-3d-scene {
   position: relative;
   z-index: 2;
-  perspective: 1200px;
-  max-height: 520px;
-  padding-top: 72px;
-  padding-bottom: 12px;
-  transition: padding-top 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, transform 0.4s ease;
-}
-
-.envelope-3d-scene.is-peeking,
-.envelope-3d-scene.is-open {
-  padding-top: 156px;
+  /* Fixed padding-top prevents any layout jump/shift while the top flap flips open */
+  padding-top: 148px;
+  padding-bottom: 14px;
 }
 
 .envelope-3d-scene.is-extracted {
+  position: absolute;
+  top: var(--space-8);
+  left: var(--space-6);
+  right: var(--space-6);
   pointer-events: none;
-  animation: collapseEnvelopeStage 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fadeOutExtractedEnvelope 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes collapseEnvelopeStage {
+@keyframes fadeOutExtractedEnvelope {
   0% {
-    max-height: 460px;
-    padding-top: 156px;
-    padding-bottom: 12px;
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
-  55% {
-    opacity: 0.25;
-    transform: scale(0.95);
+  60% {
+    opacity: 0.32;
+    transform: translateY(14px) scale(0.95);
   }
   100% {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
     opacity: 0;
-    transform: scale(0.9);
-    overflow: hidden;
+    transform: translateY(24px) scale(0.9);
+    visibility: hidden;
+  }
+}
+
+.envelope-3d-scene.is-tucking-back {
+  animation: sceneRevealForClosing 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes sceneRevealForClosing {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -1879,8 +1885,7 @@ button,
   border-radius: 2px 2px 18px 18px;
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42), 0 0 32px rgba(244, 114, 150, 0.25);
   cursor: pointer;
-  transform-style: preserve-3d;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.38s ease;
 }
 
 .envelope-3d-body:hover {
@@ -1921,23 +1926,35 @@ button,
   z-index: 2;
   opacity: 0;
   transform: translateY(28px) scale(0.95);
-  transition: transform 0.68s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, filter 0.3s ease;
+  transition:
+    transform 0.56s cubic-bezier(0.22, 1, 0.36, 1) 0s,
+    opacity 0.28s ease 0s,
+    filter 0.28s ease 0s;
   pointer-events: none;
   user-select: none;
   touch-action: none;
+  will-change: transform, opacity;
 }
 
 .envelope-sliding-letter.is-peeking,
 .envelope-sliding-letter.is-open {
   opacity: 1;
-  transform: translateY(-96px) scale(1);
+  transform: translateY(-94px) scale(1);
   pointer-events: auto;
   cursor: grab;
+  /* Wait 0.23s for the top flap to flip past 90deg before gliding the letter sheet out */
+  transition:
+    transform 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.23s,
+    opacity 0.3s ease 0.21s,
+    filter 0.28s ease 0s;
 }
 
 .envelope-sliding-letter.is-peeking:hover {
-  transform: translateY(-106px) scale(1.015);
+  transform: translateY(-104px) scale(1.016);
   filter: drop-shadow(0 12px 24px rgba(225, 29, 72, 0.28));
+  transition:
+    transform 0.26s cubic-bezier(0.22, 1, 0.36, 1) 0s,
+    filter 0.26s ease 0s;
 }
 
 .envelope-sliding-letter.is-peeking:active {
@@ -1952,16 +1969,41 @@ button,
 
 @keyframes letterSheetJumpUp {
   0% {
-    transform: translateY(-96px) scale(1);
+    transform: translateY(-94px) scale(1);
     opacity: 1;
   }
   65% {
-    transform: translateY(-215px) scale(1.05);
+    transform: translateY(-210px) scale(1.04);
     opacity: 1;
   }
   100% {
-    transform: translateY(-240px) scale(1.08);
+    transform: translateY(-235px) scale(1.06);
     opacity: 0;
+  }
+}
+
+/* Closing Step: Letter Sheet Glides Smoothly Back Down Into Envelope Pocket */
+.envelope-3d-scene.is-tucking-back .envelope-sliding-letter {
+  pointer-events: none;
+  animation: letterTuckIntoPocket 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes letterTuckIntoPocket {
+  0% {
+    opacity: 0;
+    transform: translateY(-120px) scale(1.03);
+  }
+  32% {
+    opacity: 1;
+    transform: translateY(-94px) scale(1);
+  }
+  88% {
+    opacity: 1;
+    transform: translateY(22px) scale(0.96);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.95);
   }
 }
 
@@ -2086,7 +2128,7 @@ button,
   color: #B45309;
 }
 
-/* LAYER 4: 3D Top Triangular Flap (100% Flush Hinge with Envelope Top Edge) */
+/* LAYER 4: 3D Top Triangular Flap (100% Flush Hinge with Envelope Top Edge, Own Perspective to Prevent Z-Fighting) */
 .envelope-top-flap {
   position: absolute;
   top: 0;
@@ -2094,15 +2136,40 @@ button,
   right: 0;
   height: 160px;
   transform-origin: 50% 0.75px;
-  transform: rotateX(0deg);
-  transition: transform 0.62s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s 0.18s;
+  transform: perspective(1100px) rotateX(0deg);
+  transition: transform 0.58s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s 0.21s;
   z-index: 4;
   pointer-events: none;
+  will-change: transform;
 }
 
 .envelope-top-flap.is-open {
-  transform: rotateX(180deg);
+  transform: perspective(1100px) rotateX(180deg);
   z-index: 1;
+}
+
+/* Closing Step: Flap Waits for Letter to Tuck In, Then Swings Shut */
+.envelope-3d-scene.is-tucking-back .envelope-top-flap {
+  animation: flapSwingShut 0.96s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes flapSwingShut {
+  0%, 58% {
+    transform: perspective(1100px) rotateX(180deg);
+    z-index: 1;
+  }
+  79% {
+    transform: perspective(1100px) rotateX(90deg);
+    z-index: 1;
+  }
+  79.1% {
+    transform: perspective(1100px) rotateX(90deg);
+    z-index: 4;
+  }
+  100% {
+    transform: perspective(1100px) rotateX(0deg);
+    z-index: 4;
+  }
 }
 
 .envelope-flap-svg {
@@ -2112,11 +2179,15 @@ button,
   filter: drop-shadow(0 4px 10px rgba(136, 19, 55, 0.18));
 }
 
-/* LAYER 5: Interactive 3D Royal Wax Seal Button */
+/* LAYER 5: Interactive 3D Royal Wax Seal Button (GPU Transform Only — Zero Margin Layout Reflow) */
 .wax-seal-btn {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 146px;
+  transform: translate(-50%, -50%);
   z-index: 5;
-  margin-top: 118px;
+  width: max-content;
+  max-width: 92%;
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
@@ -2129,18 +2200,43 @@ button,
   font-size: 1.02rem;
   font-weight: 700;
   box-shadow: 0 12px 28px rgba(136, 19, 55, 0.5), 0 0 20px rgba(244, 63, 94, 0.45);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, margin-top 0.5s ease;
+  transition: transform 0.46s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
   cursor: pointer;
+}
+
+.wax-seal-btn:hover {
+  transform: translate(-50%, calc(-50% - 3px)) scale(1.03);
+  box-shadow: 0 16px 36px rgba(136, 19, 55, 0.65), 0 0 28px rgba(253, 224, 71, 0.55);
 }
 
 .envelope-3d-scene.is-peeking .wax-seal-btn,
 .envelope-3d-scene.is-open .wax-seal-btn {
-  margin-top: 184px;
+  transform: translate(-50%, 62px) scale(0.95);
 }
 
-.wax-seal-btn:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 16px 36px rgba(136, 19, 55, 0.65), 0 0 28px rgba(253, 224, 71, 0.55);
+.envelope-3d-scene.is-peeking .wax-seal-btn:hover {
+  transform: translate(-50%, 59px) scale(0.98);
+}
+
+/* Closing Step: Wax Seal Stamps Down Onto the Closed Flap Tip with a Golden Pulse */
+.envelope-3d-scene.is-tucking-back .wax-seal-btn {
+  animation: waxSealStampShut 1.12s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes waxSealStampShut {
+  0%, 72% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.42);
+  }
+  88% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.93);
+    box-shadow: 0 0 42px rgba(253, 224, 71, 0.95), 0 12px 28px rgba(136, 19, 55, 0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 .wax-seal-disc {
@@ -2196,21 +2292,48 @@ button,
 
 .letter-parchment.is-open {
   display: block;
-  animation: stationerySheetJumpExpand 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+  animation: stationerySheetJumpExpand 0.66s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
 @keyframes stationerySheetJumpExpand {
   0% {
     opacity: 0;
-    transform: translateY(-56px) scale(0.66);
+    transform: perspective(1100px) rotateX(-10deg) translateY(-48px) scale(0.68);
   }
-  42% {
+  48% {
     opacity: 1;
-    transform: translateY(-16px) scale(1.02);
+    transform: perspective(1100px) rotateX(2deg) translateY(-10px) scale(1.015);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: perspective(1100px) rotateX(0deg) translateY(0) scale(1);
+  }
+}
+
+/* Closing Step: Full Stationery Sheet Folds & Shrinks Smoothly Back Into Envelope Mouth */
+.letter-parchment.is-closing {
+  display: block;
+  position: absolute;
+  top: var(--space-8);
+  left: var(--space-6);
+  right: var(--space-6);
+  z-index: 6;
+  pointer-events: none;
+  animation: stationeryFoldIntoEnvelope 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes stationeryFoldIntoEnvelope {
+  0% {
+    opacity: 1;
+    transform: perspective(1100px) rotateX(0deg) translateY(0) scale(1);
+  }
+  60% {
+    opacity: 0.92;
+    transform: perspective(1100px) rotateX(12deg) translateY(-22px) scale(0.68);
+  }
+  100% {
+    opacity: 0;
+    transform: perspective(1100px) rotateX(6deg) translateY(10px) scale(0.62);
   }
 }
 
@@ -2771,11 +2894,7 @@ button,
     border-radius: 22px;
   }
   .envelope-3d-scene {
-    padding-top: 64px;
-  }
-  .envelope-3d-scene.is-peeking,
-  .envelope-3d-scene.is-open {
-    padding-top: 132px;
+    padding-top: 122px;
   }
   .envelope-3d-body {
     height: 226px;
@@ -2791,16 +2910,16 @@ button,
     height: 132px;
   }
   .wax-seal-btn {
-    width: auto;
+    top: 122px;
+    width: max-content;
     max-width: 94%;
-    margin-top: 90px;
     justify-content: center;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     padding: 8px 16px 8px 10px;
   }
   .envelope-3d-scene.is-peeking .wax-seal-btn,
   .envelope-3d-scene.is-open .wax-seal-btn {
-    margin-top: 146px;
+    transform: translate(-50%, 50px) scale(0.95);
   }
   .wax-seal-disc {
     width: 38px;
@@ -2810,6 +2929,11 @@ button,
     padding: 22px 18px;
     border-radius: 16px;
     margin-top: 0;
+  }
+  .letter-parchment.is-closing {
+    top: 20px;
+    left: 14px;
+    right: 14px;
   }
   .letter-greeting {
     font-size: 1.25rem;

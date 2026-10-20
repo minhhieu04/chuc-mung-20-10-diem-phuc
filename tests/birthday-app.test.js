@@ -1011,11 +1011,17 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-extracted'), true);
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), true);
 
-  // Click close envelope button -> folds letter back inside and resets to closed
+  // Click close envelope button -> folds letter back inside with multi-stage tuck-and-seal animation
   elementsById.get('btn-close-envelope').trigger('click');
   assert.equal(controller.envelopeStage, 'closed');
   assert.equal(store.getState().envelopeOpened, false);
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), false);
+  assert.equal(elementsById.get('letter-parchment').classList.contains('is-closing'), true);
+  assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-tucking-back'), true);
+  assert.ok(cssContent.includes('@keyframes stationeryFoldIntoEnvelope'), 'CSS must define stationeryFoldIntoEnvelope closing animation');
+  assert.ok(cssContent.includes('@keyframes letterTuckIntoPocket'), 'CSS must define letterTuckIntoPocket animation');
+  assert.ok(cssContent.includes('@keyframes flapSwingShut'), 'CSS must define flapSwingShut animation');
+  assert.ok(cssContent.includes('@keyframes waxSealStampShut'), 'CSS must define waxSealStampShut animation');
 });
 
 

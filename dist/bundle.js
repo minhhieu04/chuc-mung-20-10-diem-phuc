@@ -3092,8 +3092,20 @@ class BirthdayAppController {
    */
   openEnvelopeFlapToPeek() {
     if (this.envelopeStage !== 'closed') return;
+    if (this._closeEnvelopeTimer) {
+      clearTimeout(this._closeEnvelopeTimer);
+      this._closeEnvelopeTimer = null;
+    }
     this.envelopeStage = 'peeking';
+    const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    const parchment = this.doc.getElementById('letter-parchment');
     const innerLetter = this.doc.getElementById('envelope-inner-letter');
+    if (envelopeScene && envelopeScene.classList) {
+      envelopeScene.classList.remove('is-tucking-back', 'is-extracting');
+    }
+    if (parchment && parchment.classList) {
+      parchment.classList.remove('is-closing');
+    }
     if (innerLetter) {
       if (innerLetter.classList) innerLetter.classList.remove('is-jumping-out');
       if (innerLetter.style) {
@@ -3114,8 +3126,17 @@ class BirthdayAppController {
    */
   extractLetterToFullView() {
     if (this.envelopeStage === 'open') return;
+    if (this._closeEnvelopeTimer) {
+      clearTimeout(this._closeEnvelopeTimer);
+      this._closeEnvelopeTimer = null;
+    }
     const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    const parchment = this.doc.getElementById('letter-parchment');
     const innerLetter = this.doc.getElementById('envelope-inner-letter');
+
+    if (parchment && parchment.classList) {
+      parchment.classList.remove('is-closing');
+    }
 
     if (innerLetter) {
       if (innerLetter.style) {
@@ -3132,7 +3153,7 @@ class BirthdayAppController {
     }
 
     if (envelopeScene && envelopeScene.classList) {
-      envelopeScene.classList.remove('is-extracting');
+      envelopeScene.classList.remove('is-tucking-back', 'is-extracting');
       if (typeof envelopeScene.getBoundingClientRect === 'function') {
         envelopeScene.getBoundingClientRect();
       }
@@ -3154,13 +3175,21 @@ class BirthdayAppController {
   }
 
   /**
-   * Closes the stationery letter and folds the envelope back to its initial closed state.
+   * Closes the stationery letter and folds the envelope back to its initial closed state
+   * with a multi-stage tuck-and-seal animation.
    */
   closeEnvelopeAndLetter() {
+    if (this._closeEnvelopeTimer) {
+      clearTimeout(this._closeEnvelopeTimer);
+      this._closeEnvelopeTimer = null;
+    }
+    const wasOpen = this.envelopeStage === 'open' || Boolean(this.store.getState().envelopeOpened);
     const envelopeScene = this.doc.getElementById('envelope-3d-scene');
+    const parchment = this.doc.getElementById('letter-parchment');
     const innerLetter = this.doc.getElementById('envelope-inner-letter');
+
     if (envelopeScene && envelopeScene.classList) {
-      envelopeScene.classList.remove('is-extracting', 'is-peeking', 'is-open', 'is-extracted');
+      envelopeScene.classList.remove('is-extracting', 'is-peeking', 'is-open', 'is-extracted', 'is-tucking-back');
     }
     if (innerLetter) {
       if (innerLetter.classList) {
@@ -3171,11 +3200,44 @@ class BirthdayAppController {
         innerLetter.style.transition = '';
       }
     }
+
     this.envelopeStage = 'closed';
     this.store.setEnvelopeOpened(false);
     this.renderAll();
+
+    if (wasOpen) {
+      if (parchment && parchment.classList) {
+        parchment.classList.remove('is-closing');
+        if (typeof parchment.getBoundingClientRect === 'function') {
+          parchment.getBoundingClientRect();
+        }
+        parchment.classList.add('is-closing');
+      }
+      if (envelopeScene && envelopeScene.classList) {
+        if (typeof envelopeScene.getBoundingClientRect === 'function') {
+          envelopeScene.getBoundingClientRect();
+        }
+        envelopeScene.classList.add('is-tucking-back');
+      }
+      this._closeEnvelopeTimer = setTimeout(() => {
+        if (parchment && parchment.classList) {
+          parchment.classList.remove('is-closing');
+        }
+        if (envelopeScene && envelopeScene.classList) {
+          envelopeScene.classList.remove('is-tucking-back');
+        }
+        this._closeEnvelopeTimer = null;
+      }, 1150);
+      if (this._closeEnvelopeTimer && typeof this._closeEnvelopeTimer.unref === 'function') {
+        this._closeEnvelopeTimer.unref();
+      }
+    }
+
     this.audio.playSparkleChime();
-    this.showToast('✦ Đã cất lá thư vào trong phong bì');
+    if (typeof this.particles.triggerCelebrationBurst === 'function') {
+      this.particles.triggerCelebrationBurst();
+    }
+    this.showToast('✦ Đã gấp thư & niêm phong lại vào phong bì!');
   }
 
   /**
