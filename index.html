@@ -30,7 +30,7 @@
   <link rel="shortcut icon" href="./favicon.ico" />
   <link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23F43F5E' d='M16 28.2C15.4 28.2 4.8 20.6 2.3 14.8c-2-4.6-.2-9.6 4-11.8 4.3-2.3 9.4-.5 10.7 2 1.3-2.5 6.4-4.3 10.7-2 4.2 2.2 6 7.2 4 11.8C27.2 20.6 16.6 28.2 16 28.2z'/%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="./assets/images/favicon-heart.svg" />
-  <link rel="stylesheet" href="./src/styles.css?v=18" />
+  <link rel="stylesheet" href="./src/styles.css?v=19" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Chuyển đến nội dung chính</a>
@@ -340,20 +340,24 @@
     <header class="top-navbar">
       <div class="navbar-inner">
         <a href="#hero" class="brand-pill">
-          <img
-            id="nav-avatar-img"
-            src="./assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg"
-            data-fallback-src="./assets/images/hero-portrait.jpg"
-            onerror="if(this.getAttribute('src')!==this.getAttribute('data-fallback-src')){this.setAttribute('data-failed-src',this.getAttribute('src')||'');this.src=this.getAttribute('data-fallback-src');}"
-            alt="Diểm Phúc"
-            class="nav-avatar-thumb"
-          />
-          <span data-bind="recipientName">Diểm Phúc</span>
+          <span class="nav-avatar-ring">
+            <img
+              id="nav-avatar-img"
+              src="./assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg"
+              data-fallback-src="./assets/images/hero-portrait.jpg"
+              onerror="if(this.getAttribute('src')!==this.getAttribute('data-fallback-src')){this.setAttribute('data-failed-src',this.getAttribute('src')||'');this.src=this.getAttribute('data-fallback-src');}"
+              alt="Diểm Phúc"
+              class="nav-avatar-thumb"
+            />
+          </span>
+          <span class="brand-name-text" data-bind="recipientName">Diểm Phúc</span>
+          <span class="brand-date-chip" aria-hidden="true">20/10</span>
         </a>
 
         <nav aria-label="Điều hướng trang">
           <ul class="nav-links">
             <li><a href="#hero" class="nav-link">Mở Đầu</a></li>
+            <li><a href="#ai-stickers" class="nav-link">Sticker AI</a></li>
             <li><a href="#flower-bouquet" class="nav-link">Bó Hoa Tulip</a></li>
             <li><a href="#reasons" class="nav-link">Nét Đẹp Tỏa Sáng</a></li>
             <li><a href="#love-letter" class="nav-link">Lá Thư 20/10</a></li>
@@ -364,11 +368,12 @@
           <button
             type="button"
             id="btn-toggle-music"
-            class="pill-btn"
+            class="pill-btn nav-music-btn"
             aria-pressed="false"
             aria-label="Bật hoặc tắt nhạc nền"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <span class="nav-music-dot" aria-hidden="true"></span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M9 18V5l12-2v13" />
               <circle cx="6" cy="18" r="3" />
               <circle cx="18" cy="16" r="3" />
@@ -379,11 +384,11 @@
           <button
             type="button"
             id="btn-toggle-theme"
-            class="pill-btn"
+            class="pill-btn nav-theme-btn"
             aria-pressed="false"
             aria-label="Chuyển đổi giao diện Sáng và Tối"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
             <span class="btn-label-text">Giao Diện Sáng</span>
@@ -397,9 +402,8 @@
             aria-label="Giảm hiệu ứng chuyển động"
             title="Bật/Tắt giảm chuyển động"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" />
-              <polygon points="10 8 16 12 10 16 10 8" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
             </svg>
           </button>
         </div>
@@ -460,12 +464,16 @@
                     <div class="portrait-image-wrap">
                       <img
                         id="hero-portrait-img"
-                        src="https://photos.fife.usercontent.google.com/pw/AP1GczPmSQT5pcpBvdJ4J-gw2fLlNbn7BO6ozp5ha3M0laIXpd1ctXz_E4HjGA=w768-h1024-s-no-gm?authuser=0"
+                        src="./assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg"
+                        data-real-src="./assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg"
+                        data-sticker-src="./assets/images/stickers/sticker-chibi-bouquet.jpg"
+                        data-sticker-badge="Chibi Anime Kawaii"
                         data-fallback-src="./assets/images/hero-portrait.jpg"
                         onerror="if(this.getAttribute('src')!==this.getAttribute('data-fallback-src')){this.setAttribute('data-failed-src',this.getAttribute('src')||'');this.src=this.getAttribute('data-fallback-src');}"
                         alt="Chân dung của Diểm Phúc"
                         class="portrait-image"
                       />
+                      <span class="deck-sticker-style-pill" aria-hidden="true">✦ Chibi Kawaii AI</span>
                       <div class="portrait-overlay-bar">
                         <div>
                           <p class="portrait-caption-title" data-bind="recipientName">Diểm Phúc</p>
@@ -482,10 +490,14 @@
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_5937.JPG"
+                        data-real-src="./assets/images/IMG_5937.JPG"
+                        data-sticker-src="./assets/images/stickers/sticker-3d-daisy.jpg"
+                        data-sticker-badge="3D Pixar & Pop Mart"
                         alt="Nụ cười tỏa nắng của Diểm Phúc"
                         class="portrait-image"
                         loading="lazy"
                       />
+                      <span class="deck-sticker-style-pill" aria-hidden="true">✦ 3D Pixar AI</span>
                       <div class="portrait-overlay-bar">
                         <div>
                           <p class="portrait-caption-title">Rạng Rỡ &amp; Duyên Dáng</p>
@@ -500,10 +512,14 @@
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_2652.JPG"
+                        data-real-src="./assets/images/IMG_2652.JPG"
+                        data-sticker-src="./assets/images/stickers/sticker-webtoon-glasses.jpg"
+                        data-sticker-badge="Webtoon Hàn Quốc"
                         alt="Nét dịu dàng trong trẻo của Diểm Phúc"
                         class="portrait-image"
                         loading="lazy"
                       />
+                      <span class="deck-sticker-style-pill" aria-hidden="true">✦ Webtoon AI</span>
                       <div class="portrait-overlay-bar">
                         <div>
                           <p class="portrait-caption-title">Trong Trẻo &amp; Đáng Yêu</p>
@@ -518,10 +534,14 @@
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_7101.JPG"
+                        data-real-src="./assets/images/IMG_7101.JPG"
+                        data-sticker-src="./assets/images/stickers/sticker-watercolor-grad.jpg"
+                        data-sticker-badge="Màu Nước Storybook"
                         alt="Thanh xuân rực rỡ"
                         class="portrait-image"
                         loading="lazy"
                       />
+                      <span class="deck-sticker-style-pill" aria-hidden="true">✦ Storybook AI</span>
                       <div class="portrait-overlay-bar">
                         <div>
                           <p class="portrait-caption-title">Thanh Xuân Tươi Thắm</p>
@@ -536,10 +556,14 @@
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_1660.jpg"
+                        data-real-src="./assets/images/IMG_1660.jpg"
+                        data-sticker-src="./assets/images/stickers/sticker-webtoon-glasses.jpg"
+                        data-sticker-badge="Webtoon Hàn Quốc"
                         alt="Bình yên & tươi vui"
                         class="portrait-image"
                         loading="lazy"
                       />
+                      <span class="deck-sticker-style-pill" aria-hidden="true">✦ Webtoon AI</span>
                       <div class="portrait-overlay-bar">
                         <div>
                           <p class="portrait-caption-title">Bình Yên &amp; Tươi Vui</p>
@@ -570,11 +594,282 @@
                   </button>
                 </div>
 
+                <div class="deck-sticker-switch-row">
+                  <button
+                    type="button"
+                    id="btn-deck-sticker-toggle"
+                    class="deck-sticker-toggle-btn"
+                    aria-pressed="false"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                      <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                    </svg>
+                    <span class="deck-toggle-label">Hoá Phép Sticker AI</span>
+                  </button>
+                </div>
+
                 <p class="card-swipe-hint">
-                  ✦ <strong>Vuốt nhẹ để đổi ảnh</strong> hoặc chạm mũi tên để ngắm thêm ảnh của <span data-bind="recipientShortName">Emm</span> ✦
+                  ✦ <strong>Vuốt nhẹ để đổi ảnh</strong> hoặc bấm <strong>Hoá Phép Sticker AI</strong> để ngắm <span data-bind="recipientShortName">Emm</span> phiên bản hoạt hình ✦
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 1.5: AI STICKER PACK STUDIO (4 ARTISTIC STYLES FROM REAL PHOTOS) -->
+      <section id="ai-stickers" class="section-block sticker-pack-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="mono-badge">AI STICKER ATELIER • BỘ SƯU TẬP STICKER ĐA PHONG CÁCH</span>
+            <h2 class="section-title">
+              Bộ Sưu Tập Sticker AI Của <span data-bind="recipientName">Diểm Phúc</span>
+            </h2>
+            <p class="section-desc">
+              Từ những bức ảnh thật rạng rỡ của <span data-bind="recipientShortName">Emm</span>, AI đã vẽ lại thành 4 mẫu <strong>Sticker Die-Cut</strong> theo 4 phong cách nghệ thuật khác nhau. <strong>Chạm vào từng thẻ</strong> để lật xem ảnh gốc hoặc tải Sticker về máy nhé!
+            </p>
+          </div>
+
+          <div id="sticker-pack-grid" class="sticker-pack-grid">
+            <!-- Sticker 1: Chibi Anime Kawaii (from 7924A3EF...jpeg) -->
+            <article class="sticker-pack-card" data-sticker-index="0" tabindex="0" role="button" aria-label="Sticker Chibi Anime Kawaii - chạm để lật xem ảnh gốc">
+              <div class="sticker-card-inner">
+                <!-- Front: Die-Cut AI Sticker -->
+                <div class="sticker-card-face sticker-face-front">
+                  <div class="sticker-style-tag tag-chibi">
+                    <span>✦ Chibi Anime Kawaii</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/stickers/sticker-chibi-bouquet.jpg"
+                      alt="Sticker Chibi Anime Kawaii của Diểm Phúc ôm bó hoa hồng phấn"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Cô Nàng Ôm Hoa Giấy Hồng</h3>
+                      <p class="sticker-card-sub">Nét vẽ Chibi Nhật Bản mắt long lanh • Chạm để xem ảnh gốc</p>
+                    </div>
+                    <a
+                      href="./assets/images/stickers/sticker-chibi-bouquet.jpg"
+                      download="Sticker-Diem-Phuc-Chibi-Kawaii.jpg"
+                      class="sticker-download-btn"
+                      title="Tải Sticker này về máy"
+                      aria-label="Tải Sticker Chibi Kawaii"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Back: Original Real Photo -->
+                <div class="sticker-card-face sticker-face-back">
+                  <div class="sticker-style-tag tag-real">
+                    <span>📷 Ảnh Thật Gốc</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg"
+                      alt="Ảnh gốc Diểm Phúc ôm bó hoa"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Khoảnh Khắc Gốc Dịu Dàng</h3>
+                      <p class="sticker-card-sub">Chạm lần nữa để lật lại mặt Sticker AI ✦</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Sticker 2: 3D Pixar / Pop Mart (from IMG_5937.JPG) -->
+            <article class="sticker-pack-card" data-sticker-index="1" tabindex="0" role="button" aria-label="Sticker 3D Pixar Pop Mart - chạm để lật xem ảnh gốc">
+              <div class="sticker-card-inner">
+                <!-- Front: Die-Cut AI Sticker -->
+                <div class="sticker-card-face sticker-face-front">
+                  <div class="sticker-style-tag tag-pixar">
+                    <span>✦ 3D Pixar / Pop Mart</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/stickers/sticker-3d-daisy.jpg"
+                      alt="Sticker 3D Pixar của Diểm Phúc ôm bó cúc họa mi"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Nàng Thơ Cúc Họa Mi</h3>
+                      <p class="sticker-card-sub">Tạo hình 3D Pop Mart bóng mượt • Chạm để xem ảnh gốc</p>
+                    </div>
+                    <a
+                      href="./assets/images/stickers/sticker-3d-daisy.jpg"
+                      download="Sticker-Diem-Phuc-3D-Pixar.jpg"
+                      class="sticker-download-btn"
+                      title="Tải Sticker này về máy"
+                      aria-label="Tải Sticker 3D Pixar"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Back: Original Real Photo -->
+                <div class="sticker-card-face sticker-face-back">
+                  <div class="sticker-style-tag tag-real">
+                    <span>📷 Ảnh Thật Gốc</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/IMG_5937.JPG"
+                      alt="Ảnh gốc Diểm Phúc ôm bó cúc họa mi"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Nụ Cười Cúc Họa Mi</h3>
+                      <p class="sticker-card-sub">Chạm lần nữa để lật lại mặt Sticker AI ✦</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Sticker 3: Watercolor Storybook Ghibli (from IMG_7101.JPG) -->
+            <article class="sticker-pack-card" data-sticker-index="2" tabindex="0" role="button" aria-label="Sticker Màu Nước Ghibli - chạm để lật xem ảnh gốc">
+              <div class="sticker-card-inner">
+                <!-- Front: Die-Cut AI Sticker -->
+                <div class="sticker-card-face sticker-face-front">
+                  <div class="sticker-style-tag tag-watercolor">
+                    <span>✦ Màu Nước Storybook</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/stickers/sticker-watercolor-grad.jpg"
+                      alt="Sticker Màu Nước Storybook của Diểm Phúc lễ tốt nghiệp"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Tân Cử Nhân Rạng Rỡ</h3>
+                      <p class="sticker-card-sub">Màu nước Ghibli thơ mộng ấm áp • Chạm để xem ảnh gốc</p>
+                    </div>
+                    <a
+                      href="./assets/images/stickers/sticker-watercolor-grad.jpg"
+                      download="Sticker-Diem-Phuc-Storybook.jpg"
+                      class="sticker-download-btn"
+                      title="Tải Sticker này về máy"
+                      aria-label="Tải Sticker Màu Nước Storybook"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Back: Original Real Photo -->
+                <div class="sticker-card-face sticker-face-back">
+                  <div class="sticker-style-tag tag-real">
+                    <span>📷 Ảnh Thật Gốc</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/IMG_7101.JPG"
+                      alt="Ảnh gốc Diểm Phúc ngày tốt nghiệp"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Thanh Xuân Rực Rỡ</h3>
+                      <p class="sticker-card-sub">Chạm lần nữa để lật lại mặt Sticker AI ✦</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Sticker 4: Korean Webtoon Pop-Art (from IMG_1660.jpg & IMG_2652.JPG) -->
+            <article class="sticker-pack-card" data-sticker-index="3" tabindex="0" role="button" aria-label="Sticker Webtoon Hàn Quốc - chạm để lật xem ảnh gốc">
+              <div class="sticker-card-inner">
+                <!-- Front: Die-Cut AI Sticker -->
+                <div class="sticker-card-face sticker-face-front">
+                  <div class="sticker-style-tag tag-webtoon">
+                    <span>✦ Webtoon Hàn Quốc</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/stickers/sticker-webtoon-glasses.jpg"
+                      alt="Sticker Webtoon Hàn Quốc của Diểm Phúc đeo kính tròn đáng yêu"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Nét Trong Trẻo Webtoon</h3>
+                      <p class="sticker-card-sub">Phong cách Manhwa Hàn Quốc ngọt ngào • Chạm để xem ảnh gốc</p>
+                    </div>
+                    <a
+                      href="./assets/images/stickers/sticker-webtoon-glasses.jpg"
+                      download="Sticker-Diem-Phuc-Webtoon.jpg"
+                      class="sticker-download-btn"
+                      title="Tải Sticker này về máy"
+                      aria-label="Tải Sticker Webtoon Hàn Quốc"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Back: Original Real Photo -->
+                <div class="sticker-card-face sticker-face-back">
+                  <div class="sticker-style-tag tag-real">
+                    <span>📷 Ảnh Thật Gốc</span>
+                  </div>
+                  <div class="sticker-art-frame">
+                    <img
+                      src="./assets/images/IMG_1660.jpg"
+                      alt="Ảnh gốc Diểm Phúc đeo kính trong trẻo"
+                      class="sticker-art-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="sticker-card-footer">
+                    <div>
+                      <h3 class="sticker-card-title">Bình Yên &amp; Tươi Vui</h3>
+                      <p class="sticker-card-sub">Chạm lần nữa để lật lại mặt Sticker AI ✦</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -1654,6 +1949,6 @@
     aria-live="polite"
   ></div>
 
-  <script src="./dist/bundle.js?v=18" defer></script>
+  <script src="./dist/bundle.js?v=19" defer></script>
 </body>
 </html>

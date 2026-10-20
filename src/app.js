@@ -133,6 +133,7 @@ export class BirthdayAppController {
     this.bindEvents();
     this.initAudioEngine();
     this.initCardSwipeDeck();
+    this.initInteractiveStickers();
     this.initInteractiveTulips();
     this.initInteractiveLanterns();
     this.initInteractiveReasons();
@@ -161,6 +162,7 @@ export class BirthdayAppController {
 
   syncPortraitElement(imgEl, config) {
     if (!imgEl || !isValidImageSrc(config.heroPortraitUrl)) return;
+    if (this.isDeckStickerMode && imgEl.id === 'hero-portrait-img') return;
     const currentSrc = imgEl.getAttribute('src');
     const failedSrc = imgEl.getAttribute('data-failed-src');
     if (currentSrc !== config.heroPortraitUrl && failedSrc !== config.heroPortraitUrl) {
@@ -1395,6 +1397,92 @@ export class BirthdayAppController {
     });
   }
 
+  initInteractiveStickers() {
+    this.isDeckStickerMode = false;
+    const toggleBtn = this.doc.getElementById('btn-deck-sticker-toggle');
+    const deck = this.doc.getElementById('photo-card-deck');
+
+    if (toggleBtn && deck) {
+      toggleBtn.addEventListener('click', () => {
+        this.isDeckStickerMode = !this.isDeckStickerMode;
+        toggleBtn.setAttribute('aria-pressed', String(this.isDeckStickerMode));
+        if (deck.classList) {
+          deck.classList.toggle('is-sticker-mode', this.isDeckStickerMode);
+        }
+        const labelEl = toggleBtn.querySelector ? toggleBtn.querySelector('.deck-toggle-label') : null;
+        if (labelEl) {
+          labelEl.textContent = this.isDeckStickerMode
+            ? 'Xem Ảnh Thật Gốc'
+            : 'Hoá Phép Sticker AI';
+        }
+        const imgs = deck.querySelectorAll ? deck.querySelectorAll('.portrait-image') : [];
+        imgs.forEach((img) => {
+          const targetSrc = this.isDeckStickerMode
+            ? img.getAttribute('data-sticker-src')
+            : img.getAttribute('data-real-src');
+          if (targetSrc) {
+            img.setAttribute('src', targetSrc);
+          }
+        });
+        this.audio.playSparkleChime();
+        if (typeof this.particles.triggerCelebrationBurst === 'function') {
+          const rect = deck.getBoundingClientRect ? deck.getBoundingClientRect() : null;
+          const x = rect ? rect.left + rect.width / 2 : 300;
+          const y = rect ? rect.top + rect.height / 2 : 300;
+          this.particles.triggerCelebrationBurst(x, y, 22);
+        }
+        this.showToast(
+          this.isDeckStickerMode
+            ? '✦ Đã hoá phép bộ ảnh của Emm sang chế độ Sticker AI!'
+            : '✦ Đã chuyển về chế độ Ảnh Thật Gốc của Emm!'
+        );
+      });
+    }
+
+    const stickerCards = this.doc.querySelectorAll
+      ? this.doc.querySelectorAll('.sticker-pack-card')
+      : [];
+    stickerCards.forEach((card) => {
+      const downloadBtn = card.querySelector ? card.querySelector('.sticker-download-btn') : null;
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', (e) => {
+          if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+          this.audio.playSparkleChime();
+          this.showToast('✦ Đang tải Sticker AI của Diểm Phúc về máy!');
+        });
+      }
+
+      const flipSticker = () => {
+        if (!card.classList) return;
+        const isFlipped = card.classList.toggle('is-flipped');
+        if (typeof this.audio.playHeartPop === 'function') {
+          this.audio.playHeartPop();
+        } else {
+          this.audio.playSparkleChime();
+        }
+        if (typeof this.particles.triggerCelebrationBurst === 'function') {
+          const rect = card.getBoundingClientRect ? card.getBoundingClientRect() : null;
+          const x = rect ? rect.left + rect.width / 2 : 250;
+          const y = rect ? rect.top + rect.height / 2 : 300;
+          this.particles.triggerCelebrationBurst(x, y, 16);
+        }
+        this.showToast(
+          isFlipped
+            ? '📷 Đang xem Ảnh Thật Gốc — Chạm lần nữa để lật lại mặt Sticker AI!'
+            : '✦ Đang xem bản vẽ Sticker AI của Emm!'
+        );
+      };
+
+      card.addEventListener('click', flipSticker);
+      card.addEventListener('keydown', (e) => {
+        if (e && (e.key === 'Enter' || e.key === ' ')) {
+          if (typeof e.preventDefault === 'function') e.preventDefault();
+          flipSticker();
+        }
+      });
+    });
+  }
+
   initScrollRevealAnimations() {
     if (typeof IntersectionObserver !== 'function' || !this.doc.querySelectorAll) return;
     if (!this._scrollRevealObserver) {
@@ -1411,7 +1499,7 @@ export class BirthdayAppController {
       );
     }
     const targets = this.doc.querySelectorAll(
-      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box'
+      '.section-header, .bouquet-visual-card, .reason-card, .envelope-box, .sticker-pack-card'
     );
     targets.forEach((el) => {
       if (el && el.classList && !el.classList.contains('is-scroll-revealed')) {
@@ -1435,6 +1523,7 @@ export class BirthdayAppController {
             target.closest('a') ||
             target.closest('input') ||
             target.closest('#photo-card-deck') ||
+            target.closest('.sticker-pack-card') ||
             target.closest('#floating-music-pill') ||
             target.closest('#gift-curtain') ||
             target.closest('#envelope-box') ||

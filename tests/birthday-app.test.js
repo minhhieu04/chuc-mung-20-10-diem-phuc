@@ -1039,6 +1039,36 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.equal(USER_PROVIDED_PORTRAIT_URL.includes('photos.fife'), false, 'Default avatar URL must be local for 0ms load on any device');
 });
 
+test('15. Single-Row Floating Capsule Header & 4-Style AI Sticker Pack Studio', async () => {
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
+
+  // 1. Verify all 4 AI Sticker files exist and are non-empty
+  const stickerFiles = [
+    'assets/images/stickers/sticker-chibi-bouquet.jpg',
+    'assets/images/stickers/sticker-3d-daisy.jpg',
+    'assets/images/stickers/sticker-watercolor-grad.jpg',
+    'assets/images/stickers/sticker-webtoon-glasses.jpg'
+  ];
+  for (const relPath of stickerFiles) {
+    const absPath = path.resolve(PROJECT_ROOT, relPath);
+    assert.ok(fs.existsSync(absPath), `AI Sticker file ${relPath} must exist`);
+    assert.ok(fs.statSync(absPath).size > 10000, `AI Sticker file ${relPath} must be a valid image`);
+  }
+
+  // 2. Verify Single-Row Floating Capsule Header in HTML & CSS
+  assert.ok(htmlContent.includes('class="nav-avatar-ring"'), 'Header must include glowing .nav-avatar-ring');
+  assert.ok(htmlContent.includes('class="nav-music-dot"'), 'Music button must include live status dot .nav-music-dot');
+  assert.ok(cssContent.includes('.sticker-pack-grid'), 'CSS must include .sticker-pack-grid');
+  assert.ok(cssContent.includes('.sticker-pack-card.is-flipped .sticker-card-inner'), 'CSS must include 3D flip rule for sticker cards');
+
+  // 3. Verify AI Sticker section & Hero Sticker Mode Toggle in HTML
+  assert.ok(htmlContent.includes('id="ai-stickers"'), 'index.html must include #ai-stickers section');
+  assert.ok(htmlContent.includes('id="sticker-pack-grid"'), 'index.html must include #sticker-pack-grid');
+  assert.ok(htmlContent.includes('id="btn-deck-sticker-toggle"'), 'index.html must include #btn-deck-sticker-toggle in Hero card deck');
+});
+
+
 
 
 

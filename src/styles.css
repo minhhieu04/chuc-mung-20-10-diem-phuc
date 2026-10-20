@@ -180,87 +180,216 @@ button,
 }
 
 /* ==========================================================================
-   Top Glassmorphic Floating Navigation & Simplified Controls
+   Top Glassmorphic Floating Capsule Navigation (UI/UX Pro Max Single-Row Pill)
    ========================================================================== */
 .top-navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 12px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(calc(100vw - 24px), 1080px);
   z-index: 50;
-  padding: var(--space-2) var(--space-4);
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 6px 10px 6px 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    rgba(24, 12, 38, 0.86) 0%,
+    rgba(38, 16, 48, 0.78) 50%,
+    rgba(20, 10, 34, 0.88) 100%
+  );
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(246, 189, 96, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 14px 36px -8px rgba(6, 2, 14, 0.62),
+    0 0 24px rgba(244, 114, 150, 0.16);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="sakura"] .top-navbar {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 250, 252, 0.92) 0%,
+    rgba(255, 240, 246, 0.88) 100%
+  );
+  border-color: rgba(184, 20, 77, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 12px 30px -8px rgba(136, 19, 55, 0.14),
+    0 0 20px rgba(244, 114, 150, 0.14);
 }
 
 .navbar-inner {
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 
 .brand-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 10px;
   text-decoration: none;
   color: var(--text-primary);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.05rem;
-  min-height: 44px;
-  padding: var(--space-1) var(--space-2);
+  font-size: 1.04rem;
+  letter-spacing: 0.01em;
+  min-height: 40px;
+  padding: 3px 12px 3px 4px;
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+}
+
+.brand-pill:hover {
+  background: rgba(244, 114, 150, 0.12);
+  border-color: rgba(246, 189, 96, 0.42);
+}
+
+[data-theme="sakura"] .brand-pill {
+  background: rgba(184, 20, 77, 0.05);
+  border-color: rgba(184, 20, 77, 0.14);
+}
+
+.nav-avatar-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  padding: 1.5px;
+  background: linear-gradient(135deg, #FDE68A 0%, #F43F5E 55%, #C084FC 100%);
+  box-shadow: 0 0 12px rgba(244, 114, 150, 0.42);
+  flex-shrink: 0;
 }
 
 .nav-avatar-thumb {
-  width: 32px;
-  height: 32px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 1.5px solid var(--accent-gold);
-  box-shadow: 0 0 10px rgba(244, 114, 150, 0.45);
+  display: block;
+}
+
+.brand-name-text {
+  background: linear-gradient(135deg, #FFF5F8 0%, #FFE4EC 55%, #FDE68A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme="sakura"] .brand-name-text {
+  background: linear-gradient(135deg, #881337 0%, #BE123C 55%, #D97706 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-date-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #FEF08A;
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.42), rgba(245, 158, 11, 0.28));
+  border: 1px solid rgba(253, 224, 71, 0.45);
+}
+
+[data-theme="sakura"] .brand-date-chip {
+  color: #9F1239;
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(225, 29, 72, 0.28);
+}
+
+.nav-music-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
   flex-shrink: 0;
+}
+
+[data-theme="sakura"] .nav-music-dot {
+  background: rgba(184, 20, 77, 0.35);
+}
+
+.nav-music-btn[aria-pressed="true"] .nav-music-dot {
+  background: #4ADE80;
+  box-shadow: 0 0 8px #4ADE80;
+  animation: navMusicDotPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes navMusicDotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.32);
+    opacity: 1;
+  }
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   list-style: none;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="sakura"] .nav-links {
+  background: rgba(184, 20, 77, 0.04);
+  border-color: rgba(184, 20, 77, 0.1);
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: var(--space-2) 12px;
+  min-height: 34px;
+  padding: 4px 13px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: 0.83rem;
   font-weight: 600;
   border-radius: 999px;
   white-space: nowrap;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-link:hover {
   color: var(--text-primary);
-  background: rgba(244, 114, 150, 0.14);
+  background: linear-gradient(135deg, rgba(244, 114, 150, 0.22), rgba(246, 189, 96, 0.14));
+  box-shadow: 0 2px 10px rgba(244, 114, 150, 0.18);
 }
 
 .nav-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .icon-btn svg,
@@ -276,34 +405,51 @@ button,
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 42px;
-  min-width: 42px;
-  padding: var(--space-2) 14px;
+  min-height: 36px;
+  min-width: 36px;
+  padding: 6px 13px;
   border-radius: 999px;
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
-  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+[data-theme="sakura"] .icon-btn,
+[data-theme="sakura"] .pill-btn {
+  border-color: rgba(184, 20, 77, 0.2);
+  background: rgba(255, 255, 255, 0.78);
 }
 
 .icon-btn {
-  padding: var(--space-2);
+  width: 36px;
+  height: 36px;
+  padding: 0;
 }
 
 .icon-btn:hover,
 .pill-btn:hover {
-  border-color: var(--border-glow);
-  box-shadow: var(--shadow-glow);
+  border-color: rgba(246, 189, 96, 0.6);
+  background: rgba(244, 114, 150, 0.16);
+  box-shadow: 0 0 16px rgba(244, 114, 150, 0.24);
 }
 
 .icon-btn[aria-pressed="true"],
 .pill-btn[aria-pressed="true"] {
-  background: var(--accent-primary-strong);
-  color: var(--accent-on-primary);
-  border-color: transparent;
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.42) 0%, rgba(245, 158, 11, 0.26) 100%);
+  color: #FFF6F9;
+  border-color: rgba(246, 189, 96, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 18px rgba(244, 63, 94, 0.32);
+}
+
+[data-theme="sakura"] .icon-btn[aria-pressed="true"],
+[data-theme="sakura"] .pill-btn[aria-pressed="true"] {
+  background: linear-gradient(135deg, #E11D48 0%, #DB2777 100%);
+  color: #FFFFFF;
+  border-color: rgba(253, 224, 71, 0.75);
 }
 
 .btn-primary {
@@ -2840,9 +2986,289 @@ button,
 }
 
 /* ==========================================================================
+   AI Sticker Mode in Hero Deck & 4-Style AI Sticker Pack Studio (#ai-stickers)
+   ========================================================================== */
+.deck-sticker-style-pill {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 6;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #FFFBEB;
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.85), rgba(168, 85, 247, 0.85));
+  border: 1px solid rgba(253, 224, 71, 0.65);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(-6px) scale(0.92);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.photo-card-deck.is-sticker-mode .deck-sticker-style-pill {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.deck-sticker-switch-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.deck-sticker-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #FFF7FA;
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.26) 0%, rgba(168, 85, 247, 0.24) 55%, rgba(245, 158, 11, 0.22) 100%);
+  border: 1px solid rgba(246, 189, 96, 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 8px 22px rgba(244, 63, 94, 0.22);
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.deck-sticker-toggle-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(253, 224, 71, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 12px 28px rgba(244, 63, 94, 0.35);
+}
+
+.deck-sticker-toggle-btn[aria-pressed="true"] {
+  background: linear-gradient(135deg, #E11D48 0%, #9333EA 55%, #D97706 100%);
+  color: #FFFFFF;
+  border-color: #FDE047;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 24px rgba(244, 63, 94, 0.48);
+}
+
+[data-theme="sakura"] .deck-sticker-toggle-btn {
+  color: #881337;
+  background: linear-gradient(135deg, rgba(255, 241, 242, 0.92), rgba(250, 232, 255, 0.88));
+  border-color: rgba(225, 29, 72, 0.34);
+}
+
+[data-theme="sakura"] .deck-sticker-toggle-btn[aria-pressed="true"] {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #E11D48 0%, #9333EA 55%, #D97706 100%);
+  border-color: #FDE047;
+}
+
+/* 4-Style AI Sticker Pack Grid */
+.sticker-pack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+  perspective: 1400px;
+}
+
+.sticker-pack-card {
+  position: relative;
+  height: 410px;
+  cursor: pointer;
+  perspective: 1400px;
+  outline: none;
+  user-select: none;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease;
+}
+
+.sticker-pack-card:hover {
+  transform: translateY(-6px);
+}
+
+.sticker-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.68s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sticker-pack-card.is-flipped .sticker-card-inner {
+  transform: rotateY(180deg);
+}
+
+.sticker-card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  border-radius: 26px;
+  background: linear-gradient(
+    155deg,
+    rgba(38, 18, 52, 0.84) 0%,
+    rgba(24, 11, 36, 0.92) 100%
+  );
+  border: 1px solid rgba(246, 189, 96, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 18px 40px -12px rgba(8, 3, 18, 0.62),
+    0 0 26px rgba(244, 114, 150, 0.14);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+[data-theme="sakura"] .sticker-card-face {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.94) 0%,
+    rgba(255, 241, 246, 0.92) 100%
+  );
+  border-color: rgba(184, 20, 77, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 16px 36px -12px rgba(136, 19, 55, 0.16);
+}
+
+.sticker-face-back {
+  transform: rotateY(180deg);
+  border-color: rgba(244, 114, 150, 0.52);
+}
+
+.sticker-style-tag {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #FFFBEB;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+
+.tag-chibi {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.88), rgba(244, 63, 94, 0.88));
+}
+
+.tag-pixar {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.88), rgba(236, 72, 153, 0.88));
+}
+
+.tag-watercolor {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.88), rgba(225, 29, 72, 0.88));
+}
+
+.tag-webtoon {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.88), rgba(139, 92, 246, 0.88));
+}
+
+.tag-real {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(136, 19, 55, 0.86));
+}
+
+.sticker-art-frame {
+  position: relative;
+  width: 100%;
+  height: 292px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 228, 236, 0.22), rgba(24, 10, 34, 0.4));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sticker-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sticker-pack-card:hover .sticker-art-img {
+  transform: scale(1.045);
+}
+
+.sticker-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 4px 2px;
+}
+
+.sticker-card-title {
+  font-family: var(--font-display);
+  font-size: 1.04rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 3px;
+}
+
+.sticker-card-sub {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.38;
+}
+
+.sticker-download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: #FFF7FA;
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.36), rgba(245, 158, 11, 0.28));
+  border: 1px solid rgba(246, 189, 96, 0.52);
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.24);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sticker-download-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #E11D48, #D97706);
+  box-shadow: 0 6px 16px rgba(244, 63, 94, 0.42);
+}
+
+[data-theme="sakura"] .sticker-download-btn {
+  color: #9F1239;
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(225, 29, 72, 0.32);
+}
+
+[data-theme="sakura"] .sticker-download-btn:hover {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #E11D48, #D97706);
+}
+
+/* ==========================================================================
    Responsive Design — Tablet & Mobile-First UX (1024px, 768px, 430px, 375px)
    ========================================================================== */
 @media (max-width: 1024px) {
+  .sticker-pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
   .hero-section {
     padding-top: calc(110px + var(--space-8));
     scroll-margin-top: 110px;
@@ -2882,53 +3308,71 @@ button,
     padding: 0 var(--space-4);
   }
 
-  /* Compact 2-Row Mobile Navbar (Never wraps to 3 rows on 375px-430px) */
+  /* Sleek Single-Row Floating Capsule Navbar on Mobile (Never wraps to 2 rows!) */
   .top-navbar {
-    padding: 8px 12px;
+    top: 10px;
+    width: calc(100vw - 20px);
+    padding: 5px 8px 5px 6px;
   }
   .navbar-inner {
     gap: 6px;
+    flex-wrap: nowrap;
   }
   .brand-pill {
-    font-size: 0.98rem;
+    font-size: 0.94rem;
     min-height: 36px;
-    padding: 2px 6px;
+    padding: 2px 10px 2px 3px;
+    gap: 7px;
   }
-  .nav-avatar-thumb {
+  .nav-avatar-ring {
     width: 28px;
     height: 28px;
+  }
+  .brand-date-chip {
+    display: none;
   }
   .nav-links {
     display: none;
   }
   .nav-controls {
-    width: 100%;
+    width: auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     flex-wrap: nowrap;
     gap: 6px;
   }
   .nav-controls .pill-btn {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 0;
-    min-height: 38px;
-    padding: 6px 8px;
-    font-size: 0.74rem;
-    gap: 4px;
+    min-height: 34px;
+    padding: 5px 10px;
+    font-size: 0.73rem;
+    gap: 5px;
   }
   .nav-controls .pill-btn .btn-label-text {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .nav-controls .icon-btn {
-    flex: 0 0 38px;
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    min-height: 38px;
-    padding: 0;
+  .nav-controls #btn-toggle-motion {
+    display: none;
+  }
+  .sticker-pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .sticker-pack-card {
+    height: 348px;
+  }
+  .sticker-art-frame {
+    height: 234px;
+  }
+  .sticker-card-title {
+    font-size: 0.92rem;
+  }
+  .sticker-card-sub {
+    font-size: 0.7rem;
   }
 
   /* Gift Curtain Mobile Optimization */
@@ -3254,13 +3698,34 @@ button,
   }
 }
 
+@media (max-width: 540px) {
+  .sticker-pack-grid {
+    grid-template-columns: 1fr;
+    max-width: 348px;
+    margin: 0 auto;
+    gap: 18px;
+  }
+  .sticker-pack-card {
+    height: 396px;
+  }
+  .sticker-art-frame {
+    height: 282px;
+  }
+  .sticker-card-title {
+    font-size: 1.02rem;
+  }
+  .sticker-card-sub {
+    font-size: 0.76rem;
+  }
+}
+
 @media (max-width: 390px) {
   .hero-actions {
     grid-template-columns: 1fr;
   }
   .nav-controls .pill-btn {
-    padding: 6px 6px;
-    font-size: 0.72rem;
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
   .card-counter-badge {
     font-size: 0.70rem;
