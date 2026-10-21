@@ -1276,6 +1276,10 @@ test('16. Gift Curtain Title Single-Line Name, Natural Subtitle, Gift Box Unwrap
     cssContent.includes('.hero-name-gradient[data-typewriter-segmented="true"]'),
     'CSS must reset parent background-clip on segmented .hero-name-gradient so child carets and transforms never clip'
   );
+  assert.ok(
+    cssContent.includes('padding: 0.16em 0.14em 0.08em;'),
+    '.hero-char must have padding + negative margin so overhanging Vietnamese diacritics like "ể" are never clipped by background-clip: text'
+  );
 
   const elementsById = new Map();
   const makeTestEl = (id, initialText = '') => {

@@ -791,6 +791,8 @@ button,
 .gift-title-name {
   display: block;
   white-space: nowrap;
+  padding: 0.12em 0.08em 0.06em;
+  margin: -0.12em -0.08em -0.06em;
   font-size: clamp(1.75rem, 4.2vw, 2.25rem);
   font-weight: 700;
   line-height: 1.18;
@@ -1052,6 +1054,8 @@ button,
 
 .hero-char {
   display: inline-block;
+  padding: 0.16em 0.14em 0.08em;
+  margin: -0.16em -0.14em -0.08em;
   text-shadow: none;
   background: linear-gradient(125deg, #FFF1F5 0%, #FDE68A 38%, #F47296 74%, #FECDD3 100%);
   -webkit-background-clip: text;
@@ -1062,6 +1066,10 @@ button,
     opacity 0.14s ease-out,
     transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
     filter 0.28s ease;
+}
+
+.hero-char.is-char-cursor::after {
+  right: 0.02em;
 }
 
 [data-theme="sakura"] .hero-name-gradient,
