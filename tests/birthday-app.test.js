@@ -1201,3 +1201,174 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
   assert.ok(cssContent.includes('.hero-char'), 'src/styles.css must style interactive .hero-char spans');
   assert.ok(cssContent.includes('.hero-heading.is-wave-rippling'), 'src/styles.css must include .is-wave-rippling wave animation');
 });
+
+test('16. Gift Curtain Title Single-Line Name, Natural Subtitle, Gift Box Unwrap Icon, and Hero Typewriter Animation Without Toast', async () => {
+  const { BirthdayAppController } = await import('../src/app.js');
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
+
+  // 1. Verify #gift-curtain-title keeps "Diểm Phúc" intact on its own line (.gift-title-name)
+  assert.ok(htmlContent.includes('class="gift-title-lead"'), '#gift-curtain-title must have .gift-title-lead');
+  assert.ok(
+    htmlContent.includes('<span class="gift-title-name" data-bind="recipientName">Diểm Phúc</span>'),
+    '#gift-curtain-title must have .gift-title-name for Diểm Phúc'
+  );
+  assert.ok(cssContent.includes('.gift-title-name'), 'CSS must style .gift-title-name');
+  assert.ok(cssContent.includes('white-space: nowrap;'), '.gift-title-name must prevent line-breaking between Diểm and Phúc');
+
+  // 2. Verify .gift-subtitle uses warm, natural copy instead of stiff template phrase
+  assert.equal(
+    htmlContent.includes('Một bó hoa Tulip thanh lịch đang chờ bung nở'),
+    false,
+    'Old stiff .gift-subtitle phrase must be replaced'
+  );
+  assert.ok(
+    htmlContent.includes('một góc nhỏ bình yên với những đóa hoa Tulip dịu dàng'),
+    '.gift-subtitle must use natural, affectionate wording'
+  );
+
+  // 3. Verify #btn-unwrap-gift uses the new gift box with heart ribbon bow SVG icon (.gift-unwrap-icon + .gift-bow-heart) instead of the 3-loop SVG
+  assert.ok(htmlContent.includes('class="gift-unwrap-icon"'), '#btn-unwrap-gift must include .gift-unwrap-icon SVG');
+  assert.ok(htmlContent.includes('class="gift-bow-heart"'), '#btn-unwrap-gift SVG must include heart ribbon bow centerpiece (.gift-bow-heart)');
+  assert.equal(
+    htmlContent.includes('M12 2a4 4 0 0 1 3 6.5A4 4 0 0 1 19 15'),
+    false,
+    'Old 3-circle loop icon inside #btn-unwrap-gift must be removed'
+  );
+
+  // 4. Verify Hero Heading Typewriter Animation, CSS anti-clipping/anti-ghost rules & No Toast on Click/Keydown
+  assert.ok(cssContent.includes('.hero-type-char'), 'CSS must style .hero-type-char');
+  assert.ok(cssContent.includes('.hero-type-char.is-char-cursor::after'), 'CSS must render blinking caret on .is-char-cursor');
+  assert.ok(cssContent.includes('@keyframes typewriterCaretBlink'), 'CSS must define @keyframes typewriterCaretBlink');
+  assert.ok(
+    cssContent.includes('.hero-name-gradient[data-typewriter-segmented="true"]'),
+    'CSS must reset parent background-clip on segmented .hero-name-gradient so child carets and transforms never clip'
+  );
+
+  const elementsById = new Map();
+  const makeTestEl = (id, initialText = '') => {
+    const classes = new Set();
+    const attrs = new Map();
+    const listeners = new Map();
+    const el = {
+      id,
+      textContent: initialText,
+      innerHTML: '',
+      style: { setProperty: () => {} },
+      classList: {
+        add: (...c) => c.forEach((x) => classes.add(x)),
+        remove: (...c) => c.forEach((x) => classes.delete(x)),
+        toggle: (c, force) => {
+          const next = force !== undefined ? Boolean(force) : !classes.has(c);
+          if (next) classes.add(c);
+          else classes.delete(c);
+          return next;
+        },
+        contains: (c) => classes.has(c)
+      },
+      setAttribute: (k, v) => attrs.set(k, String(v)),
+      getAttribute: (k) => (attrs.has(k) ? attrs.get(k) : null),
+      addEventListener: (evt, fn) => {
+        if (!listeners.has(evt)) listeners.set(evt, []);
+        listeners.get(evt).push(fn);
+      },
+      trigger: (evt, payload = {}) => {
+        (listeners.get(evt) || []).forEach((fn) => fn(payload));
+      },
+      appendChild: () => {},
+      getBoundingClientRect: () => ({ width: 320, height: 110, left: 0, top: 0 })
+    };
+    if (id) elementsById.set(id, el);
+    return el;
+  };
+
+  const headingEl = makeTestEl('hero-interactive-heading');
+  const wordEls = ['Chúc', 'Mừng', 'Ngày', '20/10'].map((w, i) => makeTestEl(`word-${i}`, w));
+  const dateWordEl = wordEls[3];
+  dateWordEl.classList.add('hero-word-date');
+  const sparklesEl = makeTestEl('sparkles');
+  const charSpans = Array.from('ChúcMừngNgày20/10DiểmPhúc').map((ch, i) => {
+    const c = makeTestEl(`char-${i}`, ch);
+    c.classList.add('hero-type-char');
+    if (i >= 12 && i < 17) c.classList.add('hero-date-char');
+    if (i >= 17) c.classList.add('hero-char');
+    return c;
+  });
+
+  headingEl.querySelectorAll = (sel) => {
+    if (sel === '.hero-word') return wordEls;
+    if (sel === '.hero-type-char') return charSpans;
+    if (sel === '.hero-char') return charSpans.slice(17);
+    return [];
+  };
+  headingEl.querySelector = (sel) => {
+    if (sel === '.hero-word-date') return dateWordEl;
+    if (sel === '.hero-name-sparkles') return sparklesEl;
+    return null;
+  };
+
+  const toastEl = makeTestEl('live-toast');
+  const nameGradientEl = makeTestEl('hero-name-gradient', 'Diểm Phúc');
+  nameGradientEl.classList.add('hero-name-gradient');
+
+  const mockDoc = {
+    title: '',
+    documentElement: makeTestEl('html'),
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelectorAll: (sel) => (sel === '[data-bind="recipientName"]' ? [nameGradientEl] : []),
+    createElement: () => makeTestEl('particle'),
+    addEventListener: () => {}
+  };
+
+  const store = new BirthdayStateStore(null);
+  const controller = new BirthdayAppController(mockDoc, store);
+  controller.initInteractiveHeroHeading();
+
+  // Typewriter starts immediately on init: heading has .is-typewriting, char 0 is typed & has cursor, char 1 is not yet typed
+  assert.equal(headingEl.classList.contains('is-typewriting'), true, 'Heading should be in typewriter mode');
+  assert.equal(charSpans[0].classList.contains('is-char-typed'), true, 'First character should be typed immediately');
+  assert.equal(charSpans[0].classList.contains('is-char-cursor'), true, 'First character should carry the active blinking cursor');
+  assert.equal(charSpans[1].classList.contains('is-char-typed'), false, 'Second character should wait for typewriter tick');
+  assert.equal(
+    wordEls[0].innerHTML.includes('class="hero-type-char"'),
+    true,
+    'prepareHeroTypewriterChars must wrap .hero-word characters into .hero-type-char spans'
+  );
+  assert.equal(
+    dateWordEl.innerHTML.includes('class="hero-type-char hero-date-char"'),
+    true,
+    'prepareHeroTypewriterChars must tag .hero-word-date characters with .hero-date-char'
+  );
+
+  // Clicking #hero-interactive-heading replays typewriter and MUST NOT trigger toast notification
+  charSpans[1].classList.add('is-char-typed');
+  headingEl.trigger('click', { clientX: 120, clientY: 50 });
+  assert.equal(toastEl.textContent, '', 'Clicking #hero-interactive-heading must NOT trigger live-toast');
+  assert.equal(charSpans[0].classList.contains('is-char-typed'), true, 'Typewriter restarts at char 0 on click');
+  assert.equal(charSpans[1].classList.contains('is-char-typed'), false, 'Subsequent chars are reset on typewriter replay');
+
+  // Pressing Enter on #hero-interactive-heading also replays without toast
+  headingEl.trigger('keydown', { key: 'Enter', preventDefault: () => {} });
+  assert.equal(toastEl.textContent, '', 'Pressing Enter on #hero-interactive-heading must NOT trigger live-toast');
+
+  // Verify setText preserves textContent on .hero-name-gradient, sets data-typewriter-segmented, and handles rapid recipientName updates mid-flight
+  controller.setText('[data-bind="recipientName"]', 'Diểm Phúc');
+  assert.equal(nameGradientEl.textContent, 'Diểm Phúc');
+  assert.equal(nameGradientEl.getAttribute('data-typewriter-segmented'), 'true');
+  assert.ok(nameGradientEl.innerHTML.includes('hero-char hero-type-char'));
+
+  controller.setText('[data-bind="recipientName"]', 'Phạm Diểm Phúc');
+  assert.equal(nameGradientEl.textContent, 'Phạm Diểm Phúc');
+  assert.ok(nameGradientEl.innerHTML.includes('data-char-index="11"'));
+
+  // Reduced motion mode reveals all characters immediately without cursor
+  store.updateConfig({ reducedMotion: true });
+  controller.renderAll();
+  assert.equal(headingEl.classList.contains('is-typewriting'), false, 'Reduced motion removes .is-typewriting hide state automatically via renderAll');
+  assert.ok(
+    charSpans.every((c) => c.classList.contains('is-char-typed') && !c.classList.contains('is-char-cursor')),
+    'All characters must be immediately visible in reducedMotion mode'
+  );
+});
+
+

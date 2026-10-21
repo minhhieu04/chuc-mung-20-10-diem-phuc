@@ -197,6 +197,10 @@ export class BirthdayAppController {
     }
     this.particles.setTheme(config.theme);
     this.particles.setReducedMotion(config.reducedMotion);
+    if (this._heroTypewriterReady && this._lastReducedMotion !== Boolean(config.reducedMotion)) {
+      this._lastReducedMotion = Boolean(config.reducedMotion);
+      this.startHeroTypewriter();
+    }
 
     // Sync document title & gift curtain state
     if ('title' in this.doc) {
@@ -291,8 +295,18 @@ export class BirthdayAppController {
     nodes.forEach((node) => {
       if (node.classList && node.classList.contains('hero-name-gradient')) {
         const str = String(text || '');
-        if (this._lastHeroNameText === str && node.innerHTML) return;
+        if (
+          this._lastHeroNameText === str &&
+          typeof node.innerHTML === 'string' &&
+          node.innerHTML.includes('hero-type-char')
+        ) {
+          return;
+        }
         this._lastHeroNameText = str;
+        node.textContent = str;
+        if (typeof node.setAttribute === 'function') {
+          node.setAttribute('data-typewriter-segmented', 'true');
+        }
         let charIdx = 0;
         const words = str.split(' ');
         node.innerHTML = words
@@ -300,12 +314,15 @@ export class BirthdayAppController {
             const charsHtml = Array.from(word)
               .map((ch) => {
                 const idx = charIdx++;
-                return `<span class="hero-char" data-char-index="${idx}" style="--char-idx:${idx}">${escapeHtml(ch)}</span>`;
+                return `<span class="hero-char hero-type-char" data-char-index="${idx}" style="--char-idx:${idx}">${escapeHtml(ch)}</span>`;
               })
               .join('');
             return `<span class="hero-char-word">${charsHtml}</span>`;
           })
           .join('<span class="hero-char-space"> </span>');
+        if (this._heroTypewriterReady) {
+          this.startHeroTypewriter();
+        }
         return;
       }
       node.textContent = text;
@@ -756,6 +773,7 @@ export class BirthdayAppController {
         this.audio.playCelebrationChord();
         this.particles.launchFireworkShow();
         this.triggerBouquetBloom(true);
+        this.startHeroTypewriter({ initialDelay: 360 });
         this.renderAll();
       });
     }
@@ -844,6 +862,7 @@ export class BirthdayAppController {
       motionBtn.addEventListener('click', () => {
         const current = this.store.getState().config.reducedMotion;
         this.store.updateConfig({ reducedMotion: !current });
+        this.startHeroTypewriter();
       });
     }
 
@@ -1038,18 +1057,155 @@ export class BirthdayAppController {
     }
   }
 
+  prepareHeroTypewriterChars() {
+    const heading = this.doc.getElementById('hero-interactive-heading');
+    if (!heading || !heading.querySelectorAll) return;
+    const dateWord = heading.querySelector ? heading.querySelector('.hero-word-date') : null;
+    const words = heading.querySelectorAll('.hero-word');
+    words.forEach((wordEl) => {
+      if (wordEl.getAttribute && wordEl.getAttribute('data-typewriter-ready') === 'true') return;
+      const rawText = (wordEl.textContent || '').trim();
+      if (!rawText) return;
+      if (wordEl.setAttribute) wordEl.setAttribute('data-typewriter-ready', 'true');
+      const isDateWord =
+        wordEl === dateWord ||
+        Boolean(wordEl.classList && wordEl.classList.contains('hero-word-date'));
+      const charClass = isDateWord ? 'hero-type-char hero-date-char' : 'hero-type-char';
+      wordEl.innerHTML = Array.from(rawText)
+        .map((ch) => `<span class="${charClass}">${escapeHtml(ch)}</span>`)
+        .join('');
+    });
+  }
+
+  startHeroTypewriter(options = {}) {
+    const heading = this.doc.getElementById('hero-interactive-heading');
+    if (!heading) return;
+
+    this.prepareHeroTypewriterChars();
+
+    if (this._heroTypewriterTimer) {
+      clearTimeout(this._heroTypewriterTimer);
+      this._heroTypewriterTimer = null;
+    }
+    if (this._heroTypewriterLoopTimer) {
+      clearTimeout(this._heroTypewriterLoopTimer);
+      this._heroTypewriterLoopTimer = null;
+    }
+
+    const allChars = Array.from(
+      heading.querySelectorAll ? heading.querySelectorAll('.hero-type-char') : []
+    );
+    const dateWord = heading.querySelector ? heading.querySelector('.hero-word-date') : null;
+    const sparkles = heading.querySelector ? heading.querySelector('.hero-name-sparkles') : null;
+
+    if (allChars.length === 0) return;
+
+    if (this.store.getState().config.reducedMotion) {
+      if (heading.classList) heading.classList.remove('is-typewriting');
+      allChars.forEach((c) => {
+        if (c.classList) {
+          c.classList.add('is-char-typed');
+          c.classList.remove('is-char-cursor');
+        }
+      });
+      if (dateWord && dateWord.classList) dateWord.classList.add('is-word-active');
+      if (sparkles && sparkles.classList) sparkles.classList.add('is-sparkles-visible');
+      return;
+    }
+
+    if (heading.classList) {
+      heading.classList.add('is-typewriting');
+    }
+    allChars.forEach((c) => {
+      if (c.classList) {
+        c.classList.remove('is-char-typed', 'is-char-cursor');
+      }
+    });
+    if (dateWord && dateWord.classList) {
+      dateWord.classList.remove('is-word-active');
+    }
+    if (sparkles && sparkles.classList) {
+      sparkles.classList.remove('is-sparkles-visible');
+    }
+
+    const initialDelay =
+      options && typeof options.initialDelay === 'number' && options.initialDelay > 0
+        ? options.initialDelay
+        : 0;
+
+    const typeStep = (idx) => {
+      if (idx >= allChars.length) {
+        if (sparkles && sparkles.classList) {
+          sparkles.classList.add('is-sparkles-visible');
+        }
+        this._heroTypewriterLoopTimer = setTimeout(() => {
+          this._heroTypewriterLoopTimer = null;
+          this.startHeroTypewriter();
+        }, 4200);
+        if (
+          this._heroTypewriterLoopTimer &&
+          typeof this._heroTypewriterLoopTimer.unref === 'function'
+        ) {
+          this._heroTypewriterLoopTimer.unref();
+        }
+        return;
+      }
+
+      if (idx > 0 && allChars[idx - 1] && allChars[idx - 1].classList) {
+        allChars[idx - 1].classList.remove('is-char-cursor');
+      }
+
+      const currentChar = allChars[idx];
+      if (currentChar && currentChar.classList) {
+        currentChar.classList.add('is-char-typed', 'is-char-cursor');
+      }
+
+      if (
+        dateWord &&
+        dateWord.classList &&
+        !dateWord.classList.contains('is-word-active') &&
+        ((currentChar && currentChar.classList && currentChar.classList.contains('hero-date-char')) ||
+          (dateWord.contains && dateWord.contains(currentChar)) ||
+          (currentChar && currentChar.closest && currentChar.closest('.hero-word-date')))
+      ) {
+        dateWord.classList.add('is-word-active');
+      }
+
+      const isCurrentNameChar = Boolean(
+        currentChar && currentChar.classList && currentChar.classList.contains('hero-char')
+      );
+      const nextChar = allChars[idx + 1];
+      const isNextNameChar = Boolean(
+        nextChar && nextChar.classList && nextChar.classList.contains('hero-char')
+      );
+
+      let delay = isCurrentNameChar ? 82 : 60;
+      if (!isCurrentNameChar && isNextNameChar) {
+        delay = 175;
+      }
+      if (idx === 0 && initialDelay > delay) {
+        delay = initialDelay;
+      }
+
+      this._heroTypewriterTimer = setTimeout(() => {
+        this._heroTypewriterTimer = null;
+        typeStep(idx + 1);
+      }, delay);
+      if (this._heroTypewriterTimer && typeof this._heroTypewriterTimer.unref === 'function') {
+        this._heroTypewriterTimer.unref();
+      }
+    };
+
+    typeStep(0);
+  }
+
   initInteractiveHeroHeading() {
     const heading = this.doc.getElementById('hero-interactive-heading');
     if (!heading || typeof heading.addEventListener !== 'function') return;
 
-    const greetingMessages = [
-      '✦ Chúc Diểm Phúc ngày 20/10 luôn rạng rỡ và ngập tràn hạnh phúc!',
-      '✦ Nụ cười của Emm là đóa hoa đẹp nhất trong ngày lễ tháng Mười!',
-      '✦ Gửi ngàn điều bình yên, dịu dàng và may mắn nhất đến Diểm Phúc!',
-      '✦ Chúc cô gái tháng Mười luôn tự tin, tỏa sáng và được yêu thương!',
-      '✦ Mỗi chữ cái đều mang theo một lời chúc 20/10 ngọt ngào dành tặng Emm!'
-    ];
-    this._heroGreetingIndex = 0;
+    this._heroTypewriterReady = true;
+    this._lastReducedMotion = Boolean(this.store.getState().config.reducedMotion);
+    this.startHeroTypewriter();
 
     const clearHoverStates = () => {
       const chars = heading.querySelectorAll ? heading.querySelectorAll('.hero-char') : [];
@@ -1111,24 +1267,8 @@ export class BirthdayAppController {
       setTimeout(clearHoverStates, 320);
     }, { passive: true });
 
-    const triggerHeadingWave = (clientX, clientY) => {
-      if (this._headingWaveTimer) {
-        clearTimeout(this._headingWaveTimer);
-        this._headingWaveTimer = null;
-      }
-      if (heading.classList) {
-        heading.classList.remove('is-wave-rippling');
-        if (typeof heading.offsetWidth === 'number') void heading.offsetWidth;
-        heading.classList.add('is-wave-rippling');
-      }
-      this._headingWaveTimer = setTimeout(() => {
-        if (heading.classList) heading.classList.remove('is-wave-rippling');
-        this._headingWaveTimer = null;
-      }, 980);
-      if (this._headingWaveTimer && typeof this._headingWaveTimer.unref === 'function') {
-        this._headingWaveTimer.unref();
-      }
-
+    const triggerHeadingTypewriterReplay = (clientX, clientY) => {
+      this.startHeroTypewriter();
       this.spawnHeadingParticles(clientX, clientY);
 
       if (typeof this.audio.playFlowerBloomChime === 'function') {
@@ -1139,20 +1279,17 @@ export class BirthdayAppController {
       if (typeof this.particles.triggerFlowerShower === 'function') {
         this.particles.triggerFlowerShower(18);
       }
-      const msg = greetingMessages[this._heroGreetingIndex % greetingMessages.length];
-      this._heroGreetingIndex += 1;
-      this.showToast(msg);
     };
 
     heading.addEventListener('click', (e) => {
       if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-      triggerHeadingWave(e ? e.clientX : 0, e ? e.clientY : 0);
+      triggerHeadingTypewriterReplay(e ? e.clientX : 0, e ? e.clientY : 0);
     });
 
     heading.addEventListener('keydown', (e) => {
       if (e && (e.key === 'Enter' || e.key === ' ')) {
         if (typeof e.preventDefault === 'function') e.preventDefault();
-        triggerHeadingWave(0, 0);
+        triggerHeadingTypewriterReplay(0, 0);
       }
     });
   }
