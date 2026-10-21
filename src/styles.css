@@ -2035,6 +2035,54 @@ button,
   color: var(--text-secondary);
   max-width: 48ch;
   margin: var(--space-4) auto var(--space-5);
+  padding: 10px 18px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  transition: background 0.28s ease, border-color 0.28s ease, color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.bouquet-poetic-caption.is-tulip-wish-active {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, rgba(244, 114, 150, 0.16), rgba(246, 189, 96, 0.14));
+  border-color: rgba(246, 189, 96, 0.52);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), 0 0 16px rgba(244, 114, 150, 0.22);
+}
+
+[data-theme="sakura"] .bouquet-poetic-caption.is-tulip-wish-active {
+  color: #881337;
+  background: linear-gradient(135deg, rgba(255, 228, 236, 0.92), rgba(254, 243, 199, 0.88));
+  border-color: rgba(225, 29, 72, 0.36);
+  box-shadow: 0 8px 22px rgba(184, 20, 77, 0.12);
+}
+
+.bouquet-poetic-caption.is-wish-popping {
+  animation: tulipWishPop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes tulipWishPop {
+  0% {
+    transform: translateY(4px) scale(0.96);
+    opacity: 0.72;
+  }
+  60% {
+    transform: translateY(-2px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.bouquet-wrap-back,
+.bouquet-lower-stems,
+.bouquet-stems-layer,
+.bouquet-leaf,
+.accent-bloom,
+.bouquet-wrap-front {
+  pointer-events: none;
 }
 
 .bouquet-action-buttons {

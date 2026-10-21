@@ -343,6 +343,10 @@ export class BirthdayAppController {
   renderFlowerBouquet(config) {
     const wishEl = this.doc.getElementById('flower-blessing-wish');
     if (wishEl) {
+      if (this._activeTulipWish) {
+        wishEl.textContent = this.localizeRecipientText(this._activeTulipWish, config);
+        return;
+      }
       const poeticCaption =
         'Mỗi đóa hoa Tulip bung nở là một lời chúc gửi đến Diểm Phúc — mong Emm luôn dịu dàng, tỏa sáng và ngập tràn niềm vui ngày 20/10.';
       wishEl.textContent = this.localizeRecipientText(poeticCaption, config);
@@ -823,6 +827,10 @@ export class BirthdayAppController {
     if (bouquetSvg) {
       bouquetSvg.addEventListener('click', () => {
         this.triggerBouquetBloom(false);
+        if (typeof this.showTulipWishByIndex === 'function') {
+          this._tulipWishCursor = ((this._tulipWishCursor ?? -1) + 1) % 11;
+          this.showTulipWishByIndex(this._tulipWishCursor);
+        }
       });
       if (typeof IntersectionObserver === 'function') {
         const bouquetSection = this.doc.getElementById('flower-bouquet') || bouquetSvg;
@@ -1776,6 +1784,22 @@ export class BirthdayAppController {
       '✦ Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
     ];
 
+    this.showTulipWishByIndex = (idx) => {
+      const wishText = wishes[idx % wishes.length];
+      this._activeTulipWish = wishText;
+      this._tulipWishCursor = idx % wishes.length;
+      const captionEl = this.doc.getElementById('flower-blessing-wish');
+      if (captionEl) {
+        captionEl.textContent = wishText;
+        if (captionEl.classList) {
+          captionEl.classList.add('is-tulip-wish-active');
+          captionEl.classList.remove('is-wish-popping');
+          if (typeof captionEl.offsetWidth === 'number') void captionEl.offsetWidth;
+          captionEl.classList.add('is-wish-popping');
+        }
+      }
+    };
+
     nodes.forEach((node, idx) => {
       if (node.style) node.style.cursor = 'pointer';
       node.addEventListener('click', (e) => {
@@ -1791,11 +1815,7 @@ export class BirthdayAppController {
         if (typeof this.particles.triggerFlowerShower === 'function') {
           this.particles.triggerFlowerShower(16);
         }
-        const wishText = wishes[idx % wishes.length];
-        const captionEl = this.doc.getElementById('flower-blessing-wish');
-        if (captionEl) {
-          captionEl.textContent = wishText;
-        }
+        this.showTulipWishByIndex(idx);
       });
     });
   }
