@@ -1090,7 +1090,7 @@ const MP3_TRACKS = [
   },
   {
     key: 'nhac_iu_doi',
-    title: 'Nhạc iu đời',
+    title: 'Chờ anh chút thôi',
     src: './assets/audio/nhac-iu-doi.mp3'
   }
 ];

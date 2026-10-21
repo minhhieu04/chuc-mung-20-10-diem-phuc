@@ -672,8 +672,8 @@ test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambi
   audio.startMusic();
   assert.equal(played, true, 'AudioElement should play when startMusic is invoked');
   const nextMp3 = audio.nextMp3Track();
-  assert.equal(nextMp3.title, 'Nhạc iu đời');
-  assert.equal(audio.currentSongTitle, 'Nhạc iu đời');
+  assert.equal(nextMp3.title, 'Chờ anh chút thôi');
+  assert.equal(audio.currentSongTitle, 'Chờ anh chút thôi');
   const backMp3 = audio.nextMp3Track();
   assert.equal(backMp3.title, 'Emm là đóa hoa đẹp nhấttt');
   audio.stopMusic();
