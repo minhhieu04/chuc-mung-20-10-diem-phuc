@@ -178,6 +178,10 @@ button,
   z-index: 1;
 }
 
+#romantic-canvas.is-celebrating-foreground {
+  z-index: 25;
+}
+
 /* Main Content Wrapper above Canvas */
 .page-shell {
   position: relative;
@@ -3128,35 +3132,13 @@ button,
   color: var(--text-secondary);
 }
 
-.live-toast {
-  position: fixed;
-  top: 84px;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  transform: translateX(-50%);
-  z-index: 140;
-  width: max-content;
-  max-width: min(92vw, 540px);
-  padding: 11px 22px;
-  border-radius: 999px;
-  background: rgba(18, 9, 30, 0.96);
-  border: 1.5px solid var(--accent-gold);
-  color: #FFF6F9;
-  font-size: 0.88rem;
-  font-weight: 600;
-  text-align: center;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(246, 189, 96, 0.22);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-
-[data-theme="sakura"] .live-toast {
-  background: rgba(255, 248, 251, 0.98);
-  border-color: rgba(184, 20, 77, 0.42);
-  color: #240D1B;
-  box-shadow: 0 14px 36px rgba(136, 19, 55, 0.18);
+.live-toast,
+[data-theme="sakura"] .live-toast,
+.live-toast.is-visible {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 /* ==========================================================================
@@ -3613,6 +3595,18 @@ button,
   .letter-signature {
     font-size: 1.42rem;
   }
+  .letter-footer-actions {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .btn-celebrate-letter,
+  .btn-fold-letter {
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.86rem;
+    padding: 10px 16px;
+  }
 
   /* Footer & Toast Mobile Optimization */
   .site-footer {
@@ -3625,16 +3619,7 @@ button,
     font-size: 0.84rem;
   }
   .live-toast {
-    top: 72px;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    transform: translateX(-50%);
-    width: max-content;
-    max-width: calc(100vw - 28px);
-    text-align: center;
-    font-size: 0.82rem;
-    padding: 9px 16px;
+    display: none !important;
   }
 }
 

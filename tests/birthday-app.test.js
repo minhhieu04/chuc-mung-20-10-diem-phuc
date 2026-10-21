@@ -32,7 +32,8 @@ import {
 } from '../src/audio.js';
 import {
   RomanticParticleEngine,
-  LANTERN_WISH_POOL
+  LANTERN_WISH_POOL,
+  CELEBRATION_LANTERN_WISHES
 } from '../src/particles.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -583,10 +584,11 @@ test('8. BirthdayAppController renders full-text continuous sky lanterns without
   assert.ok(poeticWish.includes('Diểm Phúc'), 'Poetic caption should mention Diểm Phúc');
   assert.ok(poeticWish.includes('Emm'), 'Poetic caption should also mention Emm');
 
-  // Verify clicking #btn-replay-bloom replays the bouquet bloom animation and triggers toast
+  // Verify clicking #btn-replay-bloom replays the bouquet bloom animation without showing toast notifications
   elementsById.get('btn-replay-bloom').trigger('click');
   assert.equal(elementsById.get('interactive-bouquet-svg').classList.contains('is-blooming'), true);
-  assert.ok(elementsById.get('live-toast').textContent.includes('Tulip'));
+  assert.equal(elementsById.get('live-toast').textContent, '');
+  assert.equal(elementsById.get('live-toast').classList.contains('is-visible'), false);
 
   // Verify clicking #btn-switch-melody switches to the next cheerful track and starts playing
   elementsById.get('btn-switch-melody').trigger('click');
@@ -1025,9 +1027,10 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.equal(elementsById.get('envelope-3d-scene').classList.contains('is-extracted'), true);
   assert.equal(elementsById.get('letter-parchment').classList.contains('is-open'), true);
 
-  // Click celebrate letter button -> triggers toast & celebration
+  // Click celebrate letter button -> launches multi-lantern wave without showing toast notification
   elementsById.get('btn-letter-celebrate').trigger('click');
-  assert.ok(elementsById.get('live-toast').textContent.includes('Diểm Phúc'));
+  assert.equal(elementsById.get('live-toast').textContent, '');
+  assert.equal(elementsById.get('live-toast').classList.contains('is-visible'), false);
 
   // Click close envelope button -> folds letter back inside with multi-stage tuck-and-seal animation
   elementsById.get('btn-close-envelope').trigger('click');
@@ -1406,5 +1409,100 @@ test('16. Gift Curtain Title Single-Line Name, Natural Subtitle, Gift Box Unwrap
     'All characters must be immediately visible in reducedMotion mode'
   );
 });
+
+test('17. Toast suppression across all interactions & Mobile-optimized multi-lantern wave on "Đón Nhận Lời Chúc 20/10"', () => {
+  const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
+  const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
+
+  // 1. Verify #live-toast is permanently hidden in HTML and CSS
+  assert.ok(htmlContent.includes('id="live-toast"'), '#live-toast element exists in DOM');
+  assert.ok(
+    /id="live-toast"[\s\S]*?hidden/.test(htmlContent),
+    '#live-toast must have hidden attribute in index.html'
+  );
+  assert.ok(
+    cssContent.includes('display: none !important;') &&
+      cssContent.includes('#romantic-canvas.is-celebrating-foreground'),
+    'styles.css must hide .live-toast and elevate #romantic-canvas.is-celebrating-foreground'
+  );
+
+  // 2. Verify CELEBRATION_LANTERN_WISHES has >= 8 distinct wishes and launchLanternWave spawns diverse mobile-safe lanterns
+  assert.ok(Array.isArray(CELEBRATION_LANTERN_WISHES));
+  assert.ok(CELEBRATION_LANTERN_WISHES.length >= 8);
+  assert.equal(
+    new Set(CELEBRATION_LANTERN_WISHES).size,
+    CELEBRATION_LANTERN_WISHES.length,
+    'All celebration lantern wishes must be distinct'
+  );
+
+  const classes = new Set();
+  const drawnRects = [];
+  const mockMobileCanvas = {
+    width: 375,
+    height: 667,
+    classList: {
+      add: (c) => classes.add(c),
+      remove: (c) => classes.delete(c),
+      toggle: (c, force) => {
+        if (force) classes.add(c);
+        else classes.delete(c);
+      },
+      contains: (c) => classes.has(c)
+    },
+    getContext: () => ({
+      setTransform: () => {},
+      clearRect: () => {},
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      closePath: () => {},
+      arc: () => {},
+      fill: () => {},
+      stroke: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      bezierCurveTo: () => {},
+      quadraticCurveTo: () => {},
+      translate: () => {},
+      rotate: () => {},
+      scale: () => {},
+      fillRect: () => {},
+      roundRect: (rx, ry, w, h) => {
+        drawnRects.push({ rx, ry, w, h });
+      },
+      fillText: () => {},
+      measureText: (txt) => ({ width: String(txt).length * 5.2 }),
+      createLinearGradient: () => ({ addColorStop: () => {} }),
+      createRadialGradient: () => ({ addColorStop: () => {} })
+    })
+  };
+
+  const particles = new RomanticParticleEngine(mockMobileCanvas);
+  particles.width = 375;
+  particles.height = 667;
+
+  const waveCount = particles.launchLanternWave();
+  assert.equal(waveCount, 6, 'launchLanternWave must schedule 6 lanterns per celebration wave');
+  const interactiveLanterns = particles.skyLanterns.filter((l) => !l.isAmbient);
+  assert.ok(interactiveLanterns.length >= 2, 'Immediate wave lanterns must spawn synchronously');
+  assert.notEqual(
+    interactiveLanterns[0].label,
+    interactiveLanterns[1].label,
+    'Immediate lanterns in wave must carry different wishes'
+  );
+  assert.equal(
+    mockMobileCanvas.classList.contains('is-celebrating-foreground'),
+    true,
+    'Canvas must enter foreground mode while celebration lanterns rise'
+  );
+
+  // Test edge clamping on narrow mobile screen (375px) when lantern is near left/right edge
+  particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ!', '', { xRatio: 0.05, yRatio: 0.8 });
+  particles.spawnCanvasLantern('Chúc Emm mãi tươi tắn như hoa Tulip', '', { xRatio: 0.95, yRatio: 0.8 });
+  particles.draw();
+  assert.ok(drawnRects.length >= 4, 'Should draw wish ribbon pills for all interactive lanterns');
+  particles.destroy();
+});
+
 
 

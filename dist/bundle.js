@@ -1652,6 +1652,18 @@ const LANTERN_WISH_POOL = [
   'Hạnh phúc đong đầy',
   'Yêu thương trọn vẹn'
 ];
+const CELEBRATION_LANTERN_WISHES = [
+  'Chúc Diểm Phúc 20/10 luôn rạng rỡ!',
+  'Chúc Emm mãi tươi tắn như hoa Tulip',
+  'Nụ cười tỏa nắng, bình yên mỗi ngày',
+  'Thanh xuân rực rỡ & ngập tràn niềm vui',
+  'Mọi điều dịu dàng nhất dành tặng Emm',
+  'Chúc Emm luôn yêu đời & tỏa sáng',
+  'Vạn sự như ý, ngọt ngào & an nhiên',
+  'Hạnh phúc đong đầy nhé Diểm Phúc!',
+  'Luôn được yêu thương & trân trọng',
+  '20/10 trọn vẹn niềm vui nhé Emm!'
+];
 class RomanticParticleEngine {
   /**
    * @param {HTMLCanvasElement | null} canvas
@@ -2079,25 +2091,54 @@ class RomanticParticleEngine {
    * @param {string} [label]
    * @param {string} [author]
    */
-  spawnCanvasLantern(label = '', author = '') {
+  syncForegroundCanvasState() {
+    if (!this.canvas || !this.canvas.classList) return;
+    const hasInteractiveLanterns = this.skyLanterns.some((l) => !l.isAmbient);
+    if (typeof this.canvas.classList.toggle === 'function') {
+      this.canvas.classList.toggle('is-celebrating-foreground', hasInteractiveLanterns);
+    } else if (hasInteractiveLanterns && typeof this.canvas.classList.add === 'function') {
+      this.canvas.classList.add('is-celebrating-foreground');
+    } else if (!hasInteractiveLanterns && typeof this.canvas.classList.remove === 'function') {
+      this.canvas.classList.remove('is-celebrating-foreground');
+    }
+  }
+
+  spawnCanvasLantern(label = '', author = '', options = {}) {
     if (this.reducedMotion) return null;
-    const finalLabel = label || LANTERN_WISH_POOL[Math.floor(Math.random() * LANTERN_WISH_POOL.length)];
+    const finalLabel =
+      label ||
+      CELEBRATION_LANTERN_WISHES[
+        Math.floor(Math.random() * CELEBRATION_LANTERN_WISHES.length)
+      ];
+    const isMobile = this.width <= 600;
+    const xRatio =
+      typeof options.xRatio === 'number'
+        ? options.xRatio
+        : isMobile
+          ? 0.22 + Math.random() * 0.56
+          : 0.14 + Math.random() * 0.72;
+    const yRatio =
+      typeof options.yRatio === 'number'
+        ? options.yRatio
+        : 0.72 + Math.random() * 0.22;
     const lantern = {
-      x: this.width * (0.12 + Math.random() * 0.76),
-      y: this.height * (0.72 + Math.random() * 0.24),
-      vx: (Math.random() - 0.5) * 0.32,
-      vy: -(Math.random() * 0.85 + 0.72),
-      size: Math.random() * 5 + 16,
+      x: this.width * xRatio,
+      y: this.height * yRatio,
+      vx: (Math.random() - 0.5) * (isMobile ? 0.22 : 0.32),
+      vy: -(Math.random() * 0.72 + (isMobile ? 0.74 : 0.78)),
+      size: isMobile ? Math.random() * 4 + 15.5 : Math.random() * 5 + 16,
       swayPhase: Math.random() * Math.PI * 2,
       flickerPhase: Math.random() * Math.PI * 2,
-      alpha: 0.62,
+      alpha: typeof options.alpha === 'number' ? options.alpha : 0.68,
       label: String(finalLabel),
-      author: author ? String(author) : ''
+      author: author ? String(author) : '',
+      isCelebration: Boolean(options.isCelebration)
     };
     this.skyLanterns.push(lantern);
-    if (this.skyLanterns.length > 28) {
+    if (this.skyLanterns.length > 34) {
       this.skyLanterns.shift();
     }
+    this.syncForegroundCanvasState();
     return lantern;
   }
 
@@ -2123,29 +2164,69 @@ class RomanticParticleEngine {
       author: ''
     };
     this.skyLanterns.push(lantern);
-    if (this.skyLanterns.length > 32) {
+    if (this.skyLanterns.length > 34) {
       this.skyLanterns.shift();
     }
+    this.syncForegroundCanvasState();
     return lantern;
   }
 
   /**
-   * Releases a wave of multiple sky lanterns across the sky.
-   * @param {Array<{ text?: string, author?: string }>} [wishes]
+   * Releases a lively wave of multiple sky lanterns with diverse 20/10 wishes across the screen.
+   * Optimized for mobile viewports with distributed horizontal lanes so labels never overlap or clip.
+   * @param {Array<string | { text?: string, author?: string }>} [wishes]
    */
   launchLanternWave(wishes = []) {
     if (this.reducedMotion) return 0;
-    const count = 5;
+    const count = 6;
+    const isMobile = this.width <= 600;
+    const laneRatios = isMobile
+      ? [0.5, 0.27, 0.73, 0.35, 0.65, 0.48]
+      : [0.5, 0.22, 0.78, 0.34, 0.66, 0.48];
+    const startYRatios = [0.78, 0.89, 0.85, 0.91, 0.87, 0.92];
+
+    if (typeof this._celebrationWishCursor !== 'number') {
+      this._celebrationWishCursor = 0;
+    }
+
+    const chosenLabels = [];
     for (let i = 0; i < count; i++) {
-      const w = wishes[i % Math.max(1, wishes.length)] || {};
-      const tid = setTimeout(() => {
-        this.spawnCanvasLantern(
-          w.text || 'Chúc Diểm Phúc 20/10 hạnh phúc!',
-          ''
-        );
-      }, i * 220);
-      if (Array.isArray(this._scheduledTimeouts)) {
-        this._scheduledTimeouts.push(tid);
+      let text = '';
+      if (Array.isArray(wishes) && wishes.length > 0 && i < wishes.length) {
+        const entry = wishes[i];
+        text = typeof entry === 'string' ? entry : entry && entry.text ? entry.text : '';
+      }
+      if (!text) {
+        text =
+          CELEBRATION_LANTERN_WISHES[
+            this._celebrationWishCursor % CELEBRATION_LANTERN_WISHES.length
+          ];
+        this._celebrationWishCursor =
+          (this._celebrationWishCursor + 1) % CELEBRATION_LANTERN_WISHES.length;
+      }
+      chosenLabels.push(text);
+    }
+
+    for (let i = 0; i < count; i++) {
+      const wishText = chosenLabels[i];
+      const spawnOpts = {
+        xRatio: laneRatios[i % laneRatios.length],
+        yRatio: startYRatios[i % startYRatios.length],
+        alpha: 0.86,
+        isCelebration: true
+      };
+      if (i < 2) {
+        this.spawnCanvasLantern(wishText, '', spawnOpts);
+      } else {
+        const tid = setTimeout(() => {
+          this.spawnCanvasLantern(wishText, '', spawnOpts);
+        }, (i - 1) * 260);
+        if (tid && typeof tid.unref === 'function') {
+          tid.unref();
+        }
+        if (Array.isArray(this._scheduledTimeouts)) {
+          this._scheduledTimeouts.push(tid);
+        }
       }
     }
     return count;
@@ -2237,6 +2318,7 @@ class RomanticParticleEngine {
           l._bodyGrad = null;
         } else {
           this.skyLanterns.splice(i, 1);
+          this.syncForegroundCanvasState();
         }
       }
     }
@@ -2634,27 +2716,37 @@ class RomanticParticleEngine {
       // Wish label text beneath user-spawned lanterns inside a translucent glowing ribbon badge
       if (l.label && !l.isAmbient && typeof ctx.fillText === 'function') {
         const textStr = String(l.label);
-        ctx.font = '600 10.5px "Plus Jakarta Sans", sans-serif';
-        if (l._cachedLabel !== textStr || typeof l._cachedWidth !== 'number') {
+        const isMobile = this.width <= 480;
+        ctx.font = isMobile
+          ? '600 10px "Plus Jakarta Sans", sans-serif'
+          : '600 10.5px "Plus Jakarta Sans", sans-serif';
+        if (l._cachedLabel !== textStr || l._cachedMobile !== isMobile || typeof l._cachedWidth !== 'number') {
           l._cachedLabel = textStr;
-          l._cachedWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * 6;
+          l._cachedMobile = isMobile;
+          l._cachedWidth = ctx.measureText ? ctx.measureText(textStr).width : textStr.length * (isMobile ? 5.4 : 6);
         }
         const textWidth = l._cachedWidth;
         const iconSize = 8;
-        const padX = 7;
+        const padX = isMobile ? 6.5 : 7.5;
         const badgeW = textWidth + padX * 2 + iconSize + 3;
-        const badgeH = 17;
+        const badgeH = isMobile ? 17 : 18;
         const badgeY = l.size * 0.88;
 
+        // Clamp horizontal badge position so it never clips off left/right screen edges on mobile
+        const safeMargin = 10;
+        const idealLeft = l.x - badgeW / 2;
+        const maxLeft = Math.max(safeMargin, this.width - safeMargin - badgeW);
+        const clampedLeft = Math.max(safeMargin, Math.min(maxLeft, idealLeft));
+        const rx = clampedLeft - l.x;
+        const ry = badgeY;
+
         // Ribbon tag pill
-        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.90)' : 'rgba(25, 14, 38, 0.70)';
-        ctx.strokeStyle = 'rgba(246, 189, 96, 0.55)';
+        ctx.fillStyle = this.theme === 'sakura' ? 'rgba(255, 240, 245, 0.94)' : 'rgba(22, 11, 36, 0.86)';
+        ctx.strokeStyle = this.theme === 'sakura' ? 'rgba(225, 29, 72, 0.45)' : 'rgba(246, 189, 96, 0.72)';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        const rx = -badgeW / 2;
-        const ry = badgeY;
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(rx, ry, badgeW, badgeH, 5);
+          ctx.roundRect(rx, ry, badgeW, badgeH, 6);
         } else if (typeof ctx.rect === 'function') {
           ctx.rect(rx, ry, badgeW, badgeH);
         }
@@ -3326,7 +3418,6 @@ class BirthdayAppController {
       this.particles.triggerCelebrationBurst();
     }
     this.renderAll();
-    this.showToast('✦ Phong thư đã mở! Ấn hoặc kéo tờ giấy thư lên để đọc nhé!');
   }
 
   /**
@@ -3379,7 +3470,6 @@ class BirthdayAppController {
     if (typeof this.particles.triggerFlowerShower === 'function') {
       this.particles.triggerFlowerShower(44);
     }
-    this.showToast('✦ Đã mở lá thư chúc 20/10 gửi tặng Diểm Phúc!');
   }
 
   /**
@@ -3445,7 +3535,6 @@ class BirthdayAppController {
     if (typeof this.particles.triggerCelebrationBurst === 'function') {
       this.particles.triggerCelebrationBurst();
     }
-    this.showToast('✦ Đã gấp thư & niêm phong lại vào phong bì!');
   }
 
   /**
@@ -3525,7 +3614,6 @@ class BirthdayAppController {
       } else {
         this.audio.playSparkleChime();
       }
-      this.showToast('✦ Bó hoa Tulip 20/10 đang bung nở rực rỡ!');
     }
   }
 
@@ -3596,7 +3684,6 @@ class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         } else {
           const nextMelody = this.audio.melodyKey === 'birthday' ? 'starlight' : 'birthday';
           this.audio.switchMelody(nextMelody);
@@ -3780,10 +3867,11 @@ class BirthdayAppController {
         if (typeof this.particles.triggerFlowerShower === 'function') {
           this.particles.triggerFlowerShower(56);
         }
-        if (typeof this.particles.spawnCanvasLantern === 'function') {
-          this.particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ & hạnh phúc!', '');
+        if (typeof this.particles.launchLanternWave === 'function') {
+          this.particles.launchLanternWave();
+        } else if (typeof this.particles.spawnCanvasLantern === 'function') {
+          this.particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ!', '');
         }
-        this.showToast('✦ Gửi ngàn điều tốt đẹp và nụ cười rạng rỡ nhất đến Diểm Phúc!');
       });
     }
 
@@ -3847,7 +3935,6 @@ class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         }
         this.renderAll();
       });
@@ -4564,21 +4651,8 @@ class BirthdayAppController {
     const bouquetSvg = this.doc.getElementById('interactive-bouquet-svg');
     if (!bouquetSvg) return;
     const nodes = bouquetSvg.querySelectorAll ? bouquetSvg.querySelectorAll('.bouquet-flower-node') : [];
-    const wishes = [
-      '✦ Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
-      '✦ Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
-      '✦ Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
-      '✦ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
-      '✦ Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
-      '✦ Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
-      '✦ Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
-      '✦ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
-      '✦ Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
-      '✦ Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
-      '✦ Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
-    ];
 
-    nodes.forEach((node, idx) => {
+    nodes.forEach((node) => {
       if (node.style) node.style.cursor = 'pointer';
       node.addEventListener('click', (e) => {
         if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
@@ -4593,12 +4667,6 @@ class BirthdayAppController {
         if (typeof this.particles.triggerFlowerShower === 'function') {
           this.particles.triggerFlowerShower(16);
         }
-        const wishText = wishes[idx % wishes.length];
-        const captionEl = this.doc.getElementById('flower-blessing-wish');
-        if (captionEl) {
-          captionEl.textContent = wishText;
-        }
-        this.showToast(wishText);
       });
     });
   }
@@ -4620,7 +4688,6 @@ class BirthdayAppController {
           const y = rect ? rect.top : 400;
           this.particles.triggerCelebrationBurst(x, y, 18);
         }
-        this.showToast(`✦ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
       });
     });
 
@@ -4631,10 +4698,7 @@ class BirthdayAppController {
       wishForm.addEventListener('submit', (e) => {
         if (e && typeof e.preventDefault === 'function') e.preventDefault();
         const text = wishInput && wishInput.value ? wishInput.value.trim() : '';
-        if (!text) {
-          this.showToast('Vui lòng nhập lời ước nguyện trước khi thả đèn nhé!');
-          return;
-        }
+        if (!text) return;
         if (typeof this.particles.spawnCanvasLantern === 'function') {
           this.particles.spawnCanvasLantern(text, '');
         }
@@ -4648,7 +4712,6 @@ class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 28);
         }
         if (wishInput) wishInput.value = '';
-        this.showToast(`✦ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
       });
     }
 
@@ -4671,7 +4734,6 @@ class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
-        this.showToast(`✦ Thả hoa đăng: "${wishText}"`);
       });
     }
   }
@@ -4695,8 +4757,6 @@ class BirthdayAppController {
           const y = rect ? rect.top + rect.height / 2 : 300;
           this.particles.triggerCelebrationBurst(x, y, 16);
         }
-        const title = card.querySelector ? card.querySelector('.reason-title')?.textContent : '';
-        this.showToast(`✦ Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
       });
     });
   }
@@ -4785,19 +4845,16 @@ class BirthdayAppController {
     }, { passive: true });
   }
 
-  showToast(message) {
+  showToast() {
     const toast = this.doc.getElementById('live-toast');
     if (!toast) return;
-    toast.textContent = message;
-    toast.style.opacity = '1';
-    if (toast.classList) toast.classList.add('is-visible');
-    clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => {
+    toast.textContent = '';
+    if (toast.style) {
       toast.style.opacity = '0';
-      if (toast.classList) toast.classList.remove('is-visible');
-    }, 2800);
-    if (this.toastTimer && typeof this.toastTimer.unref === 'function') {
-      this.toastTimer.unref();
+      toast.style.display = 'none';
+    }
+    if (toast.classList && typeof toast.classList.remove === 'function') {
+      toast.classList.remove('is-visible');
     }
   }
 }

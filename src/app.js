@@ -529,7 +529,6 @@ export class BirthdayAppController {
       this.particles.triggerCelebrationBurst();
     }
     this.renderAll();
-    this.showToast('✦ Phong thư đã mở! Ấn hoặc kéo tờ giấy thư lên để đọc nhé!');
   }
 
   /**
@@ -582,7 +581,6 @@ export class BirthdayAppController {
     if (typeof this.particles.triggerFlowerShower === 'function') {
       this.particles.triggerFlowerShower(44);
     }
-    this.showToast('✦ Đã mở lá thư chúc 20/10 gửi tặng Diểm Phúc!');
   }
 
   /**
@@ -648,7 +646,6 @@ export class BirthdayAppController {
     if (typeof this.particles.triggerCelebrationBurst === 'function') {
       this.particles.triggerCelebrationBurst();
     }
-    this.showToast('✦ Đã gấp thư & niêm phong lại vào phong bì!');
   }
 
   /**
@@ -728,7 +725,6 @@ export class BirthdayAppController {
       } else {
         this.audio.playSparkleChime();
       }
-      this.showToast('✦ Bó hoa Tulip 20/10 đang bung nở rực rỡ!');
     }
   }
 
@@ -799,7 +795,6 @@ export class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         } else {
           const nextMelody = this.audio.melodyKey === 'birthday' ? 'starlight' : 'birthday';
           this.audio.switchMelody(nextMelody);
@@ -983,10 +978,11 @@ export class BirthdayAppController {
         if (typeof this.particles.triggerFlowerShower === 'function') {
           this.particles.triggerFlowerShower(56);
         }
-        if (typeof this.particles.spawnCanvasLantern === 'function') {
-          this.particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ & hạnh phúc!', '');
+        if (typeof this.particles.launchLanternWave === 'function') {
+          this.particles.launchLanternWave();
+        } else if (typeof this.particles.spawnCanvasLantern === 'function') {
+          this.particles.spawnCanvasLantern('Chúc Diểm Phúc 20/10 luôn rạng rỡ!', '');
         }
-        this.showToast('✦ Gửi ngàn điều tốt đẹp và nụ cười rạng rỡ nhất đến Diểm Phúc!');
       });
     }
 
@@ -1050,7 +1046,6 @@ export class BirthdayAppController {
           if (!this.audio.isPlaying) {
             this.audio.startMusic(track.key);
           }
-          this.showToast(`♪ Đã đổi sang giai điệu: ${track.title}`);
         }
         this.renderAll();
       });
@@ -1767,21 +1762,8 @@ export class BirthdayAppController {
     const bouquetSvg = this.doc.getElementById('interactive-bouquet-svg');
     if (!bouquetSvg) return;
     const nodes = bouquetSvg.querySelectorAll ? bouquetSvg.querySelectorAll('.bouquet-flower-node') : [];
-    const wishes = [
-      '✦ Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
-      '✦ Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
-      '✦ Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
-      '✦ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
-      '✦ Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
-      '✦ Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
-      '✦ Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
-      '✦ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
-      '✦ Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
-      '✦ Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
-      '✦ Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
-    ];
 
-    nodes.forEach((node, idx) => {
+    nodes.forEach((node) => {
       if (node.style) node.style.cursor = 'pointer';
       node.addEventListener('click', (e) => {
         if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
@@ -1796,12 +1778,6 @@ export class BirthdayAppController {
         if (typeof this.particles.triggerFlowerShower === 'function') {
           this.particles.triggerFlowerShower(16);
         }
-        const wishText = wishes[idx % wishes.length];
-        const captionEl = this.doc.getElementById('flower-blessing-wish');
-        if (captionEl) {
-          captionEl.textContent = wishText;
-        }
-        this.showToast(wishText);
       });
     });
   }
@@ -1823,7 +1799,6 @@ export class BirthdayAppController {
           const y = rect ? rect.top : 400;
           this.particles.triggerCelebrationBurst(x, y, 18);
         }
-        this.showToast(`✦ Hoa đăng ước nguyện đã bay lên: "${wish}"`);
       });
     });
 
@@ -1834,10 +1809,7 @@ export class BirthdayAppController {
       wishForm.addEventListener('submit', (e) => {
         if (e && typeof e.preventDefault === 'function') e.preventDefault();
         const text = wishInput && wishInput.value ? wishInput.value.trim() : '';
-        if (!text) {
-          this.showToast('Vui lòng nhập lời ước nguyện trước khi thả đèn nhé!');
-          return;
-        }
+        if (!text) return;
         if (typeof this.particles.spawnCanvasLantern === 'function') {
           this.particles.spawnCanvasLantern(text, '');
         }
@@ -1851,7 +1823,6 @@ export class BirthdayAppController {
           this.particles.triggerCelebrationBurst(x, y, 28);
         }
         if (wishInput) wishInput.value = '';
-        this.showToast(`✦ Hoa đăng mang lời chúc "${text}" đang bay lên trời đêm!`);
       });
     }
 
@@ -1874,7 +1845,6 @@ export class BirthdayAppController {
         if (typeof this.audio.playLanternGlowChime === 'function') {
           this.audio.playLanternGlowChime();
         }
-        this.showToast(`✦ Thả hoa đăng: "${wishText}"`);
       });
     }
   }
@@ -1898,8 +1868,6 @@ export class BirthdayAppController {
           const y = rect ? rect.top + rect.height / 2 : 300;
           this.particles.triggerCelebrationBurst(x, y, 16);
         }
-        const title = card.querySelector ? card.querySelector('.reason-title')?.textContent : '';
-        this.showToast(`✦ Nét đẹp của Emm: ${title || 'Nụ cười tỏa nắng'}`);
       });
     });
   }
@@ -1988,19 +1956,16 @@ export class BirthdayAppController {
     }, { passive: true });
   }
 
-  showToast(message) {
+  showToast() {
     const toast = this.doc.getElementById('live-toast');
     if (!toast) return;
-    toast.textContent = message;
-    toast.style.opacity = '1';
-    if (toast.classList) toast.classList.add('is-visible');
-    clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => {
+    toast.textContent = '';
+    if (toast.style) {
       toast.style.opacity = '0';
-      if (toast.classList) toast.classList.remove('is-visible');
-    }, 2800);
-    if (this.toastTimer && typeof this.toastTimer.unref === 'function') {
-      this.toastTimer.unref();
+      toast.style.display = 'none';
+    }
+    if (toast.classList && typeof toast.classList.remove === 'function') {
+      toast.classList.remove('is-visible');
     }
   }
 }
