@@ -1444,9 +1444,18 @@ export class BirthdayAppController {
       });
     }
 
-    // Direct click/tap on cards (stacked cards rotate, active card spawns hearts)
+    // Direct click/tap on cards (stacked cards rotate, active card spawns hearts, art toggle button switches view)
     this.cardItems.forEach((card, idx) => {
+      const artBtn = card.querySelector ? card.querySelector('.card-art-toggle-btn') : null;
+      if (artBtn && typeof artBtn.addEventListener === 'function') {
+        artBtn.addEventListener('click', (e) => {
+          if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+          this.toggleCardArtMode(card);
+        });
+      }
+
       card.addEventListener('click', (e) => {
+        if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
         if (isDragging || Date.now() - lastSwipeEndedAt < 260) return;
         const total = this.cardItems.length;
         const diff = (idx - this.activeCardIndex + total) % total;
@@ -1640,6 +1649,7 @@ export class BirthdayAppController {
     };
 
     deck.addEventListener('touchstart', (e) => {
+      if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
       if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY, 'touch');
     }, { passive: true });
 
@@ -1656,6 +1666,7 @@ export class BirthdayAppController {
     }, { passive: true });
 
     deck.addEventListener('pointerdown', (e) => {
+      if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
       if (e.pointerType === 'touch' || (typeof e.button === 'number' && e.button !== 0)) return;
       if (typeof deck.setPointerCapture === 'function' && typeof e.pointerId === 'number') {
         try {
@@ -1683,6 +1694,7 @@ export class BirthdayAppController {
     });
 
     deck.addEventListener('mousedown', (e) => {
+      if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
       if (isDragging || e.button !== 0) return;
       if (typeof e.preventDefault === 'function') e.preventDefault();
       onDragStart(e.clientX, e.clientY, 'mouse');
@@ -1698,6 +1710,38 @@ export class BirthdayAppController {
     }
 
     updateDeckView(0, true);
+  }
+
+  toggleCardArtMode(cardOrIndex, forceState) {
+    const card =
+      typeof cardOrIndex === 'number'
+        ? this.cardItems && this.cardItems[cardOrIndex]
+        : cardOrIndex;
+    if (!card || !card.classList) return false;
+    const nextArtMode =
+      forceState !== undefined
+        ? Boolean(forceState)
+        : !card.classList.contains('is-art-mode');
+    card.classList.toggle('is-art-mode', nextArtMode);
+    const btn = card.querySelector ? card.querySelector('.card-art-toggle-btn') : null;
+    if (btn) {
+      if (btn.classList) btn.classList.toggle('is-active', nextArtMode);
+      if (typeof btn.setAttribute === 'function') {
+        btn.setAttribute('aria-pressed', String(nextArtMode));
+        btn.setAttribute(
+          'aria-label',
+          nextArtMode ? 'Chuyển về xem ảnh gốc' : 'Chuyển sang xem tranh vẽ'
+        );
+      }
+      const labelEl = btn.querySelector ? btn.querySelector('.art-toggle-label') : null;
+      if (labelEl) {
+        labelEl.textContent = nextArtMode ? 'Xem ảnh gốc' : 'Xem tranh vẽ';
+      }
+    }
+    if (typeof this.audio.playSparkleChime === 'function') {
+      this.audio.playSparkleChime();
+    }
+    return nextArtMode;
   }
 
   spawnCardHeart(x, y) {

@@ -1282,30 +1282,97 @@ button,
   display: block;
 }
 
-.deck-ai-badge {
+.portrait-image-real {
+  position: relative;
+  z-index: 1;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.34s cubic-bezier(0.22, 1, 0.36, 1), transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portrait-image-art {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.34s cubic-bezier(0.22, 1, 0.36, 1), transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.photo-card-item.is-art-mode .portrait-image-real {
+  opacity: 0;
+  transform: scale(1.03);
+}
+
+.photo-card-item.is-art-mode .portrait-image-art {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card-art-toggle-btn {
   position: absolute;
   top: 14px;
   right: 14px;
-  z-index: 5;
+  z-index: 16;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
+  gap: 6px;
+  padding: 6px 13px;
   border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: #FFFBEB;
-  background: linear-gradient(135deg, rgba(225, 29, 72, 0.88), rgba(147, 51, 234, 0.85));
-  border: 1px solid rgba(253, 224, 71, 0.65);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  background: rgba(20, 10, 32, 0.76);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 230, 138, 0.62);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32), 0 0 12px rgba(244, 114, 150, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+
+.photo-card-item:not(.is-active) .card-art-toggle-btn {
+  opacity: 0;
   pointer-events: none;
+}
+
+.card-art-toggle-btn:hover {
+  transform: translateY(-1px) scale(1.04);
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.9), rgba(217, 119, 6, 0.85));
+  border-color: #FDE68A;
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.4), 0 0 14px rgba(253, 230, 138, 0.45);
+}
+
+.card-art-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.card-art-toggle-btn.is-active,
+.photo-card-item.is-art-mode .card-art-toggle-btn {
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.92), rgba(190, 24, 93, 0.9));
+  border-color: #FEF08A;
+  color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(225, 29, 72, 0.42), 0 0 14px rgba(253, 224, 71, 0.45);
+}
+
+.card-art-toggle-btn .art-toggle-icon {
+  color: #FDE68A;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.photo-card-item.is-art-mode .card-art-toggle-btn .art-toggle-icon {
+  transform: rotate(90deg) scale(1.1);
 }
 
 .portrait-overlay-bar {
   position: absolute;
   inset: auto 0 0 0;
+  z-index: 4;
   padding: var(--space-6) var(--space-5) var(--space-4);
   background: linear-gradient(to top, rgba(12, 7, 22, 0.92) 0%, rgba(12, 7, 22, 0.52) 65%, transparent 100%);
   color: #FFF6F9;
@@ -1313,6 +1380,19 @@ button,
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-3);
+  pointer-events: none;
+}
+
+.portrait-caption-group.caption-art {
+  display: none;
+}
+
+.photo-card-item.is-art-mode .portrait-caption-group.caption-real {
+  display: none;
+}
+
+.photo-card-item.is-art-mode .portrait-caption-group.caption-art {
+  display: block;
 }
 
 .portrait-caption-title {
@@ -3417,11 +3497,11 @@ button,
     margin-top: 8px;
     margin-bottom: 8px;
   }
-  .deck-ai-badge {
+  .card-art-toggle-btn {
     top: 12px;
     right: 12px;
-    font-size: 0.64rem;
-    padding: 4px 10px;
+    font-size: 0.7rem;
+    padding: 5px 11px;
   }
   .portrait-overlay-bar {
     padding: var(--space-5) var(--space-4) var(--space-3);

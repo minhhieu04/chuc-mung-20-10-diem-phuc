@@ -606,21 +606,26 @@ test('9. dist/bundle.js is generated, syntactically valid, and free of leftover 
 });
 
 test('10. Mot ngay buon - Kieu Chi MP3 audio, swipeable 3D photo card deck, ambient background sky lanterns & interactive micro-touches', () => {
-  // 1. Verify PHOTO_STACK_ITEMS structure (5 real photos + 4 AI sticker illustrations = 9 cards) & first photo is 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg
+  // 1. Verify PHOTO_STACK_ITEMS structure (5 main photos, each paired with its own artSrc illustration) & first photo is 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg
   assert.ok(Array.isArray(PHOTO_STACK_ITEMS), 'PHOTO_STACK_ITEMS must be an array');
-  assert.equal(PHOTO_STACK_ITEMS.length, 9, 'Should have 9 curated cards (5 real photos + 4 AI sticker illustrations)');
+  assert.equal(PHOTO_STACK_ITEMS.length, 5, 'Should have 5 main photo cards');
   const uniqueSrcs = new Set(PHOTO_STACK_ITEMS.map((item) => item.src));
-  assert.equal(uniqueSrcs.size, 9, 'All 9 card sources must be unique');
+  assert.equal(uniqueSrcs.size, 5, 'All 5 main photo sources must be unique');
+  const uniqueArtSrcs = new Set(PHOTO_STACK_ITEMS.map((item) => item.artSrc));
+  assert.equal(uniqueArtSrcs.size, 5, 'All 5 paired illustration sources must be unique');
   assert.ok(
     PHOTO_STACK_ITEMS[0].src.includes('7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'),
     'First photo must be 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg'
   );
 
-  // 2. Verify all local image assets exist and are non-empty
+  // 2. Verify all local image assets (both real photos and paired illustrations) exist and are non-empty
   for (const item of PHOTO_STACK_ITEMS) {
     const fullPath = path.resolve(PROJECT_ROOT, item.src);
     assert.ok(fs.existsSync(fullPath), `Photo file should exist on disk: ${fullPath}`);
     assert.ok(fs.statSync(fullPath).size > 5000, `Photo file should be non-empty: ${fullPath}`);
+    const artFullPath = path.resolve(PROJECT_ROOT, item.artSrc);
+    assert.ok(fs.existsSync(artFullPath), `Paired art file should exist on disk: ${artFullPath}`);
+    assert.ok(fs.statSync(artFullPath).size > 5000, `Paired art file should be non-empty: ${artFullPath}`);
   }
 
   // 3. Verify real MP3 audio assets exist and are over 1MB
@@ -1039,30 +1044,33 @@ test('14. Interactive 2-Step 3D Envelope & Stationery Sheet Extraction, Tulip Ho
   assert.equal(USER_PROVIDED_PORTRAIT_URL.includes('photos.fife'), false, 'Default avatar URL must be local for 0ms load on any device');
 });
 
-test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of #ai-stickers Section, and Symmetrical Bidirectional Swipe', async () => {
+test('15. Icon-Only Navbar Theme Button, 5 Main Photo Cards with Per-Card Art Toggle (Without "AI" Text), and Symmetrical Bidirectional Swipe', async () => {
   const { BirthdayAppController } = await import('../src/app.js');
   const htmlContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'index.html'), 'utf8');
   const cssContent = fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/styles.css'), 'utf8');
 
-  // 1. Verify all 4 AI Sticker files exist and are integrated directly inside #photo-card-deck
+  // 1. Verify all 5 illustration files exist and are paired inside #photo-card-deck
   const stickerFiles = [
     'assets/images/stickers/sticker-chibi-bouquet.jpg',
     'assets/images/stickers/sticker-3d-daisy.jpg',
+    'assets/images/stickers/sticker-anime-balcony.jpg',
     'assets/images/stickers/sticker-watercolor-grad.jpg',
     'assets/images/stickers/sticker-webtoon-glasses.jpg'
   ];
   for (const relPath of stickerFiles) {
     const absPath = path.resolve(PROJECT_ROOT, relPath);
-    assert.ok(fs.existsSync(absPath), `AI Sticker file ${relPath} must exist`);
-    assert.ok(fs.statSync(absPath).size > 10000, `AI Sticker file ${relPath} must be a valid image`);
+    assert.ok(fs.existsSync(absPath), `Illustration file ${relPath} must exist`);
+    assert.ok(fs.statSync(absPath).size > 10000, `Illustration file ${relPath} must be a valid image`);
     assert.ok(htmlContent.includes(relPath), `index.html must include ${relPath} inside #photo-card-deck`);
   }
 
-  // 2. Verify #ai-stickers section and #btn-deck-sticker-toggle are completely removed
+  // 2. Verify #ai-stickers section, .deck-ai-badge, and "AI" labels are completely removed
   assert.equal(htmlContent.includes('id="ai-stickers"'), false, '#ai-stickers section must be removed');
   assert.equal(htmlContent.includes('id="sticker-pack-grid"'), false, '#sticker-pack-grid must be removed');
   assert.equal(htmlContent.includes('id="btn-deck-sticker-toggle"'), false, '#btn-deck-sticker-toggle must be removed');
   assert.equal(htmlContent.includes('href="#ai-stickers"'), false, 'Navbar link to #ai-stickers must be removed');
+  assert.equal(htmlContent.includes('deck-ai-badge'), false, 'Old .deck-ai-badge with AI label must be removed');
+  assert.equal(/\bAI\b/.test(htmlContent), false, 'index.html must not display the word "AI" anywhere');
 
   // 3. Verify #btn-toggle-theme is an icon-only button (.icon-btn) with .sr-only label text
   assert.ok(htmlContent.includes('id="btn-toggle-theme"'), 'Navbar must include #btn-toggle-theme');
@@ -1070,16 +1078,20 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
   assert.ok(htmlContent.includes('<span class="btn-label-text sr-only">Giao Diện Sáng</span>'), '#btn-toggle-theme label must be visually hidden via .sr-only');
   assert.ok(cssContent.includes('.sr-only'), 'CSS must define .sr-only utility class');
 
-  // 4. Verify 9 cards in #photo-card-deck HTML (data-index="0" through data-index="8")
-  for (let i = 0; i < 9; i++) {
+  // 4. Verify exactly 5 cards in #photo-card-deck HTML (data-index="0" through data-index="4") and per-card .card-art-toggle-btn
+  for (let i = 0; i < 5; i++) {
     assert.ok(htmlContent.includes(`data-index="${i}"`), `#photo-card-deck must contain card with data-index="${i}"`);
   }
+  assert.equal(htmlContent.includes('data-index="5"'), false, '#photo-card-deck must only have 5 main cards (0-4)');
+  assert.ok(htmlContent.includes('class="card-art-toggle-btn"'), 'Each card must include .card-art-toggle-btn');
+  assert.ok(htmlContent.includes('<span class="art-toggle-label">Xem tranh vẽ</span>'), 'Toggle button must say "Xem tranh vẽ" without "AI"');
 
-  // 5. Verify Symmetrical Bidirectional Swipe (Right-to-Left AND Left-to-Right) in BirthdayAppController
+  // 5. Verify Symmetrical Bidirectional Swipe & Per-Card Art Toggle in BirthdayAppController
   const elementsById = new Map();
   const makeSimpleEl = (id) => {
     const classes = new Set();
     const listeners = new Map();
+    const attrs = new Map();
     const el = {
       id,
       offsetWidth: 320,
@@ -1097,8 +1109,8 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
         },
         contains: (c) => classes.has(c)
       },
-      setAttribute: () => {},
-      getAttribute: () => null,
+      setAttribute: (k, v) => attrs.set(k, String(v)),
+      getAttribute: (k) => (attrs.has(k) ? attrs.get(k) : null),
       addEventListener: (evt, fn) => {
         if (!listeners.has(evt)) listeners.set(evt, []);
         listeners.get(evt).push(fn);
@@ -1116,8 +1128,15 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
   };
 
   const deckEl = makeSimpleEl('photo-card-deck');
-  const cardEls = Array.from({ length: 9 }, (_, i) => {
+  const cardEls = Array.from({ length: 5 }, (_, i) => {
     const card = makeSimpleEl(`card-${i}`);
+    const labelSpan = makeSimpleEl(`art-label-${i}`);
+    labelSpan.textContent = 'Xem tranh vẽ';
+    const artBtn = makeSimpleEl(`art-btn-${i}`);
+    artBtn.querySelector = (sel) => (sel === '.art-toggle-label' ? labelSpan : null);
+    card.artBtn = artBtn;
+    card.labelSpan = labelSpan;
+    card.querySelector = (sel) => (sel === '.card-art-toggle-btn' ? artBtn : null);
     if (i === 0) card.classList.add('is-active');
     else if (i === 1) card.classList.add('is-stacked-1');
     else if (i === 2) card.classList.add('is-stacked-2');
@@ -1151,6 +1170,16 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
   controller.initCardSwipeDeck();
   assert.equal(controller.activeCardIndex, 0, 'Deck starts at index 0');
 
+  // Test per-card art toggle button on Card 0
+  assert.equal(cardEls[0].classList.contains('is-art-mode'), false);
+  cardEls[0].artBtn.trigger('click', { stopPropagation: () => {} });
+  assert.equal(cardEls[0].classList.contains('is-art-mode'), true, 'Clicking art toggle button switches card into is-art-mode');
+  assert.equal(cardEls[0].labelSpan.textContent, 'Xem ảnh gốc', 'Button label updates to "Xem ảnh gốc"');
+  assert.equal(cardEls[0].artBtn.getAttribute('aria-pressed'), 'true');
+  cardEls[0].artBtn.trigger('click', { stopPropagation: () => {} });
+  assert.equal(cardEls[0].classList.contains('is-art-mode'), false, 'Clicking art toggle button again returns to real photo');
+  assert.equal(cardEls[0].labelSpan.textContent, 'Xem tranh vẽ', 'Button label returns to "Xem tranh vẽ"');
+
   // Swipe Right-to-Left (deltaX = -90): should preview Card 1 during drag and advance to Card 1 on release
   deckEl.trigger('pointerdown', { clientX: 200, clientY: 200 });
   deckEl.trigger('pointermove', { clientX: 110, clientY: 202 });
@@ -1172,24 +1201,24 @@ test('15. Icon-Only Navbar Theme Button, 9-Card Photo & AI Art Deck, Removal of 
   assert.equal(cardEls[0].style.transform, '', 'Incoming active card inline transform must be cleared');
   assert.equal(cardEls[1].style.opacity, '0', 'Outgoing card animates out to opacity 0');
 
-  // Swipe Left-to-Right from index 0 (wraps around to index 8)
+  // Swipe Left-to-Right from index 0 (wraps around to index 4)
   deckEl.trigger('pointerdown', { clientX: 100, clientY: 200 });
   deckEl.trigger('pointermove', { clientX: 195, clientY: 200 });
-  assert.equal(cardEls[8].style.zIndex, '9', 'Incoming wrap-around card (index 8) must be previewed at z-index 9 during L-to-R drag from index 0');
-  assert.equal(cardEls[8].style.opacity, '1', 'Incoming L-to-R preview card must have opacity 1 so .is-stacked-1 never bleeds through');
+  assert.equal(cardEls[4].style.zIndex, '9', 'Incoming wrap-around card (index 4) must be previewed at z-index 9 during L-to-R drag from index 0');
+  assert.equal(cardEls[4].style.opacity, '1', 'Incoming L-to-R preview card must have opacity 1 so .is-stacked-1 never bleeds through');
   deckEl.trigger('pointerup', {});
-  assert.equal(controller.activeCardIndex, 8, 'Left-to-Right swipe from index 0 wraps smoothly to index 8');
-  assert.equal(cardEls[8].classList.contains('is-active'), true);
+  assert.equal(controller.activeCardIndex, 4, 'Left-to-Right swipe from index 0 wraps smoothly to index 4');
+  assert.equal(cardEls[4].classList.contains('is-active'), true);
 
   // Short cancelled drag (|deltaX| <= 36) snaps back and flushes cleanly on next drag
   deckEl.trigger('pointerdown', { clientX: 150, clientY: 200 });
   deckEl.trigger('pointermove', { clientX: 170, clientY: 200 });
   deckEl.trigger('pointerup', {});
-  assert.equal(controller.activeCardIndex, 8, 'Short drag (|deltaX| <= 36) does not change active card');
-  assert.equal(cardEls[8].style.transform, 'translate3d(0, 0, 0) rotate(0deg)', 'Cancelled drag snaps active card back to origin');
+  assert.equal(controller.activeCardIndex, 4, 'Short drag (|deltaX| <= 36) does not change active card');
+  assert.equal(cardEls[4].style.transform, 'translate3d(0, 0, 0) rotate(0deg)', 'Cancelled drag snaps active card back to origin');
   deckEl.trigger('pointerdown', { clientX: 150, clientY: 200 });
-  assert.equal(cardEls[8].style.transform, '', 'Next pointerdown flushes cancelled drag inline transform');
-  assert.equal(cardEls[8].style.zIndex, '', 'Next pointerdown flushes cancelled drag inline zIndex');
+  assert.equal(cardEls[4].style.transform, '', 'Next pointerdown flushes cancelled drag inline transform');
+  assert.equal(cardEls[4].style.zIndex, '', 'Next pointerdown flushes cancelled drag inline zIndex');
   deckEl.trigger('pointerup', {});
 
   // Verify dead initInteractiveStickers method is completely removed

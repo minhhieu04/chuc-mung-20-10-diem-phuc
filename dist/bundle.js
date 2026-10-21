@@ -86,77 +86,56 @@ const PHOTO_STACK_ITEMS = [
   {
     id: 'photo-1',
     src: './assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg',
+    artSrc: './assets/images/stickers/sticker-chibi-bouquet.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Diểm Phúc',
     caption: 'Nụ cười dịu dàng của Emm tỏa sáng ngày 20/10',
+    artTitle: 'Cô Nàng Ôm Hoa Giấy Hồng',
+    artCaption: 'Phiên bản Chibi Kawaii mắt long lanh ngọt ngào',
     tag: '✦ Nụ Cười Tỏa Nắng'
-  },
-  {
-    id: 'photo-ai-1',
-    src: './assets/images/stickers/sticker-chibi-bouquet.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Cô Nàng Ôm Hoa Giấy Hồng',
-    caption: 'Phiên bản Chibi Anime Kawaii mắt long lanh rạng rỡ ngày 20/10',
-    tag: '✦ Chibi Kawaii AI',
-    isAiArt: true
   },
   {
     id: 'photo-2',
     src: './assets/images/IMG_5937.JPG',
+    artSrc: './assets/images/stickers/sticker-3d-daisy.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
+    artTitle: 'Nàng Thơ Cúc Họa Mi',
+    artCaption: 'Tạo hình hoạt hình 3D trong trẻo và đáng yêu của Emm',
     tag: '✦ Rạng Ngời'
-  },
-  {
-    id: 'photo-ai-2',
-    src: './assets/images/stickers/sticker-3d-daisy.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Nàng Thơ Cúc Họa Mi',
-    caption: 'Tạo hình 3D Pixar & Pop Mart trong trẻo, đáng yêu của Emm',
-    tag: '✦ 3D Pixar AI',
-    isAiArt: true
   },
   {
     id: 'photo-3',
     src: './assets/images/IMG_2652.JPG',
+    artSrc: './assets/images/stickers/sticker-anime-balcony.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Trong Trẻo & Đáng Yêu',
     caption: 'Nét dịu dàng, trong sáng tựa như những đóa hoa Tulip sớm mai',
+    artTitle: 'Nắng Mai Trên Ban Công',
+    artCaption: 'Nét vẽ Anime trong trẻo giữa khung trời xanh dịu mát',
     tag: '✦ Dịu Dàng'
-  },
-  {
-    id: 'photo-ai-3',
-    src: './assets/images/stickers/sticker-watercolor-grad.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Tân Cử Nhân Rạng Rỡ',
-    caption: 'Tranh màu nước Storybook lưu giữ khoảnh khắc thanh xuân tươi đẹp',
-    tag: '✦ Storybook AI',
-    isAiArt: true
   },
   {
     id: 'photo-4',
     src: './assets/images/IMG_7101.JPG',
+    artSrc: './assets/images/stickers/sticker-watercolor-grad.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
+    artTitle: 'Tân Cử Nhân Rạng Rỡ',
+    artCaption: 'Tranh màu nước ấm áp lưu giữ khoảnh khắc thanh xuân tươi đẹp',
     tag: '✦ Tinh Khôi'
-  },
-  {
-    id: 'photo-ai-4',
-    src: './assets/images/stickers/sticker-webtoon-glasses.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Nét Trong Trẻo Webtoon',
-    caption: 'Phong cách Manhwa Hàn Quốc ngọt ngào và dịu dàng',
-    tag: '✦ Webtoon AI',
-    isAiArt: true
   },
   {
     id: 'photo-5',
     src: './assets/images/IMG_1660.jpg',
+    artSrc: './assets/images/stickers/sticker-webtoon-glasses.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Bình Yên & Tươi Vui',
     caption: 'Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc mỗi ngày',
+    artTitle: 'Nét Trong Trẻo Hàn Quốc',
+    artCaption: 'Phong cách tranh vẽ Manhwa ngọt ngào và cuốn hút',
     tag: '✦ Hạnh Phúc'
   }
 ];
@@ -4272,9 +4251,18 @@ class BirthdayAppController {
       });
     }
 
-    // Direct click/tap on cards (stacked cards rotate, active card spawns hearts)
+    // Direct click/tap on cards (stacked cards rotate, active card spawns hearts, art toggle button switches view)
     this.cardItems.forEach((card, idx) => {
+      const artBtn = card.querySelector ? card.querySelector('.card-art-toggle-btn') : null;
+      if (artBtn && typeof artBtn.addEventListener === 'function') {
+        artBtn.addEventListener('click', (e) => {
+          if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+          this.toggleCardArtMode(card);
+        });
+      }
+
       card.addEventListener('click', (e) => {
+        if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
         if (isDragging || Date.now() - lastSwipeEndedAt < 260) return;
         const total = this.cardItems.length;
         const diff = (idx - this.activeCardIndex + total) % total;
@@ -4468,6 +4456,7 @@ class BirthdayAppController {
     };
 
     deck.addEventListener('touchstart', (e) => {
+      if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
       if (e.touches && e.touches[0]) onDragStart(e.touches[0].clientX, e.touches[0].clientY, 'touch');
     }, { passive: true });
 
@@ -4484,6 +4473,7 @@ class BirthdayAppController {
     }, { passive: true });
 
     deck.addEventListener('pointerdown', (e) => {
+      if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
       if (e.pointerType === 'touch' || (typeof e.button === 'number' && e.button !== 0)) return;
       if (typeof deck.setPointerCapture === 'function' && typeof e.pointerId === 'number') {
         try {
@@ -4511,6 +4501,7 @@ class BirthdayAppController {
     });
 
     deck.addEventListener('mousedown', (e) => {
+      if (e && e.target && e.target.closest && e.target.closest('.card-art-toggle-btn')) return;
       if (isDragging || e.button !== 0) return;
       if (typeof e.preventDefault === 'function') e.preventDefault();
       onDragStart(e.clientX, e.clientY, 'mouse');
@@ -4526,6 +4517,38 @@ class BirthdayAppController {
     }
 
     updateDeckView(0, true);
+  }
+
+  toggleCardArtMode(cardOrIndex, forceState) {
+    const card =
+      typeof cardOrIndex === 'number'
+        ? this.cardItems && this.cardItems[cardOrIndex]
+        : cardOrIndex;
+    if (!card || !card.classList) return false;
+    const nextArtMode =
+      forceState !== undefined
+        ? Boolean(forceState)
+        : !card.classList.contains('is-art-mode');
+    card.classList.toggle('is-art-mode', nextArtMode);
+    const btn = card.querySelector ? card.querySelector('.card-art-toggle-btn') : null;
+    if (btn) {
+      if (btn.classList) btn.classList.toggle('is-active', nextArtMode);
+      if (typeof btn.setAttribute === 'function') {
+        btn.setAttribute('aria-pressed', String(nextArtMode));
+        btn.setAttribute(
+          'aria-label',
+          nextArtMode ? 'Chuyển về xem ảnh gốc' : 'Chuyển sang xem tranh vẽ'
+        );
+      }
+      const labelEl = btn.querySelector ? btn.querySelector('.art-toggle-label') : null;
+      if (labelEl) {
+        labelEl.textContent = nextArtMode ? 'Xem ảnh gốc' : 'Xem tranh vẽ';
+      }
+    }
+    if (typeof this.audio.playSparkleChime === 'function') {
+      this.audio.playSparkleChime();
+    }
+    return nextArtMode;
   }
 
   spawnCardHeart(x, y) {

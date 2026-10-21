@@ -30,7 +30,7 @@
   <link rel="shortcut icon" href="./favicon.ico" />
   <link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23F43F5E' d='M16 28.2C15.4 28.2 4.8 20.6 2.3 14.8c-2-4.6-.2-9.6 4-11.8 4.3-2.3 9.4-.5 10.7 2 1.3-2.5 6.4-4.3 10.7-2 4.2 2.2 6 7.2 4 11.8C27.2 20.6 16.6 28.2 16 28.2z'/%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="./assets/images/favicon-heart.svg" />
-  <link rel="stylesheet" href="./src/styles.css?v=23" />
+  <link rel="stylesheet" href="./src/styles.css?v=24" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Chuyển đến nội dung chính</a>
@@ -486,12 +486,12 @@
               </div>
             </div>
 
-            <!-- Pre-loaded 3D Hero Portrait Frame & Swipeable Photo Card Deck (5 Real Photos + 4 AI Art Cards) -->
+            <!-- Pre-loaded 3D Hero Portrait Frame & Swipeable Photo Card Deck (5 Main Photos with Art Toggle) -->
             <div class="hero-portrait-stage">
               <div class="ambient-photo-backdrop" aria-hidden="true"></div>
 
               <div id="hero-portrait-3d" class="portrait-card-3d">
-                <div id="photo-card-deck" class="photo-card-deck" aria-label="Bộ sưu tập ảnh Diểm Phúc vuốt đổi ảnh">
+                <div id="photo-card-deck" class="photo-card-deck" aria-label="Bộ sưu tập 5 ảnh Diểm Phúc vuốt đổi ảnh">
                   <!-- Card 1 (Active, Front): Photo 7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg -->
                   <div class="photo-card-item is-active" data-index="0">
                     <div class="portrait-image-wrap">
@@ -501,162 +501,191 @@
                         data-fallback-src="./assets/images/hero-portrait.jpg"
                         onerror="if(this.getAttribute('src')!==this.getAttribute('data-fallback-src')){this.setAttribute('data-failed-src',this.getAttribute('src')||'');this.src=this.getAttribute('data-fallback-src');}"
                         alt="Chân dung của Diểm Phúc"
-                        class="portrait-image"
+                        class="portrait-image portrait-image-real"
                       />
+                      <img
+                        src="./assets/images/stickers/sticker-chibi-bouquet.jpg"
+                        alt="Tranh vẽ Chibi Kawaii của Diểm Phúc ôm bó hoa"
+                        class="portrait-image portrait-image-art"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        class="card-art-toggle-btn"
+                        aria-pressed="false"
+                        aria-label="Chuyển sang xem tranh vẽ"
+                      >
+                        <svg class="art-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                        </svg>
+                        <span class="art-toggle-label">Xem tranh vẽ</span>
+                      </button>
                       <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-real">
                           <p class="portrait-caption-title" data-bind="recipientName">Diểm Phúc</p>
                           <p class="portrait-caption-sub" data-bind="heroPortraitCaption">
                             Nụ cười dịu dàng của Emm tỏa sáng ngày 20/10
                           </p>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Card 2: AI Chibi Anime Kawaii -->
-                  <div class="photo-card-item is-stacked-1" data-index="1">
-                    <div class="portrait-image-wrap">
-                      <img
-                        src="./assets/images/stickers/sticker-chibi-bouquet.jpg"
-                        alt="Phiên bản Chibi Anime Kawaii của Diểm Phúc ôm bó hoa"
-                        class="portrait-image"
-                        loading="lazy"
-                      />
-                      <span class="deck-ai-badge" aria-hidden="true">✦ Chibi Kawaii AI</span>
-                      <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-art">
                           <p class="portrait-caption-title">Cô Nàng Ôm Hoa Giấy Hồng</p>
-                          <p class="portrait-caption-sub">Phiên bản Chibi Anime Kawaii mắt long lanh ngọt ngào</p>
+                          <p class="portrait-caption-sub">Phiên bản Chibi Kawaii mắt long lanh ngọt ngào</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Card 3: IMG_5937.JPG -->
-                  <div class="photo-card-item is-stacked-2" data-index="2">
+                  <!-- Card 2: IMG_5937.JPG -->
+                  <div class="photo-card-item is-stacked-1" data-index="1">
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_5937.JPG"
                         alt="Nụ cười tỏa nắng của Diểm Phúc"
-                        class="portrait-image"
+                        class="portrait-image portrait-image-real"
                         loading="lazy"
                       />
+                      <img
+                        src="./assets/images/stickers/sticker-3d-daisy.jpg"
+                        alt="Tranh vẽ hoạt hình 3D của Diểm Phúc ôm bó cúc họa mi"
+                        class="portrait-image portrait-image-art"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        class="card-art-toggle-btn"
+                        aria-pressed="false"
+                        aria-label="Chuyển sang xem tranh vẽ"
+                      >
+                        <svg class="art-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                        </svg>
+                        <span class="art-toggle-label">Xem tranh vẽ</span>
+                      </button>
                       <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-real">
                           <p class="portrait-caption-title">Rạng Rỡ &amp; Duyên Dáng</p>
                           <p class="portrait-caption-sub">Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả ngày</p>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Card 4: AI 3D Pixar / Pop Mart -->
-                  <div class="photo-card-item is-stacked-hidden" data-index="3">
-                    <div class="portrait-image-wrap">
-                      <img
-                        src="./assets/images/stickers/sticker-3d-daisy.jpg"
-                        alt="Phiên bản 3D Pixar của Diểm Phúc ôm bó cúc họa mi"
-                        class="portrait-image"
-                        loading="lazy"
-                      />
-                      <span class="deck-ai-badge" aria-hidden="true">✦ 3D Pixar AI</span>
-                      <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-art">
                           <p class="portrait-caption-title">Nàng Thơ Cúc Họa Mi</p>
-                          <p class="portrait-caption-sub">Tạo hình 3D Pixar &amp; Pop Mart trong trẻo đáng yêu</p>
+                          <p class="portrait-caption-sub">Tạo hình hoạt hình 3D trong trẻo và đáng yêu</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Card 5: IMG_2652.JPG -->
-                  <div class="photo-card-item is-stacked-hidden" data-index="4">
+                  <!-- Card 3: IMG_2652.JPG -->
+                  <div class="photo-card-item is-stacked-2" data-index="2">
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_2652.JPG"
                         alt="Nét dịu dàng trong trẻo của Diểm Phúc"
-                        class="portrait-image"
+                        class="portrait-image portrait-image-real"
                         loading="lazy"
                       />
+                      <img
+                        src="./assets/images/stickers/sticker-anime-balcony.jpg"
+                        alt="Tranh vẽ Anime của Diểm Phúc trên ban công đầy nắng"
+                        class="portrait-image portrait-image-art"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        class="card-art-toggle-btn"
+                        aria-pressed="false"
+                        aria-label="Chuyển sang xem tranh vẽ"
+                      >
+                        <svg class="art-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                        </svg>
+                        <span class="art-toggle-label">Xem tranh vẽ</span>
+                      </button>
                       <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-real">
                           <p class="portrait-caption-title">Trong Trẻo &amp; Đáng Yêu</p>
                           <p class="portrait-caption-sub">Dịu dàng, trong sáng tựa như những đóa hoa Tulip sớm mai</p>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Card 6: AI Watercolor Storybook -->
-                  <div class="photo-card-item is-stacked-hidden" data-index="5">
-                    <div class="portrait-image-wrap">
-                      <img
-                        src="./assets/images/stickers/sticker-watercolor-grad.jpg"
-                        alt="Phiên bản Màu Nước Storybook của Diểm Phúc lễ tốt nghiệp"
-                        class="portrait-image"
-                        loading="lazy"
-                      />
-                      <span class="deck-ai-badge" aria-hidden="true">✦ Storybook AI</span>
-                      <div class="portrait-overlay-bar">
-                        <div>
-                          <p class="portrait-caption-title">Tân Cử Nhân Rạng Rỡ</p>
-                          <p class="portrait-caption-sub">Tranh màu nước Ghibli ấm áp lưu giữ khoảnh khắc thanh xuân</p>
+                        <div class="portrait-caption-group caption-art">
+                          <p class="portrait-caption-title">Nắng Mai Trên Ban Công</p>
+                          <p class="portrait-caption-sub">Nét vẽ Anime trong trẻo giữa khung trời xanh dịu mát</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Card 7: IMG_7101.JPG -->
-                  <div class="photo-card-item is-stacked-hidden" data-index="6">
+                  <!-- Card 4: IMG_7101.JPG -->
+                  <div class="photo-card-item is-stacked-hidden" data-index="3">
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_7101.JPG"
                         alt="Thanh xuân rực rỡ"
-                        class="portrait-image"
+                        class="portrait-image portrait-image-real"
                         loading="lazy"
                       />
+                      <img
+                        src="./assets/images/stickers/sticker-watercolor-grad.jpg"
+                        alt="Tranh màu nước của Diểm Phúc lễ tốt nghiệp"
+                        class="portrait-image portrait-image-art"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        class="card-art-toggle-btn"
+                        aria-pressed="false"
+                        aria-label="Chuyển sang xem tranh vẽ"
+                      >
+                        <svg class="art-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                        </svg>
+                        <span class="art-toggle-label">Xem tranh vẽ</span>
+                      </button>
                       <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-real">
                           <p class="portrait-caption-title">Thanh Xuân Tươi Thắm</p>
                           <p class="portrait-caption-sub">Mỗi khoảnh khắc của Emm đều mang nguồn năng lượng ấm áp</p>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Card 8: AI Korean Webtoon -->
-                  <div class="photo-card-item is-stacked-hidden" data-index="7">
-                    <div class="portrait-image-wrap">
-                      <img
-                        src="./assets/images/stickers/sticker-webtoon-glasses.jpg"
-                        alt="Phiên bản Webtoon Hàn Quốc của Diểm Phúc đeo kính tròn đáng yêu"
-                        class="portrait-image"
-                        loading="lazy"
-                      />
-                      <span class="deck-ai-badge" aria-hidden="true">✦ Webtoon AI</span>
-                      <div class="portrait-overlay-bar">
-                        <div>
-                          <p class="portrait-caption-title">Nét Trong Trẻo Webtoon</p>
-                          <p class="portrait-caption-sub">Phong cách Manhwa Hàn Quốc ngọt ngào và cuốn hút</p>
+                        <div class="portrait-caption-group caption-art">
+                          <p class="portrait-caption-title">Tân Cử Nhân Rạng Rỡ</p>
+                          <p class="portrait-caption-sub">Tranh màu nước ấm áp lưu giữ khoảnh khắc thanh xuân</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Card 9: IMG_1660.jpg -->
-                  <div class="photo-card-item is-stacked-hidden" data-index="8">
+                  <!-- Card 5: IMG_1660.jpg -->
+                  <div class="photo-card-item is-stacked-hidden" data-index="4">
                     <div class="portrait-image-wrap">
                       <img
                         src="./assets/images/IMG_1660.jpg"
                         alt="Bình yên & tươi vui"
-                        class="portrait-image"
+                        class="portrait-image portrait-image-real"
                         loading="lazy"
                       />
+                      <img
+                        src="./assets/images/stickers/sticker-webtoon-glasses.jpg"
+                        alt="Tranh vẽ Manhwa Hàn Quốc của Diểm Phúc đeo kính tròn đáng yêu"
+                        class="portrait-image portrait-image-art"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        class="card-art-toggle-btn"
+                        aria-pressed="false"
+                        aria-label="Chuyển sang xem tranh vẽ"
+                      >
+                        <svg class="art-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+                        </svg>
+                        <span class="art-toggle-label">Xem tranh vẽ</span>
+                      </button>
                       <div class="portrait-overlay-bar">
-                        <div>
+                        <div class="portrait-caption-group caption-real">
                           <p class="portrait-caption-title">Bình Yên &amp; Tươi Vui</p>
                           <p class="portrait-caption-sub">Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc</p>
+                        </div>
+                        <div class="portrait-caption-group caption-art">
+                          <p class="portrait-caption-title">Nét Trong Trẻo Hàn Quốc</p>
+                          <p class="portrait-caption-sub">Phong cách tranh vẽ Manhwa ngọt ngào và cuốn hút</p>
                         </div>
                       </div>
                     </div>
@@ -684,7 +713,7 @@
                 </div>
 
                 <p class="card-swipe-hint">
-                  ✦ <strong>Vuốt trái / phải</strong> để ngắm bộ ảnh kỷ niệm &amp; tranh vẽ AI của <span data-bind="recipientShortName">Emm</span> ✦
+                  ✦ <strong>Vuốt trái / phải</strong> để đổi ảnh • Chạm <strong>Xem tranh vẽ</strong> trên từng ảnh ✦
                 </p>
               </div>
             </div>
@@ -1767,6 +1796,6 @@
     aria-live="polite"
   ></div>
 
-  <script src="./dist/bundle.js?v=23" defer></script>
+  <script src="./dist/bundle.js?v=24" defer></script>
 </body>
 </html>

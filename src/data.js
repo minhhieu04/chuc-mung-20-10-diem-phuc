@@ -86,77 +86,56 @@ export const PHOTO_STACK_ITEMS = [
   {
     id: 'photo-1',
     src: './assets/images/7924A3EF-9FF8-4DCE-9295-230FC520A5E9_1_105_c.jpeg',
+    artSrc: './assets/images/stickers/sticker-chibi-bouquet.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Diểm Phúc',
     caption: 'Nụ cười dịu dàng của Emm tỏa sáng ngày 20/10',
+    artTitle: 'Cô Nàng Ôm Hoa Giấy Hồng',
+    artCaption: 'Phiên bản Chibi Kawaii mắt long lanh ngọt ngào',
     tag: '✦ Nụ Cười Tỏa Nắng'
-  },
-  {
-    id: 'photo-ai-1',
-    src: './assets/images/stickers/sticker-chibi-bouquet.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Cô Nàng Ôm Hoa Giấy Hồng',
-    caption: 'Phiên bản Chibi Anime Kawaii mắt long lanh rạng rỡ ngày 20/10',
-    tag: '✦ Chibi Kawaii AI',
-    isAiArt: true
   },
   {
     id: 'photo-2',
     src: './assets/images/IMG_5937.JPG',
+    artSrc: './assets/images/stickers/sticker-3d-daisy.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
+    artTitle: 'Nàng Thơ Cúc Họa Mi',
+    artCaption: 'Tạo hình hoạt hình 3D trong trẻo và đáng yêu của Emm',
     tag: '✦ Rạng Ngời'
-  },
-  {
-    id: 'photo-ai-2',
-    src: './assets/images/stickers/sticker-3d-daisy.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Nàng Thơ Cúc Họa Mi',
-    caption: 'Tạo hình 3D Pixar & Pop Mart trong trẻo, đáng yêu của Emm',
-    tag: '✦ 3D Pixar AI',
-    isAiArt: true
   },
   {
     id: 'photo-3',
     src: './assets/images/IMG_2652.JPG',
+    artSrc: './assets/images/stickers/sticker-anime-balcony.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Trong Trẻo & Đáng Yêu',
     caption: 'Nét dịu dàng, trong sáng tựa như những đóa hoa Tulip sớm mai',
+    artTitle: 'Nắng Mai Trên Ban Công',
+    artCaption: 'Nét vẽ Anime trong trẻo giữa khung trời xanh dịu mát',
     tag: '✦ Dịu Dàng'
-  },
-  {
-    id: 'photo-ai-3',
-    src: './assets/images/stickers/sticker-watercolor-grad.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Tân Cử Nhân Rạng Rỡ',
-    caption: 'Tranh màu nước Storybook lưu giữ khoảnh khắc thanh xuân tươi đẹp',
-    tag: '✦ Storybook AI',
-    isAiArt: true
   },
   {
     id: 'photo-4',
     src: './assets/images/IMG_7101.JPG',
+    artSrc: './assets/images/stickers/sticker-watercolor-grad.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
+    artTitle: 'Tân Cử Nhân Rạng Rỡ',
+    artCaption: 'Tranh màu nước ấm áp lưu giữ khoảnh khắc thanh xuân tươi đẹp',
     tag: '✦ Tinh Khôi'
-  },
-  {
-    id: 'photo-ai-4',
-    src: './assets/images/stickers/sticker-webtoon-glasses.jpg',
-    fallbackSrc: './assets/images/hero-portrait.jpg',
-    title: 'Nét Trong Trẻo Webtoon',
-    caption: 'Phong cách Manhwa Hàn Quốc ngọt ngào và dịu dàng',
-    tag: '✦ Webtoon AI',
-    isAiArt: true
   },
   {
     id: 'photo-5',
     src: './assets/images/IMG_1660.jpg',
+    artSrc: './assets/images/stickers/sticker-webtoon-glasses.jpg',
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Bình Yên & Tươi Vui',
     caption: 'Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc mỗi ngày',
+    artTitle: 'Nét Trong Trẻo Hàn Quốc',
+    artCaption: 'Phong cách tranh vẽ Manhwa ngọt ngào và cuốn hút',
     tag: '✦ Hạnh Phúc'
   }
 ];
