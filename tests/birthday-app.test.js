@@ -1502,6 +1502,40 @@ test('17. Toast suppression across all interactions & Mobile-optimized multi-lan
   particles.draw();
   assert.ok(drawnRects.length >= 4, 'Should draw wish ribbon pills for all interactive lanterns');
   particles.destroy();
+
+  // 3. Verify tapping a Tulip in the bouquet updates #flower-blessing-wish below the bouquet without showing #live-toast
+  const tulipListeners = [];
+  const tulipNode = {
+    style: {},
+    classList: {
+      add: () => {},
+      remove: () => {}
+    },
+    addEventListener: (evt, fn) => {
+      if (evt === 'click') tulipListeners.push(fn);
+    }
+  };
+  const captionEl = { textContent: '' };
+  const toastEl = { textContent: '', style: {}, classList: { remove: () => {} } };
+  const bouquetSvg = {
+    querySelectorAll: (sel) => (sel === '.bouquet-flower-node' ? [tulipNode] : [])
+  };
+  const mockDoc = {
+    getElementById: (id) => {
+      if (id === 'interactive-bouquet-svg') return bouquetSvg;
+      if (id === 'flower-blessing-wish') return captionEl;
+      if (id === 'live-toast') return toastEl;
+      return null;
+    }
+  };
+  import('../src/app.js').then(({ BirthdayAppController }) => {
+    const ctrl = new BirthdayAppController(mockDoc, new BirthdayStateStore(null));
+    ctrl.initInteractiveTulips();
+    assert.equal(tulipListeners.length, 1);
+    tulipListeners[0]({ stopPropagation: () => {} });
+    assert.ok(captionEl.textContent.includes('Đóa Tulip 1'), 'Clicking tulip must display wish in #flower-blessing-wish below bouquet');
+    assert.equal(toastEl.textContent, '', 'Clicking tulip must not trigger top toast notification');
+  });
 });
 
 

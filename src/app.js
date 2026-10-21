@@ -1762,8 +1762,21 @@ export class BirthdayAppController {
     const bouquetSvg = this.doc.getElementById('interactive-bouquet-svg');
     if (!bouquetSvg) return;
     const nodes = bouquetSvg.querySelectorAll ? bouquetSvg.querySelectorAll('.bouquet-flower-node') : [];
+    const wishes = [
+      '✦ Đóa Tulip 1: Chúc Diểm Phúc luôn rạng ngời và ngập tràn niềm vui!',
+      '✦ Đóa Tulip 2: Nụ cười dịu dàng của Emm làm bừng sáng cả không gian!',
+      '✦ Đóa Tulip 3: Mong Emm luôn bình an, may mắn trên mọi bước đường!',
+      '✦ Đóa Tulip 4: Chúc thanh xuân của Emm luôn tươi thắm và ngọt ngào!',
+      '✦ Đóa Tulip 5: Đóa hoa đẹp nhất ngày 20/10 gửi tặng Diểm Phúc!',
+      '✦ Đóa Tulip 6: Mong Emm luôn được yêu thương, trân trọng và nâng niu!',
+      '✦ Đóa Tulip 7: Sự ấm áp và tinh tế rất riêng làm nên sức hút của Emm!',
+      '✦ Đóa Tulip 8: Chúc mọi ước mơ trong tim Emm sớm thành hiện thực!',
+      '✦ Đóa Tulip 9: Luôn giữ mãi nét hồn nhiên, tươi vui và yêu đời nhé!',
+      '✦ Đóa Tulip 10: Vẻ đẹp trong trẻo, chân thành tựa hoa Tulip sớm mai!',
+      '✦ Đóa Tulip 11: Chúc Diểm Phúc ngày 20/10 vạn sự như ý & hạnh phúc!'
+    ];
 
-    nodes.forEach((node) => {
+    nodes.forEach((node, idx) => {
       if (node.style) node.style.cursor = 'pointer';
       node.addEventListener('click', (e) => {
         if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
@@ -1777,6 +1790,11 @@ export class BirthdayAppController {
         }
         if (typeof this.particles.triggerFlowerShower === 'function') {
           this.particles.triggerFlowerShower(16);
+        }
+        const wishText = wishes[idx % wishes.length];
+        const captionEl = this.doc.getElementById('flower-blessing-wish');
+        if (captionEl) {
+          captionEl.textContent = wishText;
         }
       });
     });
