@@ -1381,18 +1381,12 @@ button,
   justify-content: space-between;
   gap: var(--space-3);
   pointer-events: none;
+  transition: opacity 0.28s ease;
 }
 
-.portrait-caption-group.caption-art {
-  display: none;
-}
-
-.photo-card-item.is-art-mode .portrait-caption-group.caption-real {
-  display: none;
-}
-
-.photo-card-item.is-art-mode .portrait-caption-group.caption-art {
-  display: block;
+.photo-card-item.is-art-mode .portrait-overlay-bar {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .portrait-caption-title {

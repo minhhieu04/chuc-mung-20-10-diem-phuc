@@ -1085,7 +1085,9 @@ test('15. Icon-Only Navbar Theme Button, 5 Main Photo Cards with Per-Card Art To
   assert.equal(htmlContent.includes('data-index="5"'), false, '#photo-card-deck must only have 5 main cards (0-4)');
   assert.ok(htmlContent.includes('class="card-art-toggle-btn"'), 'Each card must include .card-art-toggle-btn');
   assert.ok(htmlContent.includes('<span class="art-toggle-label">Xem tranh vẽ</span>'), 'Toggle button must say "Xem tranh vẽ" without "AI"');
-  assert.equal(htmlContent.includes('portrait-overlay-bar'), false, 'Bottom caption overlay bar (.portrait-overlay-bar) must be removed from photo cards');
+  assert.ok(htmlContent.includes('class="portrait-overlay-bar"'), 'Original 5 real photos must keep their .portrait-overlay-bar captions');
+  assert.equal(htmlContent.includes('caption-art'), false, 'AI-related art caption blocks (.caption-art) must be removed');
+  assert.ok(cssContent.includes('.photo-card-item.is-art-mode .portrait-overlay-bar'), 'CSS must hide .portrait-overlay-bar when viewing the art version');
 
   // 5. Verify Symmetrical Bidirectional Swipe & Per-Card Art Toggle in BirthdayAppController
   const elementsById = new Map();

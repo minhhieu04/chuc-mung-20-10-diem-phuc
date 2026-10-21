@@ -90,8 +90,6 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Diểm Phúc',
     caption: 'Nụ cười dịu dàng của Emm tỏa sáng ngày 20/10',
-    artTitle: 'Cô Nàng Ôm Hoa Giấy Hồng',
-    artCaption: 'Phiên bản Chibi Kawaii mắt long lanh ngọt ngào',
     tag: '✦ Nụ Cười Tỏa Nắng'
   },
   {
@@ -101,8 +99,6 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Rạng Rỡ & Duyên Dáng',
     caption: 'Chỉ cần một nụ cười nhẹ nhàng cũng đủ làm bừng sáng cả không gian',
-    artTitle: 'Nàng Thơ Cúc Họa Mi',
-    artCaption: 'Tạo hình hoạt hình 3D trong trẻo và đáng yêu của Emm',
     tag: '✦ Rạng Ngời'
   },
   {
@@ -112,8 +108,6 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Trong Trẻo & Đáng Yêu',
     caption: 'Nét dịu dàng, trong sáng tựa như những đóa hoa Tulip sớm mai',
-    artTitle: 'Nắng Mai Trên Ban Công',
-    artCaption: 'Nét vẽ Anime trong trẻo giữa khung trời xanh dịu mát',
     tag: '✦ Dịu Dàng'
   },
   {
@@ -123,8 +117,6 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Thanh Xuân Rực Rỡ',
     caption: 'Mỗi khoảnh khắc của Emm đều mang lại nguồn năng lượng ấm áp và tích cực',
-    artTitle: 'Tân Cử Nhân Rạng Rỡ',
-    artCaption: 'Tranh màu nước ấm áp lưu giữ khoảnh khắc thanh xuân tươi đẹp',
     tag: '✦ Tinh Khôi'
   },
   {
@@ -134,8 +126,6 @@ const PHOTO_STACK_ITEMS = [
     fallbackSrc: './assets/images/hero-portrait.jpg',
     title: 'Bình Yên & Tươi Vui',
     caption: 'Chúc Emm luôn giữ mãi sự hồn nhiên, yêu đời và hạnh phúc mỗi ngày',
-    artTitle: 'Nét Trong Trẻo Hàn Quốc',
-    artCaption: 'Phong cách tranh vẽ Manhwa ngọt ngào và cuốn hút',
     tag: '✦ Hạnh Phúc'
   }
 ];
